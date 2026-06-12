@@ -1,13 +1,24 @@
-import { LoginForm } from "@/app/admin/login/login-form";
-import { isAdminUser } from "@/lib/auth/admin";
+import { LoginFormContainer } from "@/containers/auth/LoginFormContainer";
+import { isAdminUser } from "@/features/auth/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export default async function AdminLoginPage() {
+type AdminLoginPageProps = {
+  searchParams?: Promise<{
+    reason?: string;
+  }>;
+};
+
+export default async function AdminLoginPage({
+  searchParams,
+}: AdminLoginPageProps) {
+  const resolvedSearchParams = await searchParams;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const hasExpiredSession =
+    resolvedSearchParams?.reason === "session-expired";
 
   if (isAdminUser(user)) {
     redirect("/admin");
@@ -21,7 +32,12 @@ export default async function AdminLoginPage() {
         <p className="auth-panel__copy">
           Ingresa con el usuario administrador para gestionar el catalogo.
         </p>
-        <LoginForm />
+        {hasExpiredSession ? (
+          <p className="auth-panel__message" role="status">
+            Sesion vencida por inactividad.
+          </p>
+        ) : null}
+        <LoginFormContainer />
       </section>
     </main>
   );

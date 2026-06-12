@@ -1,15 +1,12 @@
-"use client";
+import type { AuthFormState } from "@/features/auth/actions";
 
-import { login, type AuthFormState } from "@/app/admin/actions";
-import { useActionState } from "react";
-
-const initialState: AuthFormState = {
-  message: "",
+type LoginFormProps = {
+  action: (formData: FormData) => void;
+  pending: boolean;
+  state: AuthFormState;
 };
 
-export function LoginForm() {
-  const [state, action, pending] = useActionState(login, initialState);
-
+export function LoginForm({ action, pending, state }: LoginFormProps) {
   return (
     <form action={action} className="auth-form">
       <label className="form-field" htmlFor="email">
@@ -46,3 +43,4 @@ export function LoginForm() {
     </form>
   );
 }
+

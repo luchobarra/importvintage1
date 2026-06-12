@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import { isAdminUser } from "@/lib/auth/admin";
+import { isAdminUser } from "@/features/auth/admin";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {

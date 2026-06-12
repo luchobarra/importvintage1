@@ -1,29 +1,25 @@
-import { ProductForm } from "@/app/admin/(protected)/productos/nuevo/product-form";
+import { AdminHeader } from "@/components/admin/AdminHeader";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { ProductFormContainer } from "@/containers/products/ProductFormContainer";
 import Link from "next/link";
 
 export default function NewProductPage() {
   return (
-    <main className="admin-page">
-      <section className="admin-shell">
-        <header className="admin-header">
-          <div>
-            <p className="admin-header__eyebrow">Productos</p>
-            <h1>Nuevo producto</h1>
-            <p className="admin-header__session">
-              Carga la informacion de la prenda y entre 1 y 5 fotos. La primera
-              imagen se usa como foto principal.
-            </p>
-          </div>
-
+    <AdminShell>
+      <AdminHeader
+        eyebrow="Productos"
+        title="Nuevo producto"
+        description="Carga la informacion de la prenda y entre 1 y 5 fotos. La primera imagen se usa como foto principal."
+        actions={
           <Link className="button" href="/admin">
             Volver
           </Link>
-        </header>
+        }
+      />
 
-        <section className="admin-form-panel">
-          <ProductForm />
-        </section>
+      <section className="admin-form-panel">
+        <ProductFormContainer />
       </section>
-    </main>
+    </AdminShell>
   );
 }

@@ -1,4 +1,5 @@
-import { isAdminUser } from "@/lib/auth/admin";
+import { AdminSessionTimeoutContainer } from "@/containers/auth/AdminSessionTimeoutContainer";
+import { isAdminUser } from "@/features/auth/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -16,5 +17,5 @@ export default async function ProtectedAdminLayout({
     redirect("/admin/login");
   }
 
-  return <>{children}</>;
+  return <AdminSessionTimeoutContainer>{children}</AdminSessionTimeoutContainer>;
 }
