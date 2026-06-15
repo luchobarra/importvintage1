@@ -1,14 +1,35 @@
+import { CatalogPagination } from "@/components/catalog/CatalogPagination";
+import { CatalogResultsSummary } from "@/components/catalog/CatalogResultsSummary";
 import { EmptyCatalog } from "@/components/catalog/EmptyCatalog";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
-import { getAvailableProducts } from "@/features/products/queries";
+import {
+  createPublicCatalogHref,
+  emptyPublicCatalogState,
+  hasPublicProductFilters,
+  type PublicCatalogState,
+} from "@/features/products/public-filters";
+import { getAvailableProductsPage } from "@/features/products/queries";
 import type { Product } from "@/features/products/types";
+import Link from "next/link";
 
-export async function ProductGridContainer() {
+type ProductGridContainerProps = {
+  state?: PublicCatalogState;
+};
+
+export async function ProductGridContainer({
+  state = emptyPublicCatalogState,
+}: ProductGridContainerProps) {
   let products: Product[] = [];
+  let totalCount = 0;
   let errorMessage = "";
+  const hasFilters = hasPublicProductFilters(state);
+  const catalogHref = createPublicCatalogHref(state);
 
   try {
-    products = await getAvailableProducts();
+    const result = await getAvailableProductsPage(state);
+
+    products = result.products;
+    totalCount = result.totalCount;
   } catch (error) {
     errorMessage =
       error instanceof Error ? error.message : "No se pudo conectar Supabase.";
@@ -25,6 +46,41 @@ export async function ProductGridContainer() {
   }
 
   if (products.length === 0) {
+    if (hasFilters) {
+      return (
+        <>
+          <CatalogResultsSummary totalCount={totalCount} />
+          <EmptyCatalog
+            title="No encontramos productos"
+            message="Proba cambiar o limpiar los filtros."
+          >
+            <Link className="button button--primary" href="/">
+              Limpiar filtros
+            </Link>
+          </EmptyCatalog>
+        </>
+      );
+    }
+
+    if (totalCount > 0 && state.page > 1) {
+      return (
+        <>
+          <CatalogResultsSummary totalCount={totalCount} />
+          <EmptyCatalog
+            title="No hay productos en esta pagina"
+            message="Volvé a la primera página o limpiá los filtros."
+          >
+            <Link
+              className="button button--primary"
+              href={createPublicCatalogHref(state, 1)}
+            >
+              Ver primera pagina
+            </Link>
+          </EmptyCatalog>
+        </>
+      );
+    }
+
     return (
       <EmptyCatalog
         title="No hay prendas cargadas"
@@ -33,6 +89,11 @@ export async function ProductGridContainer() {
     );
   }
 
-  return <ProductGrid products={products} />;
+  return (
+    <>
+      <CatalogResultsSummary totalCount={totalCount} />
+      <ProductGrid catalogHref={catalogHref} products={products} />
+      <CatalogPagination state={state} totalCount={totalCount} />
+    </>
+  );
 }
-

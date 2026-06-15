@@ -1,21 +1,22 @@
+import { formatProductPrice } from "@/features/products/formatters";
+import { createPublicProductDetailHref } from "@/features/products/public-filters";
 import type { Product } from "@/features/products/types";
 import Image from "next/image";
-
-const currencyFormatter = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
+import Link from "next/link";
 
 type ProductCardProps = {
+  catalogHref: string;
   product: Product;
 };
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ catalogHref, product }: ProductCardProps) {
   const mainImage = product.product_images[0];
 
   return (
-    <article className="product-card">
+    <Link
+      className="product-card"
+      href={createPublicProductDetailHref(product.id, catalogHref)}
+    >
       <div className="product-card__image">
         {mainImage ? (
           <Image
@@ -33,10 +34,9 @@ export function ProductCard({ product }: ProductCardProps) {
         <h2>{product.title}</h2>
         <p className="product-card__meta">Talle {product.size}</p>
         <p className="product-card__price">
-          {currencyFormatter.format(product.price)}
+          {formatProductPrice(product.price)}
         </p>
       </div>
-    </article>
+    </Link>
   );
 }
-

@@ -1,6 +1,19 @@
+import { CatalogFilters } from "@/components/catalog/CatalogFilters";
 import { ProductGridContainer } from "@/containers/catalog/ProductGridContainer";
+import {
+  hasPublicCatalogControls,
+  parsePublicCatalogState,
+  type PublicProductSearchParams,
+} from "@/features/products/public-filters";
 
-export default async function Home() {
+type HomeProps = {
+  searchParams: Promise<PublicProductSearchParams>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const catalogState = parsePublicCatalogState(await searchParams);
+  const hasActiveControls = hasPublicCatalogControls(catalogState);
+
   return (
     <main className="home">
       <section className="home__container">
@@ -14,7 +27,11 @@ export default async function Home() {
           </a>
         </header>
 
-        <ProductGridContainer />
+        <CatalogFilters
+          hasActiveControls={hasActiveControls}
+          state={catalogState}
+        />
+        <ProductGridContainer state={catalogState} />
       </section>
     </main>
   );
