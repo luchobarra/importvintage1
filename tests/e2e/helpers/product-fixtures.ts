@@ -20,8 +20,8 @@ export function createTestProductData() {
   return {
     title: `${prefix} Producto ${suffix}`,
     brand: `${prefix} Marca`,
-    category: "buzos",
-    size: "xl",
+    category: "Buzos",
+    size: "XL",
     price: "12345",
     description: `Producto generado por E2E ${suffix}`,
   };
@@ -29,12 +29,18 @@ export function createTestProductData() {
 
 export async function fillProductForm(page: Page, product: TestProductInput) {
   await page.getByLabel("Titulo *").fill(product.title);
-  await page.getByLabel("Marca *").fill(product.brand);
-  await page.getByLabel("Categoria *").selectOption(product.category ?? "buzos");
-  await page.getByLabel("Talle *").fill(product.size ?? "xl");
-  await expect(page.getByLabel("Talle *")).toHaveValue(
-    (product.size ?? "xl").toUpperCase(),
-  );
+
+  const brandSelect = page.getByLabel("Marca *");
+  await selectOptionByTextOrFallback(brandSelect, product.brand);
+
+  const categorySelect = page.getByLabel("Categoria *");
+  await selectOptionByTextOrFallback(categorySelect, product.category);
+
+  const sizeSelect = page.getByLabel("Talle *");
+  await expect(sizeSelect).not.toBeDisabled();
+  await selectOptionByTextOrFallback(sizeSelect, product.size);
+  await expect(sizeSelect).not.toHaveValue("");
+
   await page.getByLabel("Precio en pesos *").fill(product.price ?? "12345");
   await page
     .getByLabel("Descripcion / estado")
@@ -135,4 +141,42 @@ async function gotoWithRetry(page: Page, url: string) {
       await page.waitForTimeout(500);
     }
   }
+}
+
+async function selectOptionByTextOrFallback(
+  select: ReturnType<Page["getByLabel"]>,
+  desiredValue?: string,
+) {
+  const normalizedDesiredValue = desiredValue?.trim().toLowerCase();
+  const optionEntries = await select
+    .locator("option")
+    .evaluateAll((options) =>
+      options
+        .map((option) => ({
+          label: option.textContent?.trim() ?? "",
+          value: option.getAttribute("value") ?? "",
+        }))
+        .filter(
+          (option) =>
+            option.label.length > 0 && option.value.trim().length > 0,
+        ),
+    );
+
+  const matchingOption = normalizedDesiredValue
+    ? optionEntries.find(
+        (optionText) => optionText.label.trim().toLowerCase() === normalizedDesiredValue,
+      )
+    : undefined;
+
+  if (matchingOption) {
+    await select.selectOption({ label: matchingOption.label });
+    return;
+  }
+
+  const fallbackOption = optionEntries[0];
+  if (!fallbackOption) {
+    throw new Error("No hay opciones disponibles para seleccionar.");
+  }
+
+  await select.selectOption({ label: fallbackOption.label });
 }

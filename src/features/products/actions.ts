@@ -1,10 +1,7 @@
 "use server";
 
 import { isAdminUser } from "@/features/auth/admin";
-import {
-  PRODUCT_CATEGORIES,
-  PRODUCT_DESCRIPTION_MAX_LENGTH,
-} from "@/features/products/constants";
+import { PRODUCT_DESCRIPTION_MAX_LENGTH } from "@/features/products/constants";
 import { getPriceDigits } from "@/features/products/form-validation";
 import type { ProductImageInput } from "@/features/products/types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -40,15 +37,15 @@ export async function createProductDraft(
   }
 
   const title = String(formData.get("title") ?? "").trim();
-  const brand = String(formData.get("brand") ?? "").trim();
-  const category = String(formData.get("category") ?? "").trim();
-  const size = String(formData.get("size") ?? "").trim().toUpperCase();
+  const brandId = String(formData.get("brand") ?? "").trim();
+  const categoryId = String(formData.get("category") ?? "").trim();
+  const sizeId = String(formData.get("size") ?? "").trim();
   const rawPriceValue = String(formData.get("price") ?? "").trim();
   const priceValue = getPriceDigits(rawPriceValue);
   const description = String(formData.get("description") ?? "").trim();
   const price = Number(priceValue);
 
-  if (!title || !brand || !category || !size || !priceValue || !description) {
+  if (!title || !brandId || !categoryId || !sizeId || !priceValue || !description) {
     return {
       message: "Completa todos los campos obligatorios.",
       success: false,
@@ -58,13 +55,6 @@ export async function createProductDraft(
   if (rawPriceValue !== priceValue) {
     return {
       message: "El precio solo permite numeros.",
-      success: false,
-    };
-  }
-
-  if (!PRODUCT_CATEGORIES.includes(category as (typeof PRODUCT_CATEGORIES)[number])) {
-    return {
-      message: "Selecciona una categoria valida.",
       success: false,
     };
   }
@@ -83,13 +73,26 @@ export async function createProductDraft(
     };
   }
 
+  const catalogSelection = await getCatalogSelection({
+    brandId,
+    categoryId,
+    sizeId,
+  });
+
+  if (!catalogSelection.success) {
+    return catalogSelection;
+  }
+
   const { data: product, error } = await supabase
     .from("products")
     .insert({
       title,
-      brand,
-      category,
-      size,
+      brand_id: brandId,
+      brand: catalogSelection.brand.name,
+      category_id: categoryId,
+      category: catalogSelection.category.slug,
+      size_id: sizeId,
+      size: catalogSelection.size.value,
       price,
       description,
       status: "available",
@@ -187,9 +190,9 @@ export async function updateProduct(
   }
 
   const title = String(formData.get("title") ?? "").trim();
-  const brand = String(formData.get("brand") ?? "").trim();
-  const category = String(formData.get("category") ?? "").trim();
-  const size = String(formData.get("size") ?? "").trim().toUpperCase();
+  const brandId = String(formData.get("brand") ?? "").trim();
+  const categoryId = String(formData.get("category") ?? "").trim();
+  const sizeId = String(formData.get("size") ?? "").trim();
   const rawPriceValue = String(formData.get("price") ?? "").trim();
   const priceValue = getPriceDigits(rawPriceValue);
   const description = String(formData.get("description") ?? "").trim();
@@ -198,9 +201,9 @@ export async function updateProduct(
   if (
     !productId ||
     !title ||
-    !brand ||
-    !category ||
-    !size ||
+    !brandId ||
+    !categoryId ||
+    !sizeId ||
     !priceValue ||
     !description
   ) {
@@ -213,13 +216,6 @@ export async function updateProduct(
   if (rawPriceValue !== priceValue) {
     return {
       message: "El precio solo permite numeros.",
-      success: false,
-    };
-  }
-
-  if (!PRODUCT_CATEGORIES.includes(category as (typeof PRODUCT_CATEGORIES)[number])) {
-    return {
-      message: "Selecciona una categoria valida.",
       success: false,
     };
   }
@@ -238,13 +234,26 @@ export async function updateProduct(
     };
   }
 
+  const catalogSelection = await getCatalogSelection({
+    brandId,
+    categoryId,
+    sizeId,
+  });
+
+  if (!catalogSelection.success) {
+    return catalogSelection;
+  }
+
   const { error } = await supabase
     .from("products")
     .update({
       title,
-      brand,
-      category,
-      size,
+      brand_id: brandId,
+      brand: catalogSelection.brand.name,
+      category_id: categoryId,
+      category: catalogSelection.category.slug,
+      size_id: sizeId,
+      size: catalogSelection.size.value,
       price,
       description,
     })
@@ -259,6 +268,98 @@ export async function updateProduct(
 
   return {
     message: "Producto actualizado correctamente.",
+    success: true,
+  };
+}
+
+async function getCatalogSelection({
+  brandId,
+  categoryId,
+  sizeId,
+}: {
+  brandId: string;
+  categoryId: string;
+  sizeId: string;
+}): Promise<
+  | {
+      brand: { id: string; name: string };
+      category: {
+        id: string;
+        name: string;
+        slug: string;
+        sizes_letter_enabled: boolean;
+        sizes_numeric_enabled: boolean;
+      };
+      size: { id: string; label: string; value: string };
+      success: true;
+    }
+  | {
+      message: string;
+      success: false;
+    }
+> {
+  const supabase = await createSupabaseServerClient();
+  const [brandResult, categoryResult, sizeResult] = await Promise.all([
+      supabase
+        .from("catalog_brands")
+        .select("id, name")
+        .eq("id", brandId)
+        .eq("is_active", true)
+        .single(),
+      supabase
+        .from("catalog_categories")
+        .select(
+          "id, name, slug, sizes_letter_enabled, sizes_numeric_enabled",
+        )
+        .eq("id", categoryId)
+        .eq("is_active", true)
+        .single(),
+      supabase
+        .from("catalog_sizes")
+        .select("id, label, value, size_group")
+        .eq("id", sizeId)
+        .eq("is_active", true)
+        .single(),
+    ]);
+
+  if (brandResult.error || !brandResult.data) {
+    return { message: "Selecciona una marca valida.", success: false };
+  }
+
+  if (categoryResult.error || !categoryResult.data) {
+    return { message: "Selecciona una categoria valida.", success: false };
+  }
+
+  if (sizeResult.error || !sizeResult.data) {
+    return { message: "Selecciona un talle valido.", success: false };
+  }
+
+  if (
+    !categoryResult.data.sizes_letter_enabled &&
+    !categoryResult.data.sizes_numeric_enabled
+  ) {
+    return {
+      message: "La categoria no tiene talles habilitados.",
+      success: false,
+    };
+  }
+
+  const sizeGroup = sizeResult.data.size_group;
+  const categoryAllowsSize =
+    (sizeGroup === "letter" && categoryResult.data.sizes_letter_enabled) ||
+    (sizeGroup === "numeric" && categoryResult.data.sizes_numeric_enabled);
+
+  if (!categoryAllowsSize) {
+    return {
+      message: "El talle seleccionado no corresponde a esa categoria.",
+      success: false,
+    };
+  }
+
+  return {
+    brand: brandResult.data,
+    category: categoryResult.data,
+    size: sizeResult.data,
     success: true,
   };
 }

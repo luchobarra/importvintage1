@@ -1,4 +1,5 @@
 import { isAdminUser } from "@/features/auth/admin";
+import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
 import {
   emptyPublicCatalogState,
   PUBLIC_PRODUCTS_PAGE_SIZE,
@@ -7,44 +8,76 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Product } from "@/features/products/types";
 
+const PRODUCT_SELECT = `
+  id,
+  title,
+  brand_id,
+  brand,
+  category_id,
+  category,
+  size_id,
+  size,
+  price,
+  description,
+  status,
+  catalog_brands (
+    id,
+    name,
+    slug,
+    is_active
+  ),
+  catalog_categories (
+    id,
+    name,
+    slug,
+    is_active,
+    sizes_letter_enabled,
+    sizes_numeric_enabled
+  ),
+  catalog_sizes (
+    id,
+    label,
+    value,
+    is_active
+  ),
+  product_images (
+    id,
+    image_url,
+    image_path,
+    position
+  )
+`;
+
 export async function getAvailableProductsPage(
   state: PublicCatalogState = emptyPublicCatalogState,
 ) {
   const supabase = await createSupabaseServerClient();
+  const catalogOptions = await getPublicCatalogOptions();
+  const selectedBrand = catalogOptions.brands.find(
+    (brand) => brand.slug === state.brand,
+  );
+  const selectedCategory = catalogOptions.categories.find(
+    (category) => category.slug === state.category,
+  );
+  const selectedSize = catalogOptions.sizes.find(
+    (size) => size.value === state.size,
+  );
 
   let query = supabase
     .from("products")
-    .select(
-      `
-        id,
-        title,
-        brand,
-        category,
-        size,
-        price,
-        description,
-        status,
-        product_images (
-          id,
-          image_url,
-          image_path,
-          position
-        )
-      `,
-      { count: "exact" },
-    )
+    .select(PRODUCT_SELECT, { count: "exact" })
     .eq("status", "available");
 
-  if (state.brand) {
-    query = query.ilike("brand", `%${state.brand}%`);
+  if (selectedBrand) {
+    query = query.eq("brand_id", selectedBrand.id);
   }
 
-  if (state.category) {
-    query = query.eq("category", state.category);
+  if (selectedCategory) {
+    query = query.eq("category_id", selectedCategory.id);
   }
 
-  if (state.size) {
-    query = query.eq("size", state.size);
+  if (selectedSize) {
+    query = query.eq("size_id", selectedSize.id);
   }
 
   if (state.sort === "price_asc") {
@@ -68,7 +101,7 @@ export async function getAvailableProductsPage(
     throw new Error(error.message);
   }
 
-  const products = (data ?? []) as Product[];
+  const products = (data ?? []) as unknown as Product[];
 
   return {
     products,
@@ -87,24 +120,7 @@ export async function getAvailableProductById(productId: string) {
 
   const { data, error } = await supabase
     .from("products")
-    .select(
-      `
-        id,
-        title,
-        brand,
-        category,
-        size,
-        price,
-        description,
-        status,
-        product_images (
-          id,
-          image_url,
-          image_path,
-          position
-        )
-      `,
-    )
+    .select(PRODUCT_SELECT)
     .eq("id", productId)
     .eq("status", "available")
     .order("position", {
@@ -117,7 +133,7 @@ export async function getAvailableProductById(productId: string) {
     throw new Error(error.message);
   }
 
-  return data as Product;
+  return data as unknown as Product;
 }
 
 export async function getAdminProducts() {
@@ -132,24 +148,7 @@ export async function getAdminProducts() {
 
   const { data, error } = await supabase
     .from("products")
-    .select(
-      `
-        id,
-        title,
-        brand,
-        category,
-        size,
-        price,
-        description,
-        status,
-        product_images (
-          id,
-          image_url,
-          image_path,
-          position
-        )
-      `,
-    )
+    .select(PRODUCT_SELECT)
     .order("created_at", { ascending: false })
     .order("position", {
       ascending: true,
@@ -160,7 +159,7 @@ export async function getAdminProducts() {
     throw new Error(error.message);
   }
 
-  return (data ?? []) as Product[];
+  return (data ?? []) as unknown as Product[];
 }
 
 export async function getAdminProductById(productId: string) {
@@ -175,24 +174,7 @@ export async function getAdminProductById(productId: string) {
 
   const { data, error } = await supabase
     .from("products")
-    .select(
-      `
-        id,
-        title,
-        brand,
-        category,
-        size,
-        price,
-        description,
-        status,
-        product_images (
-          id,
-          image_url,
-          image_path,
-          position
-        )
-      `,
-    )
+    .select(PRODUCT_SELECT)
     .eq("id", productId)
     .order("position", {
       ascending: true,
@@ -204,5 +186,5 @@ export async function getAdminProductById(productId: string) {
     throw new Error(error.message);
   }
 
-  return data as Product;
+  return data as unknown as Product;
 }

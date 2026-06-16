@@ -1,5 +1,3 @@
-import { PRODUCT_CATEGORIES } from "@/features/products/constants";
-
 export const PUBLIC_PRODUCTS_PAGE_SIZE = 12;
 export const DEFAULT_PUBLIC_PRODUCT_SORT = "newest";
 
@@ -35,11 +33,9 @@ export const emptyPublicCatalogState: PublicCatalogState = {
 export function parsePublicProductFilters(
   searchParams: PublicProductSearchParams,
 ): PublicProductFilters {
-  const category = getSearchParamValue(searchParams.category);
-
   return {
     brand: getSearchParamValue(searchParams.brand),
-    category: isPublicCategory(category) ? category : "",
+    category: getSearchParamValue(searchParams.category),
     size: getSearchParamValue(searchParams.size).toUpperCase(),
   };
 }
@@ -148,10 +144,4 @@ function getSearchParamValue(value: string | string[] | undefined) {
   }
 
   return value?.trim() ?? "";
-}
-
-function isPublicCategory(value: string) {
-  return PRODUCT_CATEGORIES.includes(
-    value as (typeof PRODUCT_CATEGORIES)[number],
-  );
 }

@@ -1,4 +1,5 @@
 import { ImageUploader } from "@/components/products/ImageUploader";
+import type { CatalogOptions } from "@/features/catalog-options/types";
 import type { SelectedImage } from "@/features/images/types";
 import type { ProductFormState } from "@/features/products/actions";
 import {
@@ -27,7 +28,10 @@ type ProductFormProps = {
   images: SelectedImage[];
   isDragging: boolean;
   isPending: boolean;
+  options: CatalogOptions;
+  selectedCategoryId: string;
   state: ProductFormState;
+  onCategoryChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   onDragChange: (isDragging: boolean) => void;
   onDrop: (event: DragEvent<HTMLDivElement>) => void;
   onFieldBlur: (
@@ -43,7 +47,6 @@ type ProductFormProps = {
   onFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onPriceChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onRemoveImage: (imageId: string) => void;
-  onSizeChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
@@ -57,7 +60,10 @@ export function ProductForm({
   images,
   isDragging,
   isPending,
+  options,
+  selectedCategoryId,
   state,
+  onCategoryChange,
   onDragChange,
   onDrop,
   onFieldBlur,
@@ -65,9 +71,10 @@ export function ProductForm({
   onFileChange,
   onPriceChange,
   onRemoveImage,
-  onSizeChange,
   onSubmit,
 }: ProductFormProps) {
+  const availableSizes = getAvailableSizes(options, selectedCategoryId);
+
   return (
     <form className="product-form" noValidate onSubmit={onSubmit} ref={formRef}>
       <div className="product-form__grid">
@@ -88,16 +95,23 @@ export function ProductForm({
 
         <label className={getFieldClassName(fieldErrors.brand)} htmlFor="brand">
           <span>Marca *</span>
-          <input
+          <select
             aria-describedby={getErrorId("brand", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.brand)}
+            disabled={options.brands.length === 0}
             id="brand"
             name="brand"
             onBlur={onFieldBlur}
             onChange={onFieldChange}
             required
-            type="text"
-          />
+          >
+            <option value="">Seleccionar</option>
+            {options.brands.map((brand) => (
+              <option key={brand.id} value={brand.id}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
           <FieldError fieldName="brand" errors={fieldErrors} />
         </label>
 
@@ -109,36 +123,47 @@ export function ProductForm({
           <select
             aria-describedby={getErrorId("category", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.category)}
+            disabled={options.categories.length === 0}
             id="category"
             name="category"
             onBlur={onFieldBlur}
-            onChange={onFieldChange}
+            onChange={onCategoryChange}
             required
           >
             <option value="">Seleccionar</option>
-            <option value="pantalones">Pantalones</option>
-            <option value="buzos">Buzos</option>
-            <option value="polar">Polar</option>
+            {options.categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
           </select>
           <FieldError fieldName="category" errors={fieldErrors} />
         </label>
 
         <label className={getFieldClassName(fieldErrors.size)} htmlFor="size">
           <span>Talle *</span>
-          <input
+          <select
             aria-describedby={getErrorId("size", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.size)}
-            className="input-uppercase"
+            disabled={!selectedCategoryId || availableSizes.length === 0}
             id="size"
+            key={selectedCategoryId}
             name="size"
             onBlur={onFieldBlur}
-            onChange={(event) => {
-              onSizeChange(event);
-              onFieldChange(event);
-            }}
+            onChange={onFieldChange}
             required
-            type="text"
-          />
+          >
+            <option value="">
+              {selectedCategoryId
+                ? "Seleccionar"
+                : "Selecciona una categoria primero"}
+            </option>
+            {availableSizes.map((size) => (
+              <option key={size.id} value={size.id}>
+                {size.label}
+              </option>
+            ))}
+          </select>
           <FieldError fieldName="size" errors={fieldErrors} />
         </label>
 
@@ -248,4 +273,34 @@ function getFieldClassName(error?: string) {
 
 function getDescriptionAriaDescribedBy(errors: ProductFieldErrors) {
   return errors.description ? "description-error" : undefined;
+}
+
+function getAvailableSizes(options: CatalogOptions, selectedCategoryId: string) {
+  if (!selectedCategoryId) {
+    return options.sizes;
+  }
+
+  const selectedCategory = options.categories.find(
+    (category) => category.id === selectedCategoryId,
+  );
+
+  if (!selectedCategory) {
+    return options.sizes;
+  }
+
+  const allowedGroups = new Set<string>();
+
+  if (selectedCategory.sizes_letter_enabled) {
+    allowedGroups.add("letter");
+  }
+
+  if (selectedCategory.sizes_numeric_enabled) {
+    allowedGroups.add("numeric");
+  }
+
+  if (allowedGroups.size === 0) {
+    return [];
+  }
+
+  return options.sizes.filter((size) => allowedGroups.has(size.size_group));
 }

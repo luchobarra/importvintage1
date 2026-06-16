@@ -3,6 +3,10 @@ import {
   getCatalogReturnHref,
   type PublicProductSearchParams,
 } from "@/features/products/public-filters";
+import {
+  getProductBrandName,
+  getProductSizeLabel,
+} from "@/features/products/formatters";
 import { getAvailableProductById } from "@/features/products/queries";
 import type { Metadata } from "next";
 
@@ -25,7 +29,7 @@ export async function generateMetadata({
       title: `${product.title} | Catalogo Online`,
       description:
         product.description ??
-        `${product.brand} talle ${product.size} disponible en el catalogo.`,
+        `${getProductBrandName(product)} talle ${getProductSizeLabel(product)} disponible en el catalogo.`,
     };
   } catch {
     return {

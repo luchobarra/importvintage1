@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/ResultModal";
 import { ProductForm } from "@/components/products/ProductForm";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import type { CatalogOptions } from "@/features/catalog-options/types";
 import { optimizeImage } from "@/features/images/optimize-image";
 import type { SelectedImage, UploadProgress } from "@/features/images/types";
 import { withTimeout } from "@/features/images/with-timeout";
@@ -46,7 +47,11 @@ type ResultState = {
   variant: ResultModalVariant;
 };
 
-export function ProductFormContainer() {
+type ProductFormContainerProps = {
+  options: CatalogOptions;
+};
+
+export function ProductFormContainer({ options }: ProductFormContainerProps) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const formRef = useRef<HTMLFormElement>(null);
@@ -62,6 +67,7 @@ export function ProductFormContainer() {
   const [fieldErrors, setFieldErrors] = useState<ProductFieldErrors>({});
   const [imageErrorMessage, setImageErrorMessage] = useState("");
   const [descriptionLength, setDescriptionLength] = useState(0);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -109,12 +115,6 @@ export function ProductFormContainer() {
 
     startTransition(async () => {
       const formData = new FormData(form);
-      formData.set(
-        "size",
-        String(formData.get("size") ?? "")
-          .trim()
-          .toUpperCase(),
-      );
       formData.set(
         "price",
         getPriceDigits(String(formData.get("price") ?? "")),
@@ -228,6 +228,7 @@ export function ProductFormContainer() {
         images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
         setImages([]);
         form.reset();
+        setSelectedCategoryId("");
         setDescriptionLength(0);
         setFieldErrors({});
         setProgress(null);
@@ -275,12 +276,13 @@ export function ProductFormContainer() {
     event.target.value = "";
   }
 
-  function handleSizeChange(event: ChangeEvent<HTMLInputElement>) {
-    event.target.value = event.target.value.toUpperCase();
-  }
-
   function handlePriceChange(event: ChangeEvent<HTMLInputElement>) {
     event.target.value = formatProductPriceInput(event.target.value);
+    handleFieldChange(event);
+  }
+
+  function handleCategoryChange(event: ChangeEvent<HTMLSelectElement>) {
+    setSelectedCategoryId(event.currentTarget.value);
     handleFieldChange(event);
   }
 
@@ -458,6 +460,7 @@ export function ProductFormContainer() {
         images={images}
         isDragging={isDragging}
         isPending={isPending}
+        onCategoryChange={handleCategoryChange}
         onDragChange={setIsDragging}
         onDrop={handleDrop}
         onFieldBlur={handleFieldBlur}
@@ -465,8 +468,9 @@ export function ProductFormContainer() {
         onFileChange={handleFileChange}
         onPriceChange={handlePriceChange}
         onRemoveImage={removeImage}
-        onSizeChange={handleSizeChange}
         onSubmit={handleSubmit}
+        options={options}
+        selectedCategoryId={selectedCategoryId}
         state={state}
       />
       <ConfirmDialog

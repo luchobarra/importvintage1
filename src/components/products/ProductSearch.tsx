@@ -1,4 +1,3 @@
-import { PRODUCT_CATEGORIES } from "@/features/products/constants";
 import type { FormEvent } from "react";
 
 export type ProductSearchFilters = {
@@ -76,19 +75,14 @@ export function ProductSearch({
 
         <label className="form-field" htmlFor="product-search-category">
           <span>Categoria</span>
-          <select
+          <input
             id="product-search-category"
             name="product-search-category"
             onChange={(event) => onFilterChange("category", event.target.value)}
+            placeholder="Escribir categoria"
+            type="search"
             value={filters.category}
-          >
-            <option value="">Todas</option>
-            {PRODUCT_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {formatCategory(category)}
-              </option>
-            ))}
-          </select>
+          />
         </label>
 
         <label className="form-field" htmlFor="product-search-size">
@@ -126,8 +120,3 @@ export function ProductSearch({
     </form>
   );
 }
-
-function formatCategory(category: string) {
-  return category.charAt(0).toUpperCase() + category.slice(1);
-}
-

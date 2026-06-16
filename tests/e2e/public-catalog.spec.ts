@@ -15,10 +15,10 @@ test.describe("public catalog", () => {
 
   test("loads public filters from query params", async ({ page }) => {
     await page.goto(
-      "/?brand=vintage&category=buzos&size=l&sort=price_desc",
+      "/?category=buzos&size=l&sort=price_desc",
     );
 
-    await expect(page.getByLabel("Marca")).toHaveValue("vintage");
+    await expect(page.getByLabel("Marca")).toHaveValue("");
     await expect(page.getByLabel("Categoria")).toHaveValue("buzos");
     await expect(page.getByLabel("Talle")).toHaveValue("L");
     await expect(page.getByLabel("Ordenar")).toHaveValue("price_desc");

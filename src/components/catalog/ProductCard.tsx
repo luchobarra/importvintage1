@@ -1,4 +1,8 @@
-import { formatProductPrice } from "@/features/products/formatters";
+import {
+  formatProductPrice,
+  getProductBrandName,
+  getProductSizeLabel,
+} from "@/features/products/formatters";
 import { createPublicProductDetailHref } from "@/features/products/public-filters";
 import type { Product } from "@/features/products/types";
 import Image from "next/image";
@@ -30,9 +34,11 @@ export function ProductCard({ catalogHref, product }: ProductCardProps) {
         )}
       </div>
       <div className="product-card__body">
-        <p className="product-card__brand">{product.brand}</p>
+        <p className="product-card__brand">{getProductBrandName(product)}</p>
         <h2>{product.title}</h2>
-        <p className="product-card__meta">Talle {product.size}</p>
+        <p className="product-card__meta">
+          Talle {getProductSizeLabel(product)}
+        </p>
         <p className="product-card__price">
           {formatProductPrice(product.price)}
         </p>

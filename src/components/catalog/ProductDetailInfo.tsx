@@ -1,4 +1,9 @@
-import { formatProductPrice } from "@/features/products/formatters";
+import {
+  formatProductPrice,
+  getProductBrandName,
+  getProductCategoryName,
+  getProductSizeLabel,
+} from "@/features/products/formatters";
 import type { Product } from "@/features/products/types";
 import Link from "next/link";
 
@@ -13,7 +18,7 @@ export function ProductDetailInfo({
 }: ProductDetailInfoProps) {
   return (
     <section className="product-detail__info" aria-labelledby="product-title">
-      <p className="product-detail__brand">{product.brand}</p>
+      <p className="product-detail__brand">{getProductBrandName(product)}</p>
       <h1 id="product-title">{product.title}</h1>
 
       <p className="product-detail__price">
@@ -23,11 +28,11 @@ export function ProductDetailInfo({
       <dl className="product-detail__meta">
         <div>
           <dt>Talle</dt>
-          <dd>{product.size}</dd>
+          <dd>{getProductSizeLabel(product)}</dd>
         </div>
         <div>
           <dt>Categoria</dt>
-          <dd>{product.category}</dd>
+          <dd>{getProductCategoryName(product)}</dd>
         </div>
       </dl>
 

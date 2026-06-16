@@ -1,28 +1,46 @@
-import { PRODUCT_CATEGORIES } from "@/features/products/constants";
+"use client";
+
+import type { CatalogOptions } from "@/features/catalog-options/types";
 import type { PublicCatalogState } from "@/features/products/public-filters";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 type CatalogFiltersProps = {
   hasActiveControls: boolean;
+  options: CatalogOptions;
   state: PublicCatalogState;
 };
 
 export function CatalogFilters({
   hasActiveControls,
+  options,
   state,
 }: CatalogFiltersProps) {
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState(
+    state.category,
+  );
+  const availableSizes = useMemo(
+    () => getAvailableSizes(options, selectedCategorySlug),
+    [options, selectedCategorySlug],
+  );
+
   return (
     <form action="" className="catalog-filters">
       <div className="catalog-filters__fields">
         <label className="form-field" htmlFor="catalog-brand">
           <span>Marca</span>
-          <input
+          <select
             defaultValue={state.brand}
             id="catalog-brand"
             name="brand"
-            placeholder="Ej: vintage"
-            type="search"
-          />
+          >
+            <option value="">Todas</option>
+            {options.brands.map((brand) => (
+              <option key={brand.id} value={brand.slug}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="form-field" htmlFor="catalog-category">
@@ -31,11 +49,12 @@ export function CatalogFilters({
             defaultValue={state.category}
             id="catalog-category"
             name="category"
+            onChange={(event) => setSelectedCategorySlug(event.target.value)}
           >
             <option value="">Todas</option>
-            {PRODUCT_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {formatCategory(category)}
+            {options.categories.map((category) => (
+              <option key={category.id} value={category.slug}>
+                {category.name}
               </option>
             ))}
           </select>
@@ -43,14 +62,19 @@ export function CatalogFilters({
 
         <label className="form-field" htmlFor="catalog-size">
           <span>Talle</span>
-          <input
-            className="input-uppercase"
+          <select
             defaultValue={state.size}
             id="catalog-size"
+            key={selectedCategorySlug}
             name="size"
-            placeholder="Ej: L"
-            type="search"
-          />
+          >
+            <option value="">Todos</option>
+            {availableSizes.map((size) => (
+              <option key={size.id} value={size.value}>
+                {size.label}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="form-field" htmlFor="catalog-sort">
@@ -81,6 +105,35 @@ export function CatalogFilters({
   );
 }
 
-function formatCategory(category: string) {
-  return category.charAt(0).toUpperCase() + category.slice(1);
+function getAvailableSizes(
+  options: CatalogOptions,
+  selectedCategorySlug: string,
+) {
+  if (!selectedCategorySlug) {
+    return options.sizes;
+  }
+
+  const selectedCategory = options.categories.find(
+    (category) => category.slug === selectedCategorySlug,
+  );
+
+  if (!selectedCategory) {
+    return options.sizes;
+  }
+
+  const allowedGroups = new Set<string>();
+
+  if (selectedCategory.sizes_letter_enabled) {
+    allowedGroups.add("letter");
+  }
+
+  if (selectedCategory.sizes_numeric_enabled) {
+    allowedGroups.add("numeric");
+  }
+
+  if (allowedGroups.size === 0) {
+    return [];
+  }
+
+  return options.sizes.filter((size) => allowedGroups.has(size.size_group));
 }

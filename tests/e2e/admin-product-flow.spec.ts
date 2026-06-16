@@ -28,8 +28,10 @@ test.describe("admin product flow", () => {
       await openProductEditorFromList(page, product.title);
 
       await page.getByLabel("Titulo *").fill(editedTitle);
-      await page.getByLabel("Talle *").fill("m");
-      await expect(page.getByLabel("Talle *")).toHaveValue("M");
+      await page.getByLabel("Talle *").selectOption({ label: "M" });
+      await expect(page.getByLabel("Talle *").locator("option:checked")).toHaveText(
+        "M",
+      );
 
       await page.getByRole("button", { name: "Guardar cambios" }).click();
       await confirmDialog(page, "Guardar cambios");

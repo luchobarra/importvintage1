@@ -7,6 +7,11 @@ import {
   type ProductSearchFilterKey,
   type ProductSearchFilters,
 } from "@/components/products/ProductSearch";
+import {
+  getProductBrandName,
+  getProductCategoryName,
+  getProductSizeLabel,
+} from "@/features/products/formatters";
 import type { Product } from "@/features/products/types";
 import { useMemo, useState } from "react";
 
@@ -54,21 +59,24 @@ export function ProductSearchContainer({
 
       if (
         normalizedFilters.brand &&
-        !normalizeText(product.brand).includes(normalizedFilters.brand)
+        !normalizeText(getProductBrandName(product)).includes(
+          normalizedFilters.brand,
+        )
       ) {
         return false;
       }
 
       if (
         normalizedFilters.category &&
-        product.category !== normalizedFilters.category
+        normalizeText(getProductCategoryName(product)) !==
+          normalizedFilters.category
       ) {
         return false;
       }
 
       if (
         normalizedFilters.size &&
-        normalizeSize(product.size) !== normalizedFilters.size
+        normalizeSize(getProductSizeLabel(product)) !== normalizedFilters.size
       ) {
         return false;
       }
@@ -176,4 +184,3 @@ function areTextFiltersValid(filters: ProductSearchFilters) {
     (brandLength === 0 || brandLength >= 3)
   );
 }
-

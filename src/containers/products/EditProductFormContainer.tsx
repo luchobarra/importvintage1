@@ -11,6 +11,7 @@ import {
   updateProduct,
   type ProductFormState,
 } from "@/features/products/actions";
+import type { CatalogOptions } from "@/features/catalog-options/types";
 import {
   formatProductPriceInput,
   getPriceDigits,
@@ -37,13 +38,16 @@ type ResultState = {
 };
 
 type EditProductFormContainerProps = {
+  options: CatalogOptions;
   product: Product;
 };
 
 export function EditProductFormContainer({
+  options,
   product,
 }: EditProductFormContainerProps) {
   const router = useRouter();
+  const initialCategoryId = getInitialCategoryId(product, options);
   const formRef = useRef<HTMLFormElement>(null);
   const [state, setState] = useState<ProductFormState>(initialState);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -53,6 +57,8 @@ export function EditProductFormContainer({
   const [descriptionLength, setDescriptionLength] = useState(
     product.description?.length ?? 0,
   );
+  const [selectedCategoryId, setSelectedCategoryId] =
+    useState(initialCategoryId);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,12 +98,6 @@ export function EditProductFormContainer({
 
     const formData = new FormData(form);
     formData.set(
-      "size",
-      String(formData.get("size") ?? "")
-        .trim()
-        .toUpperCase(),
-    );
-    formData.set(
       "price",
       getPriceDigits(String(formData.get("price") ?? "")),
     );
@@ -126,12 +126,13 @@ export function EditProductFormContainer({
     });
   }
 
-  function handleSizeChange(event: ChangeEvent<HTMLInputElement>) {
-    event.target.value = event.target.value.toUpperCase();
-  }
-
   function handlePriceChange(event: ChangeEvent<HTMLInputElement>) {
     event.target.value = formatProductPriceInput(event.target.value);
+    handleFieldChange(event);
+  }
+
+  function handleCategoryChange(event: ChangeEvent<HTMLSelectElement>) {
+    setSelectedCategoryId(event.currentTarget.value);
     handleFieldChange(event);
   }
 
@@ -217,13 +218,18 @@ export function EditProductFormContainer({
         descriptionLength={descriptionLength}
         fieldErrors={fieldErrors}
         formRef={formRef}
+        initialBrandId={getInitialBrandId(product, options)}
+        initialCategoryId={initialCategoryId}
+        initialSizeId={getInitialSizeId(product, options)}
         isPending={isPending}
+        onCategoryChange={handleCategoryChange}
         onFieldBlur={handleFieldBlur}
         onFieldChange={handleFieldChange}
         onPriceChange={handlePriceChange}
-        onSizeChange={handleSizeChange}
         onSubmit={handleSubmit}
+        options={options}
         product={product}
+        selectedCategoryId={selectedCategoryId}
         state={state}
       />
       <ConfirmDialog
@@ -265,4 +271,46 @@ function focusProductField(form: HTMLFormElement, fieldName: ProductFieldName) {
   if (field instanceof HTMLElement) {
     field.focus();
   }
+}
+
+function getInitialBrandId(product: Product, options: CatalogOptions) {
+  if (product.brand_id) {
+    return product.brand_id;
+  }
+
+  return (
+    options.brands.find(
+      (brand) => normalizeOptionValue(brand.name) === normalizeOptionValue(product.brand),
+    )?.id ?? ""
+  );
+}
+
+function getInitialCategoryId(product: Product, options: CatalogOptions) {
+  if (product.category_id) {
+    return product.category_id;
+  }
+
+  return (
+    options.categories.find(
+      (category) =>
+        normalizeOptionValue(category.slug) === normalizeOptionValue(product.category) ||
+        normalizeOptionValue(category.name) === normalizeOptionValue(product.category),
+    )?.id ?? ""
+  );
+}
+
+function getInitialSizeId(product: Product, options: CatalogOptions) {
+  if (product.size_id) {
+    return product.size_id;
+  }
+
+  return (
+    options.sizes.find(
+      (size) => normalizeOptionValue(size.value) === normalizeOptionValue(product.size),
+    )?.id ?? ""
+  );
+}
+
+function normalizeOptionValue(value: string) {
+  return value.trim().toLowerCase();
 }

@@ -34,6 +34,10 @@ export default async function AdminPage() {
           <span>Nuevo producto</span>
           <strong>Cargar una prenda al catalogo</strong>
         </Link>
+        <Link className="admin-action" href="/admin/catalogo">
+          <span>Configuracion</span>
+          <strong>Administrar categorias, marcas y talles</strong>
+        </Link>
       </div>
     </AdminShell>
   );

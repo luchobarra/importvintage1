@@ -1,5 +1,6 @@
 import { CatalogFilters } from "@/components/catalog/CatalogFilters";
 import { ProductGridContainer } from "@/containers/catalog/ProductGridContainer";
+import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
 import {
   hasPublicCatalogControls,
   parsePublicCatalogState,
@@ -13,6 +14,7 @@ type HomeProps = {
 export default async function Home({ searchParams }: HomeProps) {
   const catalogState = parsePublicCatalogState(await searchParams);
   const hasActiveControls = hasPublicCatalogControls(catalogState);
+  const options = await getPublicCatalogOptions();
 
   return (
     <main className="home">
@@ -29,6 +31,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
         <CatalogFilters
           hasActiveControls={hasActiveControls}
+          options={options}
           state={catalogState}
         />
         <ProductGridContainer state={catalogState} />

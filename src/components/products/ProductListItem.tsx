@@ -1,4 +1,9 @@
 import { ProductListItemActionsContainer } from "@/containers/products/ProductListItemActionsContainer";
+import {
+  getProductBrandName,
+  getProductCategoryName,
+  getProductSizeLabel,
+} from "@/features/products/formatters";
 import type { Product } from "@/features/products/types";
 import Image from "next/image";
 
@@ -32,18 +37,20 @@ export function ProductListItem({ product }: ProductListItemProps) {
 
       <div className="admin-product-item__content">
         <div>
-          <p className="admin-product-item__brand">{product.brand}</p>
+          <p className="admin-product-item__brand">
+            {getProductBrandName(product)}
+          </p>
           <h2>{product.title}</h2>
         </div>
 
         <dl className="admin-product-item__meta">
           <div>
             <dt>Categoria</dt>
-            <dd>{product.category}</dd>
+            <dd>{getProductCategoryName(product)}</dd>
           </div>
           <div>
             <dt>Talle</dt>
-            <dd>{product.size}</dd>
+            <dd>{getProductSizeLabel(product)}</dd>
           </div>
           <div>
             <dt>Precio</dt>

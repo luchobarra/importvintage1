@@ -1,4 +1,5 @@
 import { CatalogFilters } from "@/components/catalog/CatalogFilters";
+import type { CatalogOptions } from "@/features/catalog-options/types";
 import {
   emptyPublicCatalogState,
   parsePublicCatalogState,
@@ -6,11 +7,45 @@ import {
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+const testCatalogOptions: CatalogOptions = {
+  brands: [
+    {
+      id: "brand-1",
+      is_active: true,
+      name: "Vintage",
+      position: 1,
+      slug: "vintage",
+    },
+  ],
+  categories: [
+    {
+      id: "category-1",
+      is_active: true,
+      name: "Buzos",
+      position: 1,
+      slug: "buzos",
+      sizes_letter_enabled: true,
+      sizes_numeric_enabled: false,
+    },
+  ],
+  sizes: [
+    {
+      id: "size-1",
+      is_active: true,
+      label: "L",
+      position: 1,
+      size_group: "letter",
+      value: "L",
+    },
+  ],
+};
+
 describe("CatalogFilters", () => {
   it("renders public catalog filter fields as GET params", () => {
     render(
       <CatalogFilters
         hasActiveControls
+        options={testCatalogOptions}
         state={{
           ...emptyPublicCatalogState,
           brand: "vintage",
@@ -42,6 +77,7 @@ describe("CatalogFilters", () => {
     render(
       <CatalogFilters
         hasActiveControls={false}
+        options={testCatalogOptions}
         state={emptyPublicCatalogState}
       />,
     );
@@ -71,13 +107,16 @@ describe("parsePublicCatalogState", () => {
     });
   });
 
-  it("normalizes unsupported categories, pages and sort values", () => {
+  it("normalizes unsupported pages and sort values", () => {
     expect(
       parsePublicCatalogState({
         category: "camisas",
         page: "-1",
         sort: "oldest",
       }),
-    ).toEqual(emptyPublicCatalogState);
+    ).toEqual({
+      ...emptyPublicCatalogState,
+      category: "camisas",
+    });
   });
 });

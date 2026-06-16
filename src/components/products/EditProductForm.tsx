@@ -1,7 +1,5 @@
-import {
-  PRODUCT_CATEGORIES,
-  PRODUCT_DESCRIPTION_MAX_LENGTH,
-} from "@/features/products/constants";
+import type { CatalogOptions } from "@/features/catalog-options/types";
+import { PRODUCT_DESCRIPTION_MAX_LENGTH } from "@/features/products/constants";
 import type { ProductFormState } from "@/features/products/actions";
 import {
   formatProductPriceInput,
@@ -15,9 +13,15 @@ type EditProductFormProps = {
   descriptionLength: number;
   fieldErrors: ProductFieldErrors;
   formRef: RefObject<HTMLFormElement | null>;
+  initialBrandId: string;
+  initialCategoryId: string;
+  initialSizeId: string;
   isPending: boolean;
+  options: CatalogOptions;
   product: Product;
+  selectedCategoryId: string;
   state: ProductFormState;
+  onCategoryChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   onFieldBlur: (
     event: FocusEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -29,7 +33,6 @@ type EditProductFormProps = {
     >,
   ) => void;
   onPriceChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onSizeChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
@@ -37,15 +40,22 @@ export function EditProductForm({
   descriptionLength,
   fieldErrors,
   formRef,
+  initialBrandId,
+  initialCategoryId,
+  initialSizeId,
   isPending,
+  options,
   product,
+  selectedCategoryId,
   state,
+  onCategoryChange,
   onFieldBlur,
   onFieldChange,
   onPriceChange,
-  onSizeChange,
   onSubmit,
 }: EditProductFormProps) {
+  const availableSizes = getAvailableSizes(options, selectedCategoryId);
+
   return (
     <form className="product-form" noValidate onSubmit={onSubmit} ref={formRef}>
       <div className="product-form__grid">
@@ -67,17 +77,24 @@ export function EditProductForm({
 
         <label className={getFieldClassName(fieldErrors.brand)} htmlFor="brand">
           <span>Marca *</span>
-          <input
+          <select
             aria-describedby={getErrorId("brand", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.brand)}
-            defaultValue={product.brand}
+            defaultValue={initialBrandId}
+            disabled={options.brands.length === 0}
             id="brand"
             name="brand"
             onBlur={onFieldBlur}
             onChange={onFieldChange}
             required
-            type="text"
-          />
+          >
+            <option value="">Seleccionar</option>
+            {options.brands.map((brand) => (
+              <option key={brand.id} value={brand.id}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
           <FieldError fieldName="brand" errors={fieldErrors} />
         </label>
 
@@ -89,17 +106,18 @@ export function EditProductForm({
           <select
             aria-describedby={getErrorId("category", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.category)}
-            defaultValue={product.category}
+            defaultValue={initialCategoryId}
+            disabled={options.categories.length === 0}
             id="category"
             name="category"
             onBlur={onFieldBlur}
-            onChange={onFieldChange}
+            onChange={onCategoryChange}
             required
           >
             <option value="">Seleccionar</option>
-            {PRODUCT_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {formatCategory(category)}
+            {options.categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
               </option>
             ))}
           </select>
@@ -108,21 +126,29 @@ export function EditProductForm({
 
         <label className={getFieldClassName(fieldErrors.size)} htmlFor="size">
           <span>Talle *</span>
-          <input
+          <select
             aria-describedby={getErrorId("size", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.size)}
-            className="input-uppercase"
-            defaultValue={product.size}
+            defaultValue={initialSizeId}
+            disabled={!selectedCategoryId || availableSizes.length === 0}
             id="size"
+            key={selectedCategoryId}
             name="size"
             onBlur={onFieldBlur}
-            onChange={(event) => {
-              onSizeChange(event);
-              onFieldChange(event);
-            }}
+            onChange={onFieldChange}
             required
-            type="text"
-          />
+          >
+            <option value="">
+              {selectedCategoryId
+                ? "Seleccionar"
+                : "Selecciona una categoria primero"}
+            </option>
+            {availableSizes.map((size) => (
+              <option key={size.id} value={size.id}>
+                {size.label}
+              </option>
+            ))}
+          </select>
           <FieldError fieldName="size" errors={fieldErrors} />
         </label>
 
@@ -187,10 +213,6 @@ export function EditProductForm({
   );
 }
 
-function formatCategory(category: string) {
-  return category.charAt(0).toUpperCase() + category.slice(1);
-}
-
 function FieldError({
   errors,
   fieldName,
@@ -224,4 +246,34 @@ function getFieldClassName(error?: string) {
 
 function getDescriptionAriaDescribedBy(errors: ProductFieldErrors) {
   return errors.description ? "description-error" : undefined;
+}
+
+function getAvailableSizes(options: CatalogOptions, selectedCategoryId: string) {
+  if (!selectedCategoryId) {
+    return options.sizes;
+  }
+
+  const selectedCategory = options.categories.find(
+    (category) => category.id === selectedCategoryId,
+  );
+
+  if (!selectedCategory) {
+    return options.sizes;
+  }
+
+  const allowedGroups = new Set<string>();
+
+  if (selectedCategory.sizes_letter_enabled) {
+    allowedGroups.add("letter");
+  }
+
+  if (selectedCategory.sizes_numeric_enabled) {
+    allowedGroups.add("numeric");
+  }
+
+  if (allowedGroups.size === 0) {
+    return [];
+  }
+
+  return options.sizes.filter((size) => allowedGroups.has(size.size_group));
 }

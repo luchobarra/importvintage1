@@ -8,8 +8,11 @@ import { describe, expect, it } from "vitest";
 const testProduct: Product = {
   id: "product-123",
   title: "Campera vintage",
+  brand_id: null,
   brand: "Import Vintage",
+  category_id: null,
   category: "buzos",
+  size_id: null,
   size: "L",
   price: 25000,
   description: "Campera en excelente estado.",
