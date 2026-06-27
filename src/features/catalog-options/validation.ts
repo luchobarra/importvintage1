@@ -1,10 +1,11 @@
 import type { CatalogSizeGroup } from "@/features/catalog-options/types";
 
-export type CatalogOptionKind = "brand" | "category" | "size";
+export type CatalogOptionKind = "brand" | "category" | "condition" | "size";
 
 export const CATALOG_OPTION_LABELS: Record<CatalogOptionKind, string> = {
   brand: "marca",
   category: "categoria",
+  condition: "estado",
   size: "talle",
 };
 

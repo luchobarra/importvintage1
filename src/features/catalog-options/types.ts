@@ -18,6 +18,13 @@ export type CatalogBrand = CatalogOptionStatus & {
   slug: string;
 };
 
+export type CatalogProductCondition = CatalogOptionStatus & {
+  id: string;
+  name: string;
+  position: number;
+  slug: string;
+};
+
 export type CatalogSize = CatalogOptionStatus & {
   id: string;
   label: string;
@@ -31,6 +38,7 @@ export type CatalogSizeGroup = "letter" | "numeric";
 export type CatalogOptions = {
   brands: CatalogBrand[];
   categories: CatalogCategory[];
+  conditions: CatalogProductCondition[];
   sizes: CatalogSize[];
 };
 

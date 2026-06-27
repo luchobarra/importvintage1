@@ -511,6 +511,7 @@ function isProductFieldName(fieldName: string): fieldName is ProductFieldName {
     "title",
     "brand",
     "category",
+    "condition",
     "size",
     "price",
     "description",

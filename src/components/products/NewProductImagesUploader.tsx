@@ -30,9 +30,9 @@ export function NewProductImagesUploader({
   onUploadImages,
 }: NewProductImagesUploaderProps) {
   return (
-    <section className="product-image-manager__section">
-      <div className="product-image-manager__section-header">
-        <h3>Agregar imagenes</h3>
+    <section className="product-image-manager__section ui-card">
+      <div className="product-image-manager__section-header ui-section-header">
+        <h3 className="text-h3">Agregar imagenes</h3>
       </div>
 
       <ImageUploader

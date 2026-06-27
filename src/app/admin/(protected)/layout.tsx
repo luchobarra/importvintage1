@@ -1,5 +1,6 @@
 import { AdminSessionTimeoutContainer } from "@/containers/auth/AdminSessionTimeoutContainer";
 import { isAdminUser } from "@/features/auth/admin";
+import { getCurrentSupabaseUser } from "@/features/auth/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -9,9 +10,7 @@ export default async function ProtectedAdminLayout({
   children: React.ReactNode;
 }>) {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentSupabaseUser(supabase);
 
   if (!isAdminUser(user)) {
     redirect("/admin/login");

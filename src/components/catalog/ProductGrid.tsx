@@ -9,9 +9,10 @@ type ProductGridProps = {
 export function ProductGrid({ catalogHref, products }: ProductGridProps) {
   return (
     <div className="product-grid">
-      {products.map((product) => (
+      {products.map((product, index) => (
         <ProductCard
           catalogHref={catalogHref}
+          index={index}
           key={product.id}
           product={product}
         />

@@ -29,6 +29,13 @@ export function getProductSizeLabel(product: {
   return getRelationValue(product.catalog_sizes)?.label ?? product.size;
 }
 
+export function getProductConditionName(product: {
+  catalog_product_conditions?: { name: string } | { name: string }[] | null;
+  condition?: string | null;
+}) {
+  return getRelationValue(product.catalog_product_conditions)?.name ?? product.condition ?? "Sin especificar";
+}
+
 function getRelationValue<T>(value: T | T[] | null | undefined) {
   if (Array.isArray(value)) {
     return value[0] ?? null;

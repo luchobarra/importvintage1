@@ -12,6 +12,8 @@ const testProduct: Product = {
   brand: "Import Vintage",
   category_id: null,
   category: "buzos",
+  condition_id: "condition-1",
+  condition: "Muy bueno",
   size_id: null,
   size: "L",
   price: 25000,
@@ -43,7 +45,9 @@ describe("public product detail flow", () => {
     );
 
     expect(
-      screen.getByRole("link", { name: /Import Vintage Campera vintage/i }),
+      screen.getByRole("link", {
+        name: "Ver detalle de Campera vintage de Import Vintage",
+      }),
     ).toHaveAttribute(
       "href",
       "/productos/product-123?from=%2F%3Fbrand%3Dimport%26page%3D2%26sort%3Dprice_asc",
@@ -67,13 +71,12 @@ describe("public product detail flow", () => {
     expect(screen.getByText("Talle")).toBeInTheDocument();
     expect(screen.getByText("L")).toBeInTheDocument();
     expect(screen.getByText("Categoria")).toBeInTheDocument();
-    expect(screen.getByText("buzos")).toBeInTheDocument();
+    expect(screen.getAllByText("buzos")).toHaveLength(2);
+    expect(screen.getByText("Estado")).toBeInTheDocument();
+    expect(screen.getByText("Muy bueno")).toBeInTheDocument();
 
     expect(
       screen.getByRole("link", { name: "Volver al catalogo" }),
-    ).toHaveAttribute("href", "/?brand=import&page=2");
-    expect(
-      screen.getByRole("link", { name: "Ver mas productos" }),
     ).toHaveAttribute("href", "/?brand=import&page=2");
   });
 

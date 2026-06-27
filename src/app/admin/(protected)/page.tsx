@@ -1,14 +1,13 @@
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { logout } from "@/features/auth/actions";
+import { getCurrentSupabaseUser } from "@/features/auth/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
 export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentSupabaseUser(supabase);
 
   return (
     <AdminShell>
@@ -18,7 +17,7 @@ export default async function AdminPage() {
         description={`Sesion activa: ${user?.email ?? "administrador"}`}
         actions={
           <form action={logout}>
-            <button className="button" type="submit">
+            <button className="button button--ghost" type="submit">
               Salir
             </button>
           </form>
@@ -26,17 +25,21 @@ export default async function AdminPage() {
       />
 
       <div className="admin-actions">
-        <Link className="admin-action" href="/admin/productos">
-          <span>Productos</span>
-          <strong>Ver y buscar prendas cargadas</strong>
+        <Link className="admin-action ui-card ui-card--interactive" href="/admin/productos">
+          <span className="text-h3">Productos</span>
+          <strong className="text-body">
+            Ver y buscar prendas cargadas
+          </strong>
         </Link>
-        <Link className="admin-action" href="/admin/productos/nuevo">
-          <span>Nuevo producto</span>
-          <strong>Cargar una prenda al catalogo</strong>
+        <Link className="admin-action ui-card ui-card--interactive" href="/admin/productos/nuevo">
+          <span className="text-h3">Nuevo producto</span>
+          <strong className="text-body">Cargar una prenda al catalogo</strong>
         </Link>
-        <Link className="admin-action" href="/admin/catalogo">
-          <span>Configuracion</span>
-          <strong>Administrar categorias, marcas y talles</strong>
+        <Link className="admin-action ui-card ui-card--interactive" href="/admin/catalogo">
+          <span className="text-h3">Configuracion</span>
+          <strong className="text-body">
+            Administrar categorias, marcas y talles
+          </strong>
         </Link>
       </div>
     </AdminShell>

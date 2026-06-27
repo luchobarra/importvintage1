@@ -1,5 +1,6 @@
 import { LoginFormContainer } from "@/containers/auth/LoginFormContainer";
 import { isAdminUser } from "@/features/auth/admin";
+import { getCurrentSupabaseUser } from "@/features/auth/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -14,9 +15,7 @@ export default async function AdminLoginPage({
 }: AdminLoginPageProps) {
   const resolvedSearchParams = await searchParams;
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentSupabaseUser(supabase);
   const hasExpiredSession =
     resolvedSearchParams?.reason === "session-expired";
 
@@ -26,7 +25,7 @@ export default async function AdminLoginPage({
 
   return (
     <main className="auth-page">
-      <section className="auth-panel">
+      <section className="auth-panel ui-panel ui-panel--narrow">
         <p className="auth-panel__eyebrow">Panel privado</p>
         <h1>Acceso administrador</h1>
         <p className="auth-panel__copy">

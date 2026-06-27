@@ -1,4 +1,5 @@
 import { CatalogFilters } from "@/components/catalog/CatalogFilters";
+import { ProductGridSkeleton } from "@/components/catalog/ProductGridSkeleton";
 import { ProductGridContainer } from "@/containers/catalog/ProductGridContainer";
 import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
 import {
@@ -6,9 +7,27 @@ import {
   parsePublicCatalogState,
   type PublicProductSearchParams,
 } from "@/features/products/public-filters";
+import { createSiteUrl } from "@/lib/site-url";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
 type HomeProps = {
   searchParams: Promise<PublicProductSearchParams>;
+};
+
+export const metadata: Metadata = {
+  title: "Prendas vintage seleccionadas",
+  description:
+    "Explora prendas vintage disponibles en Old Times Vintage y contacta directo por WhatsApp.",
+  alternates: {
+    canonical: createSiteUrl("/"),
+  },
+  openGraph: {
+    title: "Old Times Vintage",
+    description:
+      "Prendas vintage seleccionadas, disponibles para compra directa.",
+    url: createSiteUrl("/"),
+  },
 };
 
 export default async function Home({ searchParams }: HomeProps) {
@@ -18,15 +37,11 @@ export default async function Home({ searchParams }: HomeProps) {
 
   return (
     <main className="home">
-      <section className="home__container">
+      <section className="home__container ui-page-container">
         <header className="home__header">
           <div>
-            <p className="home__eyebrow">Catalogo online</p>
-            <h1 className="home__title">Prendas disponibles</h1>
+            <h1 className="home__title text-display">Prendas disponibles</h1>
           </div>
-          <a className="home__admin-link" href="/admin/login">
-            Admin
-          </a>
         </header>
 
         <CatalogFilters
@@ -34,7 +49,9 @@ export default async function Home({ searchParams }: HomeProps) {
           options={options}
           state={catalogState}
         />
-        <ProductGridContainer state={catalogState} />
+        <Suspense fallback={<ProductGridSkeleton />}>
+          <ProductGridContainer state={catalogState} />
+        </Suspense>
       </section>
     </main>
   );

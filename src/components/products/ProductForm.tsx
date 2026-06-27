@@ -167,6 +167,31 @@ export function ProductForm({
           <FieldError fieldName="size" errors={fieldErrors} />
         </label>
 
+        <label
+          className={getFieldClassName(fieldErrors.condition)}
+          htmlFor="condition"
+        >
+          <span>Estado *</span>
+          <select
+            aria-describedby={getErrorId("condition", fieldErrors)}
+            aria-invalid={Boolean(fieldErrors.condition)}
+            disabled={options.conditions.length === 0}
+            id="condition"
+            name="condition"
+            onBlur={onFieldBlur}
+            onChange={onFieldChange}
+            required
+          >
+            <option value="">Seleccionar</option>
+            {options.conditions.map((condition) => (
+              <option key={condition.id} value={condition.id}>
+                {condition.name}
+              </option>
+            ))}
+          </select>
+          <FieldError fieldName="condition" errors={fieldErrors} />
+        </label>
+
         <label className={getFieldClassName(fieldErrors.price)} htmlFor="price">
           <span>Precio en pesos *</span>
           <input

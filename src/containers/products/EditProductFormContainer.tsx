@@ -220,6 +220,7 @@ export function EditProductFormContainer({
         formRef={formRef}
         initialBrandId={getInitialBrandId(product, options)}
         initialCategoryId={initialCategoryId}
+        initialConditionId={getInitialConditionId(product, options)}
         initialSizeId={getInitialSizeId(product, options)}
         isPending={isPending}
         onCategoryChange={handleCategoryChange}
@@ -259,6 +260,7 @@ function isProductFieldName(fieldName: string): fieldName is ProductFieldName {
     "title",
     "brand",
     "category",
+    "condition",
     "size",
     "price",
     "description",
@@ -307,6 +309,19 @@ function getInitialSizeId(product: Product, options: CatalogOptions) {
   return (
     options.sizes.find(
       (size) => normalizeOptionValue(size.value) === normalizeOptionValue(product.size),
+    )?.id ?? ""
+  );
+}
+
+function getInitialConditionId(product: Product, options: CatalogOptions) {
+  if (product.condition_id) {
+    return product.condition_id;
+  }
+
+  return (
+    options.conditions.find(
+      (condition) =>
+        normalizeOptionValue(condition.name) === normalizeOptionValue(product.condition),
     )?.id ?? ""
   );
 }

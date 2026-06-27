@@ -42,13 +42,17 @@ export function ConfirmDialog({
         role="dialog"
       >
         <div className="confirm-dialog__content">
-          <h2 id={titleId}>{title}</h2>
-          <p id={descriptionId}>{description}</p>
+          <h2 id={titleId} className="text-h2">
+            {title}
+          </h2>
+          <p id={descriptionId} className="text-body">
+            {description}
+          </p>
         </div>
 
         <div className="confirm-dialog__actions">
           <button
-            className="button"
+            className="button button--secondary"
             disabled={isPending}
             onClick={onCancel}
             type="button"

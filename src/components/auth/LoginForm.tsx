@@ -10,7 +10,7 @@ export function LoginForm({ action, pending, state }: LoginFormProps) {
   return (
     <form action={action} className="auth-form">
       <label className="form-field" htmlFor="email">
-        <span>Email</span>
+        <span className="text-label">Email</span>
         <input
           autoComplete="email"
           id="email"
@@ -21,7 +21,7 @@ export function LoginForm({ action, pending, state }: LoginFormProps) {
       </label>
 
       <label className="form-field" htmlFor="password">
-        <span>Contrasena</span>
+        <span className="text-label">Contrasena</span>
         <input
           autoComplete="current-password"
           id="password"
@@ -32,7 +32,7 @@ export function LoginForm({ action, pending, state }: LoginFormProps) {
       </label>
 
       {state.message ? (
-        <p aria-live="polite" className="auth-form__error">
+        <p aria-live="polite" className="auth-form__error text-error">
           {state.message}
         </p>
       ) : null}
@@ -43,4 +43,3 @@ export function LoginForm({ action, pending, state }: LoginFormProps) {
     </form>
   );
 }
-

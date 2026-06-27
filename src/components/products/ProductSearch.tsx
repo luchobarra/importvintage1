@@ -35,10 +35,10 @@ export function ProductSearch({
   }
 
   return (
-    <form className="product-search" onSubmit={handleSubmit}>
+    <form className="product-search ui-panel" onSubmit={handleSubmit}>
       <div className="product-search__fields">
         <label className="form-field" htmlFor="product-search-id">
-          <span>ID</span>
+          <span className="text-label">ID</span>
           <input
             id="product-search-id"
             name="product-search-id"
@@ -50,7 +50,7 @@ export function ProductSearch({
         </label>
 
         <label className="form-field" htmlFor="product-search-title">
-          <span>Titulo</span>
+          <span className="text-label">Titulo</span>
           <input
             id="product-search-title"
             name="product-search-title"
@@ -62,7 +62,7 @@ export function ProductSearch({
         </label>
 
         <label className="form-field" htmlFor="product-search-brand">
-          <span>Marca</span>
+          <span className="text-label">Marca</span>
           <input
             id="product-search-brand"
             name="product-search-brand"
@@ -74,7 +74,7 @@ export function ProductSearch({
         </label>
 
         <label className="form-field" htmlFor="product-search-category">
-          <span>Categoria</span>
+          <span className="text-label">Categoria</span>
           <input
             id="product-search-category"
             name="product-search-category"
@@ -86,7 +86,7 @@ export function ProductSearch({
         </label>
 
         <label className="form-field" htmlFor="product-search-size">
-          <span>Talle</span>
+          <span className="text-label">Talle</span>
           <input
             className="input-uppercase"
             id="product-search-size"
@@ -114,7 +114,7 @@ export function ProductSearch({
         </p>
       ) : null}
 
-      <p aria-live="polite">
+      <p aria-live="polite" className="text-body-sm">
         {resultCount} de {totalCount} productos
       </p>
     </form>

@@ -3,13 +3,16 @@ import type {
   CatalogBrand,
   CatalogCategory,
   CatalogOptions,
+  CatalogProductCondition,
   CatalogSize,
 } from "@/features/catalog-options/types";
+import { createSupabasePublicServerClient } from "@/lib/supabase/public-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cache } from "react";
 
-export async function getPublicCatalogOptions(): Promise<CatalogOptions> {
-  const supabase = await createSupabaseServerClient();
-  const [categoriesResult, brandsResult, sizesResult] = await Promise.all([
+export const getPublicCatalogOptions = cache(async (): Promise<CatalogOptions> => {
+  const supabase = createSupabasePublicServerClient();
+  const [categoriesResult, brandsResult, sizesResult, conditionsResult] = await Promise.all([
     supabase
       .from("catalog_categories")
       .select(
@@ -31,18 +34,26 @@ export async function getPublicCatalogOptions(): Promise<CatalogOptions> {
       .order("size_group", { ascending: true })
       .order("position", { ascending: true })
       .order("label", { ascending: true }),
+    supabase
+      .from("catalog_product_conditions")
+      .select("id, name, slug, position, is_active")
+      .eq("is_active", true)
+      .order("position", { ascending: true })
+      .order("name", { ascending: true }),
   ]);
 
   throwIfError(categoriesResult.error);
   throwIfError(brandsResult.error);
   throwIfError(sizesResult.error);
+  throwIfError(conditionsResult.error);
 
   return {
     brands: (brandsResult.data ?? []) as CatalogBrand[],
     categories: (categoriesResult.data ?? []) as CatalogCategory[],
+    conditions: (conditionsResult.data ?? []) as CatalogProductCondition[],
     sizes: (sizesResult.data ?? []) as CatalogSize[],
   };
-}
+});
 
 export async function getAdminCatalogOptions(): Promise<CatalogOptions> {
   const supabase = await createSupabaseServerClient();
@@ -54,7 +65,7 @@ export async function getAdminCatalogOptions(): Promise<CatalogOptions> {
     throw new Error("No tenes permisos para administrar filtros.");
   }
 
-  const [categoriesResult, brandsResult, sizesResult] = await Promise.all([
+  const [categoriesResult, brandsResult, sizesResult, conditionsResult] = await Promise.all([
     supabase
       .from("catalog_categories")
       .select(
@@ -73,15 +84,22 @@ export async function getAdminCatalogOptions(): Promise<CatalogOptions> {
       .order("size_group", { ascending: true })
       .order("position", { ascending: true })
       .order("label", { ascending: true }),
+    supabase
+      .from("catalog_product_conditions")
+      .select("id, name, slug, position, is_active")
+      .order("position", { ascending: true })
+      .order("name", { ascending: true }),
   ]);
 
   throwIfError(categoriesResult.error);
   throwIfError(brandsResult.error);
   throwIfError(sizesResult.error);
+  throwIfError(conditionsResult.error);
 
   return {
     brands: (brandsResult.data ?? []) as CatalogBrand[],
     categories: (categoriesResult.data ?? []) as CatalogCategory[],
+    conditions: (conditionsResult.data ?? []) as CatalogProductCondition[],
     sizes: (sizesResult.data ?? []) as CatalogSize[],
   };
 }

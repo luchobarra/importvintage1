@@ -1,6 +1,10 @@
 import { ProductDetail } from "@/components/catalog/ProductDetail";
 import { ProductDetailError } from "@/components/catalog/ProductDetailError";
-import { getAvailableProductById } from "@/features/products/queries";
+import { ProductCarousel } from "@/components/catalog/ProductCarousel";
+import {
+  getAvailableProductById,
+  getSimilarAvailableProducts,
+} from "@/features/products/queries";
 import type { Product } from "@/features/products/types";
 
 type ProductDetailContainerProps = {
@@ -20,5 +24,17 @@ export async function ProductDetailContainer({
     return <ProductDetailError />;
   }
 
-  return <ProductDetail catalogHref={catalogHref} product={product} />;
+  const similarProducts = await getSimilarAvailableProducts(product, 12);
+
+  return (
+    <>
+      <ProductDetail catalogHref={catalogHref} product={product} />
+      <ProductCarousel
+        catalogHref={catalogHref ?? "/"}
+        eyebrow="Relacionados"
+        products={similarProducts}
+        title="Seguí explorando"
+      />
+    </>
+  );
 }

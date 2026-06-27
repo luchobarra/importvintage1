@@ -12,12 +12,16 @@ export function AdminHeader({
   actions,
 }: AdminHeaderProps) {
   return (
-    <header className="admin-header">
-      <div>
-        <p className="admin-header__eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
+    <header className="admin-header ui-section-header">
+      <div className="ui-section-header__copy">
+        <p className="admin-header__eyebrow ui-section-header__eyebrow text-overline">
+          {eyebrow}
+        </p>
+        <h1 className="ui-section-header__title text-h1">{title}</h1>
         {description ? (
-          <p className="admin-header__session">{description}</p>
+          <p className="admin-header__session ui-section-header__description text-body">
+            {description}
+          </p>
         ) : null}
       </div>
 
@@ -25,4 +29,3 @@ export function AdminHeader({
     </header>
   );
 }
-

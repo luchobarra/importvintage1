@@ -17,7 +17,9 @@ export default function AdminCatalogOptionsPage() {
         }
       />
 
-      <CatalogOptionsManagerContainer />
+      <section className="admin-form-panel ui-panel">
+        <CatalogOptionsManagerContainer />
+      </section>
     </AdminShell>
   );
 }

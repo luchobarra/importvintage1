@@ -5,6 +5,7 @@ import {
   PUBLIC_PRODUCTS_PAGE_SIZE,
   type PublicCatalogState,
 } from "@/features/products/public-filters";
+import { createSupabasePublicServerClient } from "@/lib/supabase/public-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Product } from "@/features/products/types";
 
@@ -15,6 +16,8 @@ const PRODUCT_SELECT = `
   brand,
   category_id,
   category,
+  condition_id,
+  condition,
   size_id,
   size,
   price,
@@ -34,6 +37,12 @@ const PRODUCT_SELECT = `
     sizes_letter_enabled,
     sizes_numeric_enabled
   ),
+  catalog_product_conditions (
+    id,
+    name,
+    slug,
+    is_active
+  ),
   catalog_sizes (
     id,
     label,
@@ -51,7 +60,7 @@ const PRODUCT_SELECT = `
 export async function getAvailableProductsPage(
   state: PublicCatalogState = emptyPublicCatalogState,
 ) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicServerClient();
   const catalogOptions = await getPublicCatalogOptions();
   const selectedBrand = catalogOptions.brands.find(
     (brand) => brand.slug === state.brand,
@@ -115,8 +124,62 @@ export async function getAvailableProducts() {
   return products;
 }
 
+export async function getSimilarAvailableProducts(
+  product: Product,
+  limit = 12,
+) {
+  const products: Product[] = [];
+  const productIds = new Set([product.id]);
+
+  function appendProducts(items: Product[]) {
+    for (const item of items) {
+      if (
+        productIds.has(item.id) ||
+        item.product_images.length === 0 ||
+        products.length >= limit
+      ) {
+        continue;
+      }
+
+      productIds.add(item.id);
+      products.push(item);
+    }
+  }
+
+  if (product.category_id) {
+    appendProducts(
+      await getAvailableProductSubset({
+        categoryId: product.category_id,
+        excludeProductId: product.id,
+        limit: limit * 2,
+      }),
+    );
+  }
+
+  if (products.length < limit && product.brand_id) {
+    appendProducts(
+      await getAvailableProductSubset({
+        brandId: product.brand_id,
+        excludeProductId: product.id,
+        limit: limit * 2,
+      }),
+    );
+  }
+
+  if (products.length < limit) {
+    appendProducts(
+      await getAvailableProductSubset({
+        excludeProductId: product.id,
+        limit: limit * 2,
+      }),
+    );
+  }
+
+  return products.slice(0, limit);
+}
+
 export async function getAvailableProductById(productId: string) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicServerClient();
 
   const { data, error } = await supabase
     .from("products")
@@ -134,6 +197,53 @@ export async function getAvailableProductById(productId: string) {
   }
 
   return data as unknown as Product;
+}
+
+type AvailableProductSubsetOptions = {
+  brandId?: string;
+  categoryId?: string;
+  excludeProductId?: string;
+  limit: number;
+};
+
+async function getAvailableProductSubset({
+  brandId,
+  categoryId,
+  excludeProductId,
+  limit,
+}: AvailableProductSubsetOptions) {
+  const supabase = createSupabasePublicServerClient();
+
+  let query = supabase
+    .from("products")
+    .select(PRODUCT_SELECT)
+    .eq("status", "available");
+
+  if (brandId) {
+    query = query.eq("brand_id", brandId);
+  }
+
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  }
+
+  if (excludeProductId) {
+    query = query.neq("id", excludeProductId);
+  }
+
+  const { data, error } = await query
+    .order("created_at", { ascending: false })
+    .order("position", {
+      ascending: true,
+      referencedTable: "product_images",
+    })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as unknown as Product[];
 }
 
 export async function getAdminProducts() {

@@ -4,7 +4,7 @@ import {
   emptyPublicCatalogState,
   parsePublicCatalogState,
 } from "@/features/products/public-filters";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 const testCatalogOptions: CatalogOptions = {
@@ -28,6 +28,15 @@ const testCatalogOptions: CatalogOptions = {
       sizes_numeric_enabled: false,
     },
   ],
+  conditions: [
+    {
+      id: "condition-1",
+      is_active: true,
+      name: "Muy bueno",
+      position: 1,
+      slug: "muy-bueno",
+    },
+  ],
   sizes: [
     {
       id: "size-1",
@@ -46,28 +55,47 @@ describe("CatalogFilters", () => {
       <CatalogFilters
         hasActiveControls
         options={testCatalogOptions}
-        state={{
-          ...emptyPublicCatalogState,
-          brand: "vintage",
-          category: "buzos",
-          size: "L",
-          sort: "price_asc",
-        }}
-      />,
+      state={{
+        ...emptyPublicCatalogState,
+        brand: "vintage",
+        category: "buzos",
+        size: "L",
+        sort: "price_asc",
+      }}
+    />,
     );
 
-    expect(screen.getByLabelText("Marca")).toHaveAttribute("name", "brand");
-    expect(screen.getByLabelText("Categoria")).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "Filtrar" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Filtrar" }));
+
+    const drawer = within(
+      screen.getByRole("dialog", { name: "Filtros del catalogo" }),
+    );
+    const brandGroup = within(drawer.getByRole("group", { name: "Marca" }));
+    const categoryGroup = within(drawer.getByRole("group", { name: "Categoria" }));
+    const sizeGroup = within(drawer.getByRole("group", { name: "Talle" }));
+    const sortGroup = within(drawer.getByRole("group", { name: "Ordenar" }));
+
+    expect(drawer.getByRole("link", { name: "Vintage" })).toHaveAttribute(
+      "href",
+      "/?category=buzos&size=L&sort=price_asc",
+    );
+    expect(brandGroup.getByLabelText("Vintage")).toHaveAttribute("name", "brand");
+    expect(categoryGroup.getByLabelText("Buzos")).toHaveAttribute(
       "name",
       "category",
     );
-    expect(screen.getByLabelText("Talle")).toHaveAttribute("name", "size");
-    expect(screen.getByLabelText("Ordenar")).toHaveAttribute("name", "sort");
-    expect(screen.getByLabelText("Ordenar")).toHaveValue("price_asc");
+    expect(sizeGroup.getByLabelText("L")).toHaveAttribute("name", "size");
+    expect(sortGroup.getByLabelText("Menor precio")).toHaveAttribute(
+      "value",
+      "price_asc",
+    );
+    expect(sortGroup.getByLabelText("Menor precio")).toBeChecked();
     expect(
-      screen.getByRole("button", { name: "Aplicar filtros" }),
+      drawer.getByRole("button", { name: "Aplicar filtros" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Limpiar filtros" })).toHaveAttribute(
+    expect(drawer.getByRole("link", { name: "Limpiar" })).toHaveAttribute(
       "href",
       "/",
     );
@@ -82,8 +110,14 @@ describe("CatalogFilters", () => {
       />,
     );
 
+    fireEvent.click(screen.getByRole("button", { name: "Filtrar" }));
+
+    const drawer = within(
+      screen.getByRole("dialog", { name: "Filtros del catalogo" }),
+    );
+
     expect(
-      screen.getByRole("button", { name: "Limpiar filtros" }),
+      drawer.getByRole("button", { name: "Limpiar" }),
     ).toBeDisabled();
   });
 });

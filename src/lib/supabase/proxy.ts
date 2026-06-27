@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { isAdminUser } from "@/features/auth/admin";
+import { getCurrentSupabaseUser } from "@/features/auth/session";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
@@ -32,9 +33,7 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentSupabaseUser(supabase);
 
   const { pathname } = request.nextUrl;
   const isLoginPage = pathname === "/admin/login";

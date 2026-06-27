@@ -588,6 +588,10 @@ function getCatalogOptionTableName(kind: CatalogOptionKind) {
     return "catalog_brands";
   }
 
+  if (kind === "condition") {
+    return "catalog_product_conditions";
+  }
+
   if (kind === "category") {
     return "catalog_categories";
   }

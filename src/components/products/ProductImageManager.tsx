@@ -55,12 +55,12 @@ export function ProductImageManager({
 
   return (
     <div className="product-image-manager">
-      <div className="product-image-manager__header">
-        <div>
-          <h2>Imagenes del producto</h2>
-          <p>La primera imagen es la foto principal.</p>
+      <div className="product-image-manager__header ui-section-header">
+      <div>
+          <h2 className="text-h2">Imagenes del producto</h2>
+          <p className="text-body">La primera imagen es la foto principal.</p>
         </div>
-        <strong>{images.length}/5</strong>
+        <strong className="text-label">{images.length}/5</strong>
       </div>
 
       <CurrentProductImages

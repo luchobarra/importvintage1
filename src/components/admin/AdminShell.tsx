@@ -5,8 +5,7 @@ type AdminShellProps = {
 export function AdminShell({ children }: AdminShellProps) {
   return (
     <main className="admin-page">
-      <section className="admin-shell">{children}</section>
+      <section className="admin-shell ui-page-container">{children}</section>
     </main>
   );
 }
-

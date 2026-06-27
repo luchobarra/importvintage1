@@ -21,6 +21,13 @@ export type ProductCatalogBrand = {
   slug: string;
 };
 
+export type ProductCatalogCondition = {
+  id: string;
+  is_active: boolean;
+  name: string;
+  slug: string;
+};
+
 export type ProductCatalogSize = {
   id: string;
   is_active: boolean;
@@ -35,6 +42,8 @@ export type Product = {
   brand: string;
   category_id: string | null;
   category: string;
+  condition_id: string;
+  condition: string;
   size_id: string | null;
   size: string;
   price: number;
@@ -42,6 +51,7 @@ export type Product = {
   status: "available";
   catalog_brands?: ProductCatalogBrand | null;
   catalog_categories?: ProductCatalogCategory | null;
+  catalog_product_conditions?: ProductCatalogCondition | null;
   catalog_sizes?: ProductCatalogSize | null;
   product_images: ProductImage[];
 };

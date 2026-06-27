@@ -18,6 +18,7 @@ import type {
   CatalogCategory,
   CatalogOptionActionState,
   CatalogOptions,
+  CatalogProductCondition,
   CatalogSizeGroup,
   CatalogSize,
 } from "@/features/catalog-options/types";
@@ -146,6 +147,7 @@ export function CatalogOptionsManager({ options }: CatalogOptionsManagerProps) {
   const [openSections, setOpenSections] = useState({
     categories: false,
     brands: false,
+    conditions: false,
     sizes: false,
   });
 
@@ -181,6 +183,23 @@ export function CatalogOptionsManager({ options }: CatalogOptionsManagerProps) {
         title="Marcas"
       />
       <CatalogCollapsibleSection
+        description="Estados de conservacion disponibles para cargar productos."
+        isOpen={openSections.conditions}
+        onToggle={() =>
+          setOpenSections((currentValue) => ({
+            ...currentValue,
+            conditions: !currentValue.conditions,
+          }))
+        }
+        content={
+          <CatalogOptionSection
+            kind="condition"
+            options={options.conditions}
+          />
+        }
+        title="Estados"
+      />
+      <CatalogCollapsibleSection
         description="Talles disponibles para asociar a categorias."
         isOpen={openSections.sizes}
         onToggle={() =>
@@ -210,7 +229,7 @@ function CatalogCollapsibleSection({
   title: string;
 }) {
   return (
-    <section className="catalog-options-section">
+    <section className="catalog-options-section ui-panel">
       <button
         aria-expanded={isOpen}
         className="catalog-options-section__toggle"
@@ -218,8 +237,8 @@ function CatalogCollapsibleSection({
         type="button"
       >
         <span className="catalog-options-section__toggle-text">
-          <strong>{title}</strong>
-          <span>{description}</span>
+          <strong className="text-h3">{title}</strong>
+          <span className="text-body">{description}</span>
         </span>
         <span
           aria-hidden="true"
@@ -240,7 +259,13 @@ function CatalogCollapsibleSection({
   );
 }
 
-type CatalogOption = CatalogBrand | CatalogCategory | CatalogSize;
+type CatalogOption =
+  | CatalogBrand
+  | CatalogCategory
+  | CatalogProductCondition
+  | CatalogSize;
+
+type CatalogSimpleOption = CatalogBrand | CatalogProductCondition;
 
 type CatalogOptionSectionProps = {
   kind: CatalogOptionKind;
@@ -265,6 +290,21 @@ function CatalogOptionSection({ kind, options }: CatalogOptionSectionProps) {
 
   if (kind === "size") {
     return <CatalogSizeManager sizes={options as CatalogSize[]} />;
+  }
+
+  if (kind === "condition") {
+    const conditions = options as CatalogProductCondition[];
+    return (
+      <CatalogConditionSection
+        conditions={conditions}
+        key={conditions
+          .map(
+            (condition) =>
+              `${condition.id}:${condition.position}:${condition.is_active}:${condition.name}`,
+          )
+          .join("|")}
+      />
+    );
   }
 
   const brands = options as CatalogBrand[];
@@ -817,8 +857,200 @@ function CatalogSortableBrandList({
               kind="brand"
               key={brand.id}
               onRequestMutation={onRequestMutation}
-              onToggleStatus={onToggleStatus}
+              onToggleStatus={(option) => onToggleStatus(option as CatalogBrand)}
               option={brand}
+              position={index + 1}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+function CatalogConditionSection({
+  conditions,
+}: {
+  conditions: CatalogProductCondition[];
+}) {
+  const {
+    cancelMutation,
+    handleCloseResult,
+    handleConfirm,
+    isProcessing,
+    pendingMutation,
+    requestMutation,
+    result,
+  } = useCatalogMutationFlow();
+  const [orderedConditions, setOrderedConditions] = useState(conditions);
+
+  function handleCreateConditionMutation(form: HTMLFormElement) {
+    const formData = new FormData(form);
+
+    requestMutation({
+      confirmLabel: "Crear estado",
+      description: "Se guardara el nuevo estado en el catalogo.",
+      execute: async () => {
+        const result = await createCatalogOption("condition", formData);
+        if (result.success) {
+          form.reset();
+        }
+        return result;
+      },
+      successTitle: "Estado creado",
+      title: "Crear estado",
+    });
+  }
+
+  function handleUpdateConditionMutation(formData: FormData) {
+    requestMutation({
+      confirmLabel: "Guardar estado",
+      description: "Se actualizaran los datos del estado.",
+      execute: () => updateCatalogOption("condition", formData),
+      successTitle: "Estado guardado",
+      title: "Guardar estado",
+    });
+  }
+
+  function handleToggleConditionStatus(condition: CatalogProductCondition) {
+    const formData = new FormData();
+    formData.set("id", condition.id);
+    formData.set("isActive", String(!condition.is_active));
+
+    requestMutation({
+      confirmLabel: condition.is_active ? "Desactivar estado" : "Activar estado",
+      description: condition.is_active
+        ? "El estado dejara de estar disponible para cargar productos."
+        : "El estado volvera a estar disponible para cargar productos.",
+      execute: () => setCatalogOptionStatus("condition", formData),
+      successTitle: condition.is_active ? "Estado desactivado" : "Estado activado",
+      title: condition.is_active ? "Desactivar estado" : "Activar estado",
+      variant: condition.is_active ? "danger" : "default",
+    });
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const previousConditions = orderedConditions;
+    const nextConditions = reorderItemsById(
+      orderedConditions,
+      String(active.id),
+      String(over.id),
+    );
+
+    setOrderedConditions(nextConditions);
+
+    requestMutation({
+      confirmLabel: "Guardar orden",
+      description: "Se guardara el nuevo orden de los estados del catalogo.",
+      execute: () =>
+        updateCatalogOptionPositions(
+          "condition",
+          nextConditions.map((condition) => condition.id),
+        ),
+      onRollback: () => setOrderedConditions(previousConditions),
+      successTitle: "Orden de estados guardado",
+      title: "Guardar orden de estados",
+    });
+  }
+
+  return (
+    <>
+      <CatalogOptionCreateForm
+        kind="condition"
+        onRequestMutation={handleCreateConditionMutation}
+      />
+
+      {orderedConditions.length > 0 ? (
+        <CatalogSortableConditionList
+          conditions={orderedConditions}
+          onDragEnd={handleDragEnd}
+          onRequestMutation={handleUpdateConditionMutation}
+          onToggleStatus={handleToggleConditionStatus}
+        />
+      ) : (
+        <p className="catalog-options-empty">No hay estados cargados.</p>
+      )}
+
+      <ConfirmDialog
+        confirmLabel={pendingMutation?.confirmLabel ?? "Confirmar"}
+        description={pendingMutation?.description ?? ""}
+        isOpen={pendingMutation !== null}
+        isPending={isProcessing}
+        onCancel={cancelMutation}
+        onConfirm={handleConfirm}
+        title={pendingMutation?.title ?? ""}
+        variant={pendingMutation?.variant ?? "default"}
+      />
+      <LoadingOverlay
+        isVisible={isProcessing}
+        message="Procesando cambios..."
+      />
+      <ResultModal
+        autoCloseMs={2500}
+        description={result?.description ?? ""}
+        isOpen={result !== null}
+        onClose={handleCloseResult}
+        title={result?.title ?? ""}
+        variant={result?.variant ?? "success"}
+      />
+    </>
+  );
+}
+
+function CatalogSortableConditionList({
+  conditions,
+  onDragEnd,
+  onRequestMutation,
+  onToggleStatus,
+}: {
+  conditions: CatalogProductCondition[];
+  onDragEnd: (event: DragEndEvent) => void;
+  onRequestMutation: (formData: FormData) => void;
+  onToggleStatus: (condition: CatalogProductCondition) => void;
+}) {
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 220,
+        tolerance: 6,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  return (
+    <DndContext
+      collisionDetection={closestCenter}
+      onDragEnd={onDragEnd}
+      sensors={sensors}
+    >
+      <SortableContext
+        items={conditions.map((condition) => condition.id)}
+        strategy={rectSortingStrategy}
+      >
+        <div className="catalog-options-list">
+          {conditions.map((condition, index) => (
+            <CatalogOptionRow
+              kind="condition"
+              key={condition.id}
+              onRequestMutation={onRequestMutation}
+              onToggleStatus={(option) =>
+                onToggleStatus(option as CatalogProductCondition)
+              }
+              option={condition}
               position={index + 1}
             />
           ))}
@@ -965,10 +1197,12 @@ function CatalogSizeGroupPanel({
   }
 
   return (
-    <section className="catalog-size-group">
-      <div className="catalog-size-group__header">
-        <h3>{group === "letter" ? "Talles letra" : "Talles numericos"}</h3>
-        <span>{sizes.length} opciones</span>
+    <section className="catalog-size-group ui-panel">
+      <div className="catalog-size-group__header ui-section-header">
+        <h3 className="text-h3">
+          {group === "letter" ? "Talles letra" : "Talles numericos"}
+        </h3>
+        <span className="text-caption">{sizes.length} opciones</span>
       </div>
 
       <CatalogSizeCreateForm group={group} onRequestMutation={requestMutation} />
@@ -1141,8 +1375,8 @@ function CatalogSizeCard({
     >
       <div className="catalog-size-card__top">
         <div>
-          <strong>{`Talle: ${option.label}`}</strong>
-          <p>{group === "letter" ? "Letras" : "Numericos"}</p>
+          <strong className="text-h3">{`Talle: ${option.label}`}</strong>
+          <p className="text-body-sm">{group === "letter" ? "Letras" : "Numericos"}</p>
         </div>
         <div className="catalog-size-card__top-actions">
           <button
@@ -1168,11 +1402,11 @@ function CatalogSizeCard({
         <form className="catalog-size-card__form" onSubmit={handleUpdate}>
           <input name="id" type="hidden" value={option.id} />
           <label className="form-field">
-            <span>Talle</span>
+            <span className="text-label">Talle</span>
             <input defaultValue={option.label} name="name" />
           </label>
           <label className="form-field">
-            <span>Grupo</span>
+            <span className="text-label">Grupo</span>
             <select defaultValue={group} name="sizeGroup">
               <option value="letter">Letras</option>
               <option value="numeric">Numericos</option>
@@ -1185,7 +1419,7 @@ function CatalogSizeCard({
       ) : null}
 
       <div className="catalog-size-card__meta">
-        <span className="catalog-option-status">
+        <span className="catalog-option-status ui-badge ui-badge--success">
           {option.is_active ? "Activo" : "Inactivo"}
         </span>
         <span className="catalog-size-card__position">Orden {index + 1}</span>
@@ -1232,9 +1466,9 @@ function CatalogOptionRow({
 }: {
   kind: Exclude<CatalogOptionKind, "size">;
   onRequestMutation: (formData: FormData) => void;
-  onToggleStatus: (option: CatalogBrand) => void;
+  onToggleStatus: (option: CatalogSimpleOption) => void;
   position: number;
-  option: CatalogOption;
+  option: CatalogSimpleOption;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const label = getCatalogOptionDisplayName(kind, option);
@@ -1291,8 +1525,8 @@ function CatalogOptionRow({
 
       <div className="catalog-option-row__status">
         <span
-          className={`catalog-option-status${
-            option.is_active ? "" : " catalog-option-status--inactive"
+          className={`catalog-option-status ui-badge text-badge${
+            option.is_active ? " ui-badge--success" : " ui-badge--inactive"
           }`}
         >
           {option.is_active ? "Activo" : "Inactivo"} · Orden {position}
@@ -1315,7 +1549,7 @@ function CatalogOptionRow({
         </button>
         <button
           className="button"
-          onClick={() => onToggleStatus(option as CatalogBrand)}
+          onClick={() => onToggleStatus(option)}
           type="button"
         >
           {option.is_active ? "Desactivar" : "Activar"}
@@ -1329,7 +1563,7 @@ function getCatalogOptionDisplayName(
   kind: CatalogOptionKind,
   option: CatalogOption,
 ) {
-  return kind === "size" ? (option as CatalogSize).label : (option as CatalogBrand).name;
+  return kind === "size" ? (option as CatalogSize).label : (option as CatalogSimpleOption).name;
 }
 
 function getCatalogOptionPlaceholder(kind: CatalogOptionKind) {
@@ -1339,6 +1573,10 @@ function getCatalogOptionPlaceholder(kind: CatalogOptionKind) {
 
   if (kind === "brand") {
     return "Ej: Nike";
+  }
+
+  if (kind === "condition") {
+    return "Ej: Muy bueno";
   }
 
   return "Ej: XL o 42";

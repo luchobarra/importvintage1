@@ -39,13 +39,22 @@ export async function createProductDraft(
   const title = String(formData.get("title") ?? "").trim();
   const brandId = String(formData.get("brand") ?? "").trim();
   const categoryId = String(formData.get("category") ?? "").trim();
+  const conditionId = String(formData.get("condition") ?? "").trim();
   const sizeId = String(formData.get("size") ?? "").trim();
   const rawPriceValue = String(formData.get("price") ?? "").trim();
   const priceValue = getPriceDigits(rawPriceValue);
   const description = String(formData.get("description") ?? "").trim();
   const price = Number(priceValue);
 
-  if (!title || !brandId || !categoryId || !sizeId || !priceValue || !description) {
+  if (
+    !title ||
+    !brandId ||
+    !categoryId ||
+    !conditionId ||
+    !sizeId ||
+    !priceValue ||
+    !description
+  ) {
     return {
       message: "Completa todos los campos obligatorios.",
       success: false,
@@ -76,6 +85,7 @@ export async function createProductDraft(
   const catalogSelection = await getCatalogSelection({
     brandId,
     categoryId,
+    conditionId,
     sizeId,
   });
 
@@ -91,6 +101,8 @@ export async function createProductDraft(
       brand: catalogSelection.brand.name,
       category_id: categoryId,
       category: catalogSelection.category.slug,
+      condition_id: conditionId,
+      condition: catalogSelection.condition.name,
       size_id: sizeId,
       size: catalogSelection.size.value,
       price,
@@ -192,6 +204,7 @@ export async function updateProduct(
   const title = String(formData.get("title") ?? "").trim();
   const brandId = String(formData.get("brand") ?? "").trim();
   const categoryId = String(formData.get("category") ?? "").trim();
+  const conditionId = String(formData.get("condition") ?? "").trim();
   const sizeId = String(formData.get("size") ?? "").trim();
   const rawPriceValue = String(formData.get("price") ?? "").trim();
   const priceValue = getPriceDigits(rawPriceValue);
@@ -203,6 +216,7 @@ export async function updateProduct(
     !title ||
     !brandId ||
     !categoryId ||
+    !conditionId ||
     !sizeId ||
     !priceValue ||
     !description
@@ -237,6 +251,7 @@ export async function updateProduct(
   const catalogSelection = await getCatalogSelection({
     brandId,
     categoryId,
+    conditionId,
     sizeId,
   });
 
@@ -252,6 +267,8 @@ export async function updateProduct(
       brand: catalogSelection.brand.name,
       category_id: categoryId,
       category: catalogSelection.category.slug,
+      condition_id: conditionId,
+      condition: catalogSelection.condition.name,
       size_id: sizeId,
       size: catalogSelection.size.value,
       price,
@@ -275,10 +292,12 @@ export async function updateProduct(
 async function getCatalogSelection({
   brandId,
   categoryId,
+  conditionId,
   sizeId,
 }: {
   brandId: string;
   categoryId: string;
+  conditionId: string;
   sizeId: string;
 }): Promise<
   | {
@@ -290,6 +309,7 @@ async function getCatalogSelection({
         sizes_letter_enabled: boolean;
         sizes_numeric_enabled: boolean;
       };
+      condition: { id: string; name: string };
       size: { id: string; label: string; value: string };
       success: true;
     }
@@ -299,7 +319,7 @@ async function getCatalogSelection({
     }
 > {
   const supabase = await createSupabaseServerClient();
-  const [brandResult, categoryResult, sizeResult] = await Promise.all([
+  const [brandResult, categoryResult, conditionResult, sizeResult] = await Promise.all([
       supabase
         .from("catalog_brands")
         .select("id, name")
@@ -312,6 +332,12 @@ async function getCatalogSelection({
           "id, name, slug, sizes_letter_enabled, sizes_numeric_enabled",
         )
         .eq("id", categoryId)
+        .eq("is_active", true)
+        .single(),
+      supabase
+        .from("catalog_product_conditions")
+        .select("id, name")
+        .eq("id", conditionId)
         .eq("is_active", true)
         .single(),
       supabase
@@ -328,6 +354,10 @@ async function getCatalogSelection({
 
   if (categoryResult.error || !categoryResult.data) {
     return { message: "Selecciona una categoria valida.", success: false };
+  }
+
+  if (conditionResult.error || !conditionResult.data) {
+    return { message: "Selecciona un estado valido.", success: false };
   }
 
   if (sizeResult.error || !sizeResult.data) {
@@ -359,6 +389,7 @@ async function getCatalogSelection({
   return {
     brand: brandResult.data,
     category: categoryResult.data,
+    condition: conditionResult.data,
     size: sizeResult.data,
     success: true,
   };

@@ -9,7 +9,7 @@ export function CatalogResultsSummary({
     totalCount === 1 ? "1 producto encontrado" : `${totalCount} productos encontrados`;
 
   return (
-    <p aria-live="polite" className="catalog-results-summary">
+    <p aria-live="polite" className="catalog-results-summary text-body-sm">
       {label}
     </p>
   );

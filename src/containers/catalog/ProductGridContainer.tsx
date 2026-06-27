@@ -1,5 +1,4 @@
 import { CatalogPagination } from "@/components/catalog/CatalogPagination";
-import { CatalogResultsSummary } from "@/components/catalog/CatalogResultsSummary";
 import { EmptyCatalog } from "@/components/catalog/EmptyCatalog";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import {
@@ -49,7 +48,6 @@ export async function ProductGridContainer({
     if (hasFilters) {
       return (
         <>
-          <CatalogResultsSummary totalCount={totalCount} />
           <EmptyCatalog
             title="No encontramos productos"
             message="Proba cambiar o limpiar los filtros."
@@ -65,7 +63,6 @@ export async function ProductGridContainer({
     if (totalCount > 0 && state.page > 1) {
       return (
         <>
-          <CatalogResultsSummary totalCount={totalCount} />
           <EmptyCatalog
             title="No hay productos en esta pagina"
             message="Volvé a la primera página o limpiá los filtros."
@@ -91,7 +88,6 @@ export async function ProductGridContainer({
 
   return (
     <>
-      <CatalogResultsSummary totalCount={totalCount} />
       <ProductGrid catalogHref={catalogHref} products={products} />
       <CatalogPagination state={state} totalCount={totalCount} />
     </>

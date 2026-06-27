@@ -52,11 +52,15 @@ export function ResultModal({
           {isSuccess ? "OK" : "!"}
         </span>
         <div className="result-modal__content">
-          <h2 id={titleId}>{title}</h2>
-          <p id={descriptionId}>{description}</p>
+          <h2 id={titleId} className="text-h2">
+            {title}
+          </h2>
+          <p id={descriptionId} className="text-body">
+            {description}
+          </p>
         </div>
         <div className="result-modal__actions">
-          <button className="button" onClick={onClose} type="button">
+          <button className="button button--secondary" onClick={onClose} type="button">
             Entendido
           </button>
         </div>

@@ -4,6 +4,7 @@ export type ProductFieldName =
   | "title"
   | "brand"
   | "category"
+  | "condition"
   | "size"
   | "price"
   | "description";
@@ -14,6 +15,7 @@ const PRODUCT_FIELD_LABELS: Record<ProductFieldName, string> = {
   title: "titulo",
   brand: "marca",
   category: "categoria",
+  condition: "estado",
   size: "talle",
   price: "precio",
   description: "descripcion",
@@ -23,6 +25,7 @@ const PRODUCT_FIELD_ORDER: ProductFieldName[] = [
   "title",
   "brand",
   "category",
+  "condition",
   "size",
   "price",
   "description",

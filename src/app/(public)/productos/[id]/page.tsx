@@ -1,0 +1,80 @@
+import { ProductDetailContainer } from "@/containers/catalog/ProductDetailContainer";
+import {
+  getCatalogReturnHref,
+  type PublicProductSearchParams,
+} from "@/features/products/public-filters";
+import {
+  formatProductPrice,
+  getProductBrandName,
+  getProductSizeLabel,
+} from "@/features/products/formatters";
+import { getAvailableProductById } from "@/features/products/queries";
+import { createSiteUrl } from "@/lib/site-url";
+import type { Metadata } from "next";
+
+type ProductDetailPageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+  searchParams: Promise<PublicProductSearchParams>;
+};
+
+export async function generateMetadata({
+  params,
+}: ProductDetailPageProps): Promise<Metadata> {
+  const { id } = await params;
+
+  try {
+    const product = await getAvailableProductById(id);
+    const brandName = getProductBrandName(product);
+    const sizeLabel = getProductSizeLabel(product);
+    const price = formatProductPrice(product.price);
+    const imageUrl = product.product_images[0]?.image_url;
+    const productUrl = createSiteUrl(`/productos/${product.id}`);
+    const description = `${brandName} · Talle ${sizeLabel} · ${price}. Prenda disponible en Old Times Vintage.`;
+
+    return {
+      title: product.title,
+      description,
+      alternates: {
+        canonical: productUrl,
+      },
+      openGraph: {
+        title: `${product.title} | Old Times Vintage`,
+        description,
+        images: imageUrl
+          ? [
+              {
+                url: imageUrl,
+                alt: `${product.title} de ${brandName}`,
+              },
+            ]
+          : undefined,
+        siteName: "Old Times Vintage",
+        type: "website",
+        url: productUrl,
+      },
+    };
+  } catch {
+    return {
+      title: "Producto no disponible",
+      description: "Este producto ya no esta disponible en Old Times Vintage.",
+    };
+  }
+}
+
+export default async function ProductDetailPage({
+  params,
+  searchParams,
+}: ProductDetailPageProps) {
+  const { id } = await params;
+  const catalogHref = await searchParams.then(getCatalogReturnHref);
+
+  return (
+    <main className="product-detail-page">
+      <section className="product-detail-page__container ui-page-container">
+        <ProductDetailContainer catalogHref={catalogHref} productId={id} />
+      </section>
+    </main>
+  );
+}

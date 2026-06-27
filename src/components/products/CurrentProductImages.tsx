@@ -70,9 +70,9 @@ export function CurrentProductImages({
   }
 
   return (
-    <section className="product-image-manager__section">
-      <div className="product-image-manager__section-header">
-        <h3>Imagenes actuales</h3>
+    <section className="product-image-manager__section ui-card">
+      <div className="product-image-manager__section-header ui-section-header">
+        <h3 className="text-h3">Imagenes actuales</h3>
         {isEditing ? (
           <div className="product-image-manager__section-actions">
             <button
@@ -141,7 +141,9 @@ export function CurrentProductImages({
                 </div>
 
                 <div className="product-image-manager__meta">
-                  <span>{positionLabel}</span>
+                  <span className="text-caption text-overline">
+                    {positionLabel}
+                  </span>
                 </div>
               </article>
             );
