@@ -244,14 +244,7 @@ export function CatalogFilters({
                   <legend className="catalog-filters__legend catalog-filters__legend--hidden">
                     Marca
                   </legend>
-                  <details
-                    className="catalog-filters__details"
-                    onToggle={(event) =>
-                      setIsSortSectionOpen(event.currentTarget.open)
-                    }
-                    open={isSortSectionOpen}
-                    ref={sortDetailsRef}
-                  >
+                  <details className="catalog-filters__details">
                     <summary className="catalog-filters__summary">
                       <span>Marca</span>
                     </summary>
@@ -344,7 +337,14 @@ export function CatalogFilters({
                   <legend className="catalog-filters__legend catalog-filters__legend--hidden">
                     Ordenar
                   </legend>
-                  <details className="catalog-filters__details">
+                  <details
+                    className="catalog-filters__details"
+                    onToggle={(event) =>
+                      setIsSortSectionOpen(event.currentTarget.open)
+                    }
+                    open={isSortSectionOpen}
+                    ref={sortDetailsRef}
+                  >
                     <summary className="catalog-filters__summary">
                       <span>Ordenar</span>
                     </summary>
