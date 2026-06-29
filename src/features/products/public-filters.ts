@@ -1,15 +1,17 @@
-export const PUBLIC_PRODUCTS_PAGE_SIZE = 12;
-export const DEFAULT_PUBLIC_PRODUCT_SORT = "newest";
+export const PUBLIC_PRODUCTS_PAGE_SIZE = 20;
+export const PUBLIC_RECENT_PRODUCTS_DAYS = 30;
 
-export type PublicProductSort = "newest" | "price_asc" | "price_desc";
+export type PublicProductSort = "" | "price_asc" | "price_desc";
 
 export type PublicProductFilters = {
   brand: string;
   category: string;
+  exclusive: boolean;
   size: string;
 };
 
 export type PublicCatalogState = PublicProductFilters & {
+  recent: boolean;
   page: number;
   sort: PublicProductSort;
 };
@@ -21,13 +23,15 @@ export type PublicProductSearchParams = {
 export const emptyPublicProductFilters: PublicProductFilters = {
   brand: "",
   category: "",
+  exclusive: false,
   size: "",
 };
 
 export const emptyPublicCatalogState: PublicCatalogState = {
   ...emptyPublicProductFilters,
+  recent: false,
   page: 1,
-  sort: DEFAULT_PUBLIC_PRODUCT_SORT,
+  sort: "",
 };
 
 export function parsePublicProductFilters(
@@ -36,6 +40,9 @@ export function parsePublicProductFilters(
   return {
     brand: getSearchParamValue(searchParams.brand),
     category: getSearchParamValue(searchParams.category),
+    exclusive: getPublicBooleanValue(
+      getSearchParamValue(searchParams.exclusivos),
+    ),
     size: getSearchParamValue(searchParams.size).toUpperCase(),
   };
 }
@@ -45,6 +52,7 @@ export function parsePublicCatalogState(
 ): PublicCatalogState {
   return {
     ...parsePublicProductFilters(searchParams),
+    recent: getPublicBooleanValue(getSearchParamValue(searchParams.novedades)),
     page: getPublicPageValue(getSearchParamValue(searchParams.page)),
     sort: getPublicSortValue(getSearchParamValue(searchParams.sort)),
   };
@@ -58,7 +66,9 @@ export function hasPublicProductFilters(filters: PublicProductFilters) {
 
 export function hasPublicCatalogControls(state: PublicCatalogState) {
   return (
-    hasPublicProductFilters(state) || state.sort !== DEFAULT_PUBLIC_PRODUCT_SORT
+    hasPublicProductFilters(state) ||
+    state.recent ||
+    state.sort !== ""
   );
 }
 
@@ -72,7 +82,15 @@ export function createPublicCatalogHref(
   appendCatalogParam(params, "category", state.category);
   appendCatalogParam(params, "size", state.size);
 
-  if (state.sort !== DEFAULT_PUBLIC_PRODUCT_SORT) {
+  if (state.exclusive) {
+    params.set("exclusivos", "1");
+  }
+
+  if (state.recent) {
+    params.set("novedades", "1");
+  }
+
+  if (state.sort) {
     params.set("sort", state.sort);
   }
 
@@ -114,16 +132,25 @@ function getPublicPageValue(value: string) {
   return page;
 }
 
+function getPublicBooleanValue(value: string) {
+  return value === "1" || value === "true";
+}
+
 function getPublicSortValue(value: string): PublicProductSort {
   if (value === "price_asc" || value === "price_desc") {
     return value;
   }
 
-  return DEFAULT_PUBLIC_PRODUCT_SORT;
+  return "";
 }
 
 function getPublicProductFilterValues(filters: PublicProductFilters) {
-  return [filters.brand, filters.category, filters.size];
+  return [
+    filters.brand,
+    filters.category,
+    filters.size,
+    filters.exclusive ? "exclusive" : "",
+  ];
 }
 
 function appendCatalogParam(

@@ -1,10 +1,9 @@
-import { CatalogPagination } from "@/components/catalog/CatalogPagination";
 import { EmptyCatalog } from "@/components/catalog/EmptyCatalog";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import {
   createPublicCatalogHref,
   emptyPublicCatalogState,
-  hasPublicProductFilters,
+  hasPublicCatalogControls,
   type PublicCatalogState,
 } from "@/features/products/public-filters";
 import { getAvailableProductsPage } from "@/features/products/queries";
@@ -21,7 +20,7 @@ export async function ProductGridContainer({
   let products: Product[] = [];
   let totalCount = 0;
   let errorMessage = "";
-  const hasFilters = hasPublicProductFilters(state);
+  const hasActiveControls = hasPublicCatalogControls(state);
   const catalogHref = createPublicCatalogHref(state);
 
   try {
@@ -45,7 +44,7 @@ export async function ProductGridContainer({
   }
 
   if (products.length === 0) {
-    if (hasFilters) {
+    if (hasActiveControls) {
       return (
         <>
           <EmptyCatalog
@@ -54,24 +53,6 @@ export async function ProductGridContainer({
           >
             <Link className="button button--primary" href="/">
               Limpiar filtros
-            </Link>
-          </EmptyCatalog>
-        </>
-      );
-    }
-
-    if (totalCount > 0 && state.page > 1) {
-      return (
-        <>
-          <EmptyCatalog
-            title="No hay productos en esta pagina"
-            message="Volvé a la primera página o limpiá los filtros."
-          >
-            <Link
-              className="button button--primary"
-              href={createPublicCatalogHref(state, 1)}
-            >
-              Ver primera pagina
             </Link>
           </EmptyCatalog>
         </>
@@ -87,9 +68,12 @@ export async function ProductGridContainer({
   }
 
   return (
-    <>
-      <ProductGrid catalogHref={catalogHref} products={products} />
-      <CatalogPagination state={state} totalCount={totalCount} />
-    </>
+    <ProductGrid
+      catalogHref={catalogHref}
+      initialState={state}
+      key={catalogHref}
+      products={products}
+      totalCount={totalCount}
+    />
   );
 }

@@ -4,10 +4,10 @@ import {
   getProductSizeLabel,
 } from "@/features/products/formatters";
 import { ProductCardImage } from "@/components/catalog/ProductCardImage";
+import { ProductDetailIntentLink } from "@/components/catalog/ProductDetailIntentLink";
 import { createPublicProductDetailHref } from "@/features/products/public-filters";
 import type { Product } from "@/features/products/types";
-import Link from "next/link";
-import type { CSSProperties } from "react";
+import { ViewTransition, type CSSProperties } from "react";
 
 type ProductCardProps = {
   catalogHref: string;
@@ -22,26 +22,33 @@ export function ProductCard({ catalogHref, index = 0, product }: ProductCardProp
   const sizeLabel = getProductSizeLabel(product);
   const enterDelay = `${Math.min(index, 5) * 14}ms`;
   const imageLoading = index < 4 ? "eager" : "lazy";
+  const detailHref = createPublicProductDetailHref(product.id, catalogHref);
 
   return (
-    <Link
+    <ProductDetailIntentLink
+      ariaLabel={`Ver detalle de ${productTitle} de ${brandName}`}
       className="product-card"
-      href={createPublicProductDetailHref(product.id, catalogHref)}
-      aria-label={`Ver detalle de ${productTitle} de ${brandName}`}
+      href={detailHref}
       style={{ "--product-card-enter-delay": enterDelay } as CSSProperties}
+      transitionTypes={["nav-forward"]}
     >
-      <div className="product-card__image">
-        {mainImage ? (
-          <ProductCardImage
-            src={mainImage.image_url}
-            alt={`${productTitle} de ${brandName}`}
-            loading={imageLoading}
-            sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 260px"
-          />
-        ) : (
-          <span>Sin foto</span>
-        )}
-      </div>
+      <ViewTransition name={`product-image-${product.id}`}>
+        <div className="product-card__image">
+          {product.is_exclusive ? (
+            <span className="product-card__exclusive-badge">Exclusivo</span>
+          ) : null}
+          {mainImage ? (
+            <ProductCardImage
+              src={mainImage.image_url}
+              alt={`${productTitle} de ${brandName}`}
+              loading={imageLoading}
+              sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 260px"
+            />
+          ) : (
+            <span>Sin foto</span>
+          )}
+        </div>
+      </ViewTransition>
       <div className="product-card__body">
         <p className="product-card__brand">{brandName}</p>
         <h2 className="product-card__title">{productTitle}</h2>
@@ -59,6 +66,6 @@ export function ProductCard({ catalogHref, index = 0, product }: ProductCardProp
         </span>
         <span className="product-card__status">Disponible</span>
       </div>
-    </Link>
+    </ProductDetailIntentLink>
   );
 }

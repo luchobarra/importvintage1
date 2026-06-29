@@ -1,7 +1,8 @@
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicHeaderSkeleton } from "@/components/layout/PublicHeaderSkeleton";
+import { PublicFooter } from "@/components/layout/PublicFooter";
 import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 
 type PublicLayoutProps = {
   children: React.ReactNode;
@@ -13,7 +14,21 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
       <Suspense fallback={<PublicHeaderSkeleton />}>
         <PublicHeaderContainer />
       </Suspense>
-      {children}
+      <ViewTransition
+        enter={{
+          "nav-back": "page-nav-back",
+          "nav-forward": "page-nav-forward",
+          default: "none",
+        }}
+        exit={{
+          "nav-back": "page-nav-back",
+          "nav-forward": "page-nav-forward",
+          default: "none",
+        }}
+      >
+        {children}
+      </ViewTransition>
+      <PublicFooter />
     </>
   );
 }

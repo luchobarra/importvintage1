@@ -18,6 +18,7 @@ const testProduct: Product = {
   size: "L",
   price: 25000,
   description: "Campera en excelente estado.",
+  is_exclusive: true,
   status: "available",
   product_images: [
     {

@@ -210,6 +210,14 @@ export function ProductForm({
         </label>
       </div>
 
+      <label className="product-form__toggle">
+        <input name="is_exclusive" type="checkbox" />
+        <span>
+          <strong>Producto exclusivo</strong>
+          <small>Marcalo para destacarlo como seleccion premium.</small>
+        </span>
+      </label>
+
       <label
         className={getFieldClassName(fieldErrors.description)}
         htmlFor="description"

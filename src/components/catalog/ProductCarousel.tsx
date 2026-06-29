@@ -1,11 +1,12 @@
 "use client";
 
+import { ProductDetailIntentLink } from "@/components/catalog/ProductDetailIntentLink";
 import { createPublicProductDetailHref } from "@/features/products/public-filters";
 import { getProductBrandName } from "@/features/products/formatters";
 import type { Product } from "@/features/products/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { ViewTransition } from "react";
 import { useState } from "react";
 
 type ProductCarouselProps = {
@@ -132,28 +133,32 @@ function CarouselProductLink({
 }: CarouselProductLinkProps) {
   const brandName = getProductBrandName(product);
   const mainImage = product.product_images[0];
+  const detailHref = createPublicProductDetailHref(product.id, catalogHref);
 
   return (
-    <Link
-      aria-label={`Ver detalle de ${product.title} de ${brandName}`}
-      aria-current={isActive ? "true" : undefined}
+    <ProductDetailIntentLink
+      ariaLabel={`Ver detalle de ${product.title} de ${brandName}`}
+      ariaCurrent={isActive ? "true" : undefined}
       className="product-carousel-card"
-      href={createPublicProductDetailHref(product.id, catalogHref)}
+      href={detailHref}
+      transitionTypes={["nav-forward"]}
     >
-      <span className="product-carousel-card__media">
-        {mainImage ? (
-          <Image
-            alt={`${product.title} de ${brandName}`}
-            fill
-            loading={index < 4 ? "eager" : "lazy"}
-            sizes="(max-width: 640px) 72vw, (max-width: 960px) 42vw, 320px"
-            src={mainImage.image_url}
-          />
-        ) : (
-          <span className="product-carousel-card__empty">Sin foto</span>
-        )}
-      </span>
-    </Link>
+      <ViewTransition name={`product-image-${product.id}`}>
+        <span className="product-carousel-card__media">
+          {mainImage ? (
+            <Image
+              alt={`${product.title} de ${brandName}`}
+              fill
+              loading={index < 4 ? "eager" : "lazy"}
+              sizes="(max-width: 640px) 72vw, (max-width: 960px) 42vw, 320px"
+              src={mainImage.image_url}
+            />
+          ) : (
+            <span className="product-carousel-card__empty">Sin foto</span>
+          )}
+        </span>
+      </ViewTransition>
+    </ProductDetailIntentLink>
   );
 }
 

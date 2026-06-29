@@ -14,6 +14,7 @@ export function ProductDetail({ catalogHref, product }: ProductDetailProps) {
       <div className="product-detail__media-column">
         <ProductDetailGalleryContainer
           images={product.product_images}
+          productId={product.id}
           title={product.title}
         />
       </div>

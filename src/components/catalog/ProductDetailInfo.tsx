@@ -74,7 +74,7 @@ export function ProductDetailInfo({
         </div>
       ) : null}
 
-      <div className="product-detail__actions" id="contacto">
+      <div className="product-detail__actions">
         <a
           className="button button--primary product-detail__contact-button"
           href={createProductContactHref(product.id)}
@@ -83,7 +83,11 @@ export function ProductDetailInfo({
         >
           Contactar con el vendedor
         </a>
-        <Link className="button button--ghost product-detail__back-link" href={catalogHref}>
+        <Link
+          className="button button--ghost product-detail__back-link"
+          href={catalogHref}
+          transitionTypes={["nav-back"]}
+        >
           Volver al catalogo
         </Link>
       </div>

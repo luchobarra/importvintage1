@@ -4,7 +4,7 @@ type ProductGridSkeletonProps = {
   count?: number;
 };
 
-export function ProductGridSkeleton({ count = 8 }: ProductGridSkeletonProps) {
+export function ProductGridSkeleton({ count = 20 }: ProductGridSkeletonProps) {
   return (
     <div aria-label="Cargando productos" aria-live="polite" role="status">
       <div className="product-grid">

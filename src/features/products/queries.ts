@@ -2,6 +2,7 @@ import { isAdminUser } from "@/features/auth/admin";
 import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
 import {
   emptyPublicCatalogState,
+  PUBLIC_RECENT_PRODUCTS_DAYS,
   PUBLIC_PRODUCTS_PAGE_SIZE,
   type PublicCatalogState,
 } from "@/features/products/public-filters";
@@ -22,6 +23,7 @@ const PRODUCT_SELECT = `
   size,
   price,
   description,
+  is_exclusive,
   status,
   catalog_brands (
     id,
@@ -87,6 +89,14 @@ export async function getAvailableProductsPage(
 
   if (selectedSize) {
     query = query.eq("size_id", selectedSize.id);
+  }
+
+  if (state.exclusive) {
+    query = query.eq("is_exclusive", true);
+  }
+
+  if (state.recent) {
+    query = query.gte("created_at", getRecentProductsStartDate());
   }
 
   if (state.sort === "price_asc") {
@@ -244,6 +254,14 @@ async function getAvailableProductSubset({
   }
 
   return (data ?? []) as unknown as Product[];
+}
+
+function getRecentProductsStartDate() {
+  const startDate = new Date();
+
+  startDate.setDate(startDate.getDate() - PUBLIC_RECENT_PRODUCTS_DAYS);
+
+  return startDate.toISOString();
 }
 
 export async function getAdminProducts() {

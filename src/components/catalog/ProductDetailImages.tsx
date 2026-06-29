@@ -1,8 +1,10 @@
 import type { ProductImage } from "@/features/products/types";
 import Image from "next/image";
+import { ViewTransition } from "react";
 
 type ProductDetailImagesProps = {
   images: ProductImage[];
+  productId: string;
   selectedImageIndex: number;
   title: string;
   onSelectImage: (index: number) => void;
@@ -10,6 +12,7 @@ type ProductDetailImagesProps = {
 
 export function ProductDetailImages({
   images,
+  productId,
   selectedImageIndex,
   title,
   onSelectImage,
@@ -40,24 +43,26 @@ export function ProductDetailImages({
         </div>
       ) : null}
 
-      <div className="product-detail__main-image">
-        {mainImage ? (
-          <Image
-            alt={title}
-            fill
-            priority
-            sizes="(max-width: 900px) 100vw, 58vw"
-            src={mainImage.image_url}
-          />
-        ) : (
-          <span className="product-detail__empty-image">Sin foto</span>
-        )}
-        {images.length > 1 ? (
-          <span className="product-detail__image-count">
-            Foto {selectedImageIndex + 1} / {images.length}
-          </span>
-        ) : null}
-      </div>
+      <ViewTransition name={`product-image-${productId}`}>
+        <div className="product-detail__main-image">
+          {mainImage ? (
+            <Image
+              alt={title}
+              fill
+              priority
+              sizes="(max-width: 900px) 100vw, 58vw"
+              src={mainImage.image_url}
+            />
+          ) : (
+            <span className="product-detail__empty-image">Sin foto</span>
+          )}
+          {images.length > 1 ? (
+            <span className="product-detail__image-count">
+              Foto {selectedImageIndex + 1} / {images.length}
+            </span>
+          ) : null}
+        </div>
+      </ViewTransition>
     </section>
   );
 }

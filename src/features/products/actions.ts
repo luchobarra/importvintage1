@@ -44,6 +44,7 @@ export async function createProductDraft(
   const rawPriceValue = String(formData.get("price") ?? "").trim();
   const priceValue = getPriceDigits(rawPriceValue);
   const description = String(formData.get("description") ?? "").trim();
+  const isExclusive = formData.get("is_exclusive") === "on";
   const price = Number(priceValue);
 
   if (
@@ -107,6 +108,7 @@ export async function createProductDraft(
       size: catalogSelection.size.value,
       price,
       description,
+      is_exclusive: isExclusive,
       status: "available",
     })
     .select("id")
@@ -209,6 +211,7 @@ export async function updateProduct(
   const rawPriceValue = String(formData.get("price") ?? "").trim();
   const priceValue = getPriceDigits(rawPriceValue);
   const description = String(formData.get("description") ?? "").trim();
+  const isExclusive = formData.get("is_exclusive") === "on";
   const price = Number(priceValue);
 
   if (
@@ -273,6 +276,7 @@ export async function updateProduct(
       size: catalogSelection.size.value,
       price,
       description,
+      is_exclusive: isExclusive,
     })
     .eq("id", productId);
 

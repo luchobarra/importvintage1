@@ -5,9 +5,9 @@ import {
   createPublicCatalogHref,
   emptyPublicCatalogState,
 } from "@/features/products/public-filters";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 type PublicHeaderProps = {
   categories: CatalogCategory[];
@@ -19,28 +19,45 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
   const menuId = useId();
   const categoriesId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProductsOpen, setIsProductsOpen] = useState(false);
+  const [isMenuClosing, setIsMenuClosing] = useState(false);
+  const [isDesktopProductsOpen, setIsDesktopProductsOpen] = useState(false);
+  const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
+  const closeTimeoutRef = useRef<number | null>(null);
   const productsRef = useRef<HTMLDivElement>(null);
 
+  const closeMenu = useCallback(() => {
+    if (!isMenuOpen || isMenuClosing) {
+      return;
+    }
+
+    setIsMenuClosing(true);
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setIsMenuOpen(false);
+      setIsMenuClosing(false);
+      setIsMobileProductsOpen(false);
+      closeTimeoutRef.current = null;
+    }, 340);
+  }, [isMenuClosing, isMenuOpen]);
+
   useEffect(() => {
-    if (!isMenuOpen && !isProductsOpen) {
+    if (!isMenuOpen && !isDesktopProductsOpen) {
       return;
     }
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setIsMenuOpen(false);
-        setIsProductsOpen(false);
+        closeMenu();
+        setIsDesktopProductsOpen(false);
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMenuOpen, isProductsOpen]);
+  }, [closeMenu, isDesktopProductsOpen, isMenuOpen]);
 
   useEffect(() => {
-    if (!isProductsOpen) {
+    if (!isDesktopProductsOpen) {
       return;
     }
 
@@ -49,33 +66,67 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
         productsRef.current &&
         !productsRef.current.contains(event.target as Node)
       ) {
-        setIsProductsOpen(false);
+        setIsDesktopProductsOpen(false);
       }
     }
 
     window.addEventListener("pointerdown", handlePointerDown);
 
     return () => window.removeEventListener("pointerdown", handlePointerDown);
-  }, [isProductsOpen]);
+  }, [isDesktopProductsOpen]);
 
-  function closeMenu() {
-    setIsMenuOpen(false);
-    setIsProductsOpen(false);
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    document.body.classList.add("public-header-menu-open");
+
+    return () => {
+      document.body.classList.remove("public-header-menu-open");
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current !== null) {
+        window.clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  function openMenu() {
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+
+    setIsMenuClosing(false);
+    setIsMenuOpen(true);
   }
 
-  function closeProducts() {
-    setIsProductsOpen(false);
+  function toggleMenu() {
+    if (isMenuOpen) {
+      closeMenu();
+      return;
+    }
+
+    openMenu();
+  }
+
+  function closeDesktopProducts() {
+    setIsDesktopProductsOpen(false);
   }
 
   return (
-    <header className="public-header">
+    <header className="public-header" style={{ viewTransitionName: "site-header" }}>
       <div className="public-header__inner ui-page-container">
         <button
           aria-controls={menuId}
           aria-expanded={isMenuOpen}
           aria-label={isMenuOpen ? "Cerrar menu" : "Abrir menu"}
           className="public-header__menu-button"
-          onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
+          onClick={toggleMenu}
           type="button"
         >
           <Menu aria-hidden="true" size={28} strokeWidth={1.7} />
@@ -99,20 +150,25 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
             ref={productsRef}
           >
             <button
-              aria-expanded={isProductsOpen}
+              aria-expanded={isDesktopProductsOpen}
               className="public-header__nav-button"
-              data-open={isProductsOpen}
-              onClick={() => setIsProductsOpen((currentValue) => !currentValue)}
+              data-open={isDesktopProductsOpen}
+              onClick={() =>
+                setIsDesktopProductsOpen((currentValue) => !currentValue)
+              }
               type="button"
             >
               Productos
               <span aria-hidden="true" />
             </button>
-            <div className="public-header__dropdown" data-open={isProductsOpen}>
+            <div
+              className="public-header__dropdown"
+              data-open={isDesktopProductsOpen}
+            >
               <Link
                 className="public-header__dropdown-link"
                 href="/"
-                onClick={closeProducts}
+                onClick={closeDesktopProducts}
               >
                 Todos los productos
               </Link>
@@ -121,16 +177,19 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
                   className="public-header__dropdown-link"
                   href={getCategoryHref(category.slug)}
                   key={category.id}
-                  onClick={closeProducts}
+                  onClick={closeDesktopProducts}
                 >
                   {category.name}
                 </Link>
               ))}
             </div>
           </div>
-          <a className="public-header__nav-link" href="#novedades">
+          <Link className="public-header__nav-link" href={getExclusiveProductsHref()}>
+            Exclusivos
+          </Link>
+          <Link className="public-header__nav-link" href={getRecentProductsHref()}>
             Novedades
-          </a>
+          </Link>
           <a className="public-header__nav-link" href="#contacto">
             Contacto
           </a>
@@ -142,15 +201,20 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
 
       {isMenuOpen ? (
         <>
-          <div
+          <button
+            aria-label="Cerrar menu"
             className="public-header__mobile-overlay"
-            data-open={isMenuOpen}
+            data-state={isMenuClosing ? "closing" : "open"}
             onClick={closeMenu}
+            type="button"
           />
           <aside
+            aria-label="Menu principal"
+            aria-modal="true"
             className="public-header__mobile-panel"
-            data-open={isMenuOpen}
+            data-state={isMenuClosing ? "closing" : "open"}
             id={menuId}
+            role="dialog"
           >
             <div className="public-header__mobile-head">
               <Link className="public-header__mobile-brand" href="/" onClick={closeMenu}>
@@ -176,19 +240,26 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
             <nav aria-label="Menu mobile" className="public-header__mobile-nav">
               <button
                 aria-controls={categoriesId}
-                aria-expanded={isProductsOpen}
+                aria-expanded={isMobileProductsOpen}
                 className="public-header__mobile-link"
-                data-open={isProductsOpen}
-                onClick={() => setIsProductsOpen((currentValue) => !currentValue)}
+                data-open={isMobileProductsOpen}
+                onClick={() =>
+                  setIsMobileProductsOpen((currentValue) => !currentValue)
+                }
                 type="button"
               >
                 Productos
-                <span aria-hidden="true" className="public-header__mobile-link-icon" />
+                <ChevronDown
+                  aria-hidden="true"
+                  className="public-header__mobile-link-icon"
+                  size={18}
+                  strokeWidth={1.8}
+                />
               </button>
 
               <div
                 className="public-header__mobile-categories"
-                data-open={isProductsOpen}
+                data-open={isMobileProductsOpen}
                 id={categoriesId}
               >
                 <Link href="/" onClick={closeMenu}>
@@ -205,9 +276,20 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
                 ))}
               </div>
 
-              <a className="public-header__mobile-link" href="#novedades" onClick={closeMenu}>
+              <Link
+                className="public-header__mobile-link"
+                href={getExclusiveProductsHref()}
+                onClick={closeMenu}
+              >
+                Exclusivos
+              </Link>
+              <Link
+                className="public-header__mobile-link"
+                href={getRecentProductsHref()}
+                onClick={closeMenu}
+              >
                 Novedades
-              </a>
+              </Link>
               <a className="public-header__mobile-link" href="#contacto" onClick={closeMenu}>
                 Contacto
               </a>
@@ -223,5 +305,19 @@ function getCategoryHref(categorySlug: string) {
   return createPublicCatalogHref({
     ...emptyPublicCatalogState,
     category: categorySlug,
+  });
+}
+
+function getRecentProductsHref() {
+  return createPublicCatalogHref({
+    ...emptyPublicCatalogState,
+    recent: true,
+  });
+}
+
+function getExclusiveProductsHref() {
+  return createPublicCatalogHref({
+    ...emptyPublicCatalogState,
+    exclusive: true,
   });
 }

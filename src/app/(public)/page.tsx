@@ -31,16 +31,40 @@ export const metadata: Metadata = {
 };
 
 export default async function Home({ searchParams }: HomeProps) {
-  const catalogState = parsePublicCatalogState(await searchParams);
+  const catalogState = {
+    ...parsePublicCatalogState(await searchParams),
+    page: 1,
+  };
   const hasActiveControls = hasPublicCatalogControls(catalogState);
   const options = await getPublicCatalogOptions();
+  const heading = catalogState.exclusive
+    ? {
+        description:
+          "Una seleccion premium de piezas especiales, elegidas por calidad, rareza y presencia.",
+        title: "Exclusivos",
+      }
+    : catalogState.recent
+      ? {
+          description:
+            "Mira los ultimos ingresos del catalogo, cargados recientemente y listos para descubrir.",
+        title: "Novedades",
+      }
+    : {
+        description: "",
+        title: "Prendas disponibles",
+      };
 
   return (
     <main className="home">
       <section className="home__container ui-page-container">
         <header className="home__header">
           <div>
-            <h1 className="home__title text-display">Prendas disponibles</h1>
+            <h1 className="home__title text-display">{heading.title}</h1>
+            {heading.description ? (
+              <p className="home__description text-body">
+                {heading.description}
+              </p>
+            ) : null}
           </div>
         </header>
 
