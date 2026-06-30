@@ -208,7 +208,7 @@ export function EditProductFormContainer({
     setResult(null);
 
     if (shouldRedirect) {
-      router.push("/admin/productos");
+      router.push("/oldtimes-admin/productos");
     }
   }
 

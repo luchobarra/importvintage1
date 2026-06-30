@@ -187,9 +187,6 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
           <Link className="public-header__nav-link" href={getExclusiveProductsHref()}>
             Exclusivos
           </Link>
-          <Link className="public-header__nav-link" href={getRecentProductsHref()}>
-            Novedades
-          </Link>
           <a className="public-header__nav-link" href="#contacto">
             Contacto
           </a>
@@ -283,13 +280,6 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
               >
                 Exclusivos
               </Link>
-              <Link
-                className="public-header__mobile-link"
-                href={getRecentProductsHref()}
-                onClick={closeMenu}
-              >
-                Novedades
-              </Link>
               <a className="public-header__mobile-link" href="#contacto" onClick={closeMenu}>
                 Contacto
               </a>
@@ -305,13 +295,6 @@ function getCategoryHref(categorySlug: string) {
   return createPublicCatalogHref({
     ...emptyPublicCatalogState,
     category: categorySlug,
-  });
-}
-
-function getRecentProductsHref() {
-  return createPublicCatalogHref({
-    ...emptyPublicCatalogState,
-    recent: true,
   });
 }
 

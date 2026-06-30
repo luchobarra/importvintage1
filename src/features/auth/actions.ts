@@ -47,19 +47,19 @@ export async function login(
     };
   }
 
-  redirect("/admin");
+  redirect("/oldtimes-admin");
 }
 
 export async function logout() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 
-  redirect("/admin/login");
+  redirect("/oldtimes-admin/login");
 }
 
 export async function expireAdminSession() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 
-  redirect("/admin/login?reason=session-expired");
+  redirect("/oldtimes-admin/login?reason=session-expired");
 }

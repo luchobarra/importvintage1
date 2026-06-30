@@ -40,7 +40,7 @@ export default async function EditProductPage({
         title="Editar producto"
         description="Modifica los datos basicos de la prenda. Las imagenes se editaran mas adelante."
         actions={
-          <Link className="button button--ghost" href="/admin/productos">
+          <Link className="button button--ghost" href="/oldtimes-admin/productos">
             Volver
           </Link>
         }

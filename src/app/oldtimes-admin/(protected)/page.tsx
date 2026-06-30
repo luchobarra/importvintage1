@@ -25,17 +25,17 @@ export default async function AdminPage() {
       />
 
       <div className="admin-actions">
-        <Link className="admin-action ui-card ui-card--interactive" href="/admin/productos">
+        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/productos">
           <span className="text-h3">Productos</span>
           <strong className="text-body">
             Ver y buscar prendas cargadas
           </strong>
         </Link>
-        <Link className="admin-action ui-card ui-card--interactive" href="/admin/productos/nuevo">
+        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/productos/nuevo">
           <span className="text-h3">Nuevo producto</span>
           <strong className="text-body">Cargar una prenda al catalogo</strong>
         </Link>
-        <Link className="admin-action ui-card ui-card--interactive" href="/admin/catalogo">
+        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/catalogo">
           <span className="text-h3">Configuracion</span>
           <strong className="text-body">
             Administrar categorias, marcas y talles

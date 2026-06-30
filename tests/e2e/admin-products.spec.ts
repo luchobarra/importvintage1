@@ -7,7 +7,7 @@ test.describe("admin products", () => {
     requireAdminE2E();
     await loginAsAdmin(page);
     await page.getByRole("link", { name: "Productos" }).click();
-    await expect(page).toHaveURL(/\/admin\/productos$/);
+    await expect(page).toHaveURL(/\/oldtimes-admin\/productos$/);
   });
 
   test("shows product search controls and the new product entry point", async ({

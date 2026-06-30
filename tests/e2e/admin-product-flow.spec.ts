@@ -57,7 +57,7 @@ test.describe("admin product flow", () => {
   test("requires at least one image to create a product", async ({ page }) => {
     const product = createTestProductData();
 
-    await page.goto("/admin/productos/nuevo");
+    await page.goto("/oldtimes-admin/productos/nuevo");
     await fillProductForm(page, product);
     await page.getByRole("button", { name: "Cargar producto" }).click();
 
@@ -67,7 +67,7 @@ test.describe("admin product flow", () => {
   test("allows removing a selected image before submitting", async ({ page }) => {
     const product = createTestProductData();
 
-    await page.goto("/admin/productos/nuevo");
+    await page.goto("/oldtimes-admin/productos/nuevo");
     await fillProductForm(page, product);
     await uploadTestImage(page);
 

@@ -1,5 +1,4 @@
 export const PUBLIC_PRODUCTS_PAGE_SIZE = 20;
-export const PUBLIC_RECENT_PRODUCTS_DAYS = 30;
 
 export type PublicProductSort = "" | "price_asc" | "price_desc";
 
@@ -11,7 +10,6 @@ export type PublicProductFilters = {
 };
 
 export type PublicCatalogState = PublicProductFilters & {
-  recent: boolean;
   page: number;
   sort: PublicProductSort;
 };
@@ -29,7 +27,6 @@ export const emptyPublicProductFilters: PublicProductFilters = {
 
 export const emptyPublicCatalogState: PublicCatalogState = {
   ...emptyPublicProductFilters,
-  recent: false,
   page: 1,
   sort: "",
 };
@@ -52,7 +49,6 @@ export function parsePublicCatalogState(
 ): PublicCatalogState {
   return {
     ...parsePublicProductFilters(searchParams),
-    recent: getPublicBooleanValue(getSearchParamValue(searchParams.novedades)),
     page: getPublicPageValue(getSearchParamValue(searchParams.page)),
     sort: getPublicSortValue(getSearchParamValue(searchParams.sort)),
   };
@@ -65,11 +61,7 @@ export function hasPublicProductFilters(filters: PublicProductFilters) {
 }
 
 export function hasPublicCatalogControls(state: PublicCatalogState) {
-  return (
-    hasPublicProductFilters(state) ||
-    state.recent ||
-    state.sort !== ""
-  );
+  return hasPublicProductFilters(state) || state.sort !== "";
 }
 
 export function createPublicCatalogHref(
@@ -84,10 +76,6 @@ export function createPublicCatalogHref(
 
   if (state.exclusive) {
     params.set("exclusivos", "1");
-  }
-
-  if (state.recent) {
-    params.set("novedades", "1");
   }
 
   if (state.sort) {

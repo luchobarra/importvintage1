@@ -43,12 +43,6 @@ export default async function Home({ searchParams }: HomeProps) {
           "Una seleccion premium de piezas especiales, elegidas por calidad, rareza y presencia.",
         title: "Exclusivos",
       }
-    : catalogState.recent
-      ? {
-          description:
-            "Mira los ultimos ingresos del catalogo, cargados recientemente y listos para descubrir.",
-        title: "Novedades",
-      }
     : {
         description: "",
         title: "Prendas disponibles",

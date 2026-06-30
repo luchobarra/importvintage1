@@ -60,7 +60,6 @@ describe("CatalogFilters", () => {
         brand: "vintage",
         category: "buzos",
         exclusive: true,
-        recent: true,
         size: "L",
         sort: "price_asc",
       }}
@@ -81,26 +80,15 @@ describe("CatalogFilters", () => {
 
     expect(drawer.getByRole("link", { name: "Vintage" })).toHaveAttribute(
       "href",
-      "/?category=buzos&size=L&exclusivos=1&novedades=1&sort=price_asc",
+      "/?category=buzos&size=L&exclusivos=1&sort=price_asc",
     );
     expect(drawer.getByRole("link", { name: "Exclusivos" })).toHaveAttribute(
       "href",
-      "/?brand=vintage&category=buzos&size=L&novedades=1&sort=price_asc",
-    );
-    expect(drawer.getByRole("link", { name: "Novedades" })).toHaveAttribute(
-      "href",
-      "/?brand=vintage&category=buzos&size=L&exclusivos=1&sort=price_asc",
+      "/?brand=vintage&category=buzos&size=L&sort=price_asc",
     );
     expect(
       sortGroup.getByRole("checkbox", { name: "Exclusivos" }),
     ).toBeChecked();
-    expect(
-      sortGroup.getByRole("checkbox", { name: "Novedades" }),
-    ).toBeChecked();
-    expect(sortGroup.getAllByDisplayValue("1")[1]).toHaveAttribute(
-      "name",
-      "novedades",
-    );
     expect(brandGroup.getByLabelText("Vintage")).toHaveAttribute("name", "brand");
     expect(categoryGroup.getByLabelText("Buzos")).toHaveAttribute(
       "name",
@@ -150,7 +138,6 @@ describe("parsePublicCatalogState", () => {
         category: "buzos",
         exclusivos: "1",
         size: " l ",
-        novedades: "1",
         page: "2",
         sort: "price_desc",
       }),
@@ -159,7 +146,6 @@ describe("parsePublicCatalogState", () => {
       category: "buzos",
       exclusive: true,
       size: "L",
-      recent: true,
       page: 2,
       sort: "price_desc",
     });

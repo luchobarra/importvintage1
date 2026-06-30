@@ -36,20 +36,20 @@ export async function updateSession(request: NextRequest) {
   const user = await getCurrentSupabaseUser(supabase);
 
   const { pathname } = request.nextUrl;
-  const isLoginPage = pathname === "/admin/login";
+  const isLoginPage = pathname === "/oldtimes-admin/login";
 
   const isAdmin = isAdminUser(user);
 
   if (!isAdmin && !isLoginPage) {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
+    url.pathname = "/oldtimes-admin/login";
     url.searchParams.set("redirectTo", pathname);
     return copyResponseCookies(supabaseResponse, NextResponse.redirect(url));
   }
 
   if (isAdmin && isLoginPage) {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin";
+    url.pathname = "/oldtimes-admin";
     url.search = "";
     return copyResponseCookies(supabaseResponse, NextResponse.redirect(url));
   }

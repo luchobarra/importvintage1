@@ -169,10 +169,6 @@ function createProductsApiHref(state: PublicCatalogState, page: number) {
     params.set("exclusivos", "1");
   }
 
-  if (state.recent) {
-    params.set("novedades", "1");
-  }
-
   if (state.sort) {
     params.set("sort", state.sort);
   }

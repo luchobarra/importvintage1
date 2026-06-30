@@ -612,7 +612,7 @@ function getCatalogOptionErrorMessage(
 
 function revalidateCatalogOptionPaths() {
   revalidatePath("/");
-  revalidatePath("/admin/catalogo");
-  revalidatePath("/admin/productos");
-  revalidatePath("/admin/productos/nuevo");
+  revalidatePath("/oldtimes-admin/catalogo");
+  revalidatePath("/oldtimes-admin/productos");
+  revalidatePath("/oldtimes-admin/productos/nuevo");
 }

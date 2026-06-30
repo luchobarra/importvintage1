@@ -13,7 +13,7 @@ export function ProductListItemActions({
 }: ProductListItemActionsProps) {
   return (
     <div className="admin-product-item__actions">
-      <Link className="button" href={`/admin/productos/${productId}`}>
+      <Link className="button" href={`/oldtimes-admin/productos/${productId}`}>
         Editar
       </Link>
       <button

@@ -182,13 +182,6 @@ export function CatalogFilters({
         };
       }
 
-      if (name === "novedades") {
-        return {
-          ...nextState,
-          recent: checked,
-        };
-      }
-
       if (name === "sort") {
         return {
           ...nextState,
@@ -458,14 +451,6 @@ export function CatalogFilters({
                         onChange={handleFilterOptionChange}
                         value="1"
                       />
-                      <FilterOption
-                        checked={pendingState.recent}
-                        inputType="checkbox"
-                        label="Novedades"
-                        name="novedades"
-                        onChange={handleFilterOptionChange}
-                        value="1"
-                      />
                       {getSortOptions().map((option) => (
                         <FilterOption
                           checked={pendingState.sort === option.value}
@@ -655,14 +640,6 @@ function getActiveItems(options: CatalogOptions, state: PublicCatalogState) {
     });
   }
 
-  if (state.recent) {
-    items.push({
-      href: createPublicCatalogHref({ ...state, page: 1, recent: false }),
-      key: "recent",
-      label: "Novedades",
-    });
-  }
-
   if (state.exclusive) {
     items.push({
       href: createPublicCatalogHref({ ...state, exclusive: false, page: 1 }),
@@ -688,8 +665,8 @@ function getActiveItems(options: CatalogOptions, state: PublicCatalogState) {
 
 function getSortOptions(): Array<{ label: string; value: PublicProductSort }> {
   return [
-    { label: "Menor precio", value: "price_asc" },
     { label: "Mayor precio", value: "price_desc" },
+    { label: "Menor precio", value: "price_asc" },
   ];
 }
 
@@ -705,7 +682,6 @@ function areCatalogStatesEqual(
     firstState.brand === secondState.brand &&
     firstState.category === secondState.category &&
     firstState.exclusive === secondState.exclusive &&
-    firstState.recent === secondState.recent &&
     firstState.size === secondState.size &&
     firstState.sort === secondState.sort
   );

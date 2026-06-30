@@ -9,8 +9,8 @@ test.describe("admin catalog options", () => {
   test.beforeEach(async ({ page }) => {
     requireAdminE2E();
     await loginAsAdmin(page);
-    await page.goto("/admin/catalogo");
-    await expect(page).toHaveURL(/\/admin\/catalogo$/);
+    await page.goto("/oldtimes-admin/catalogo");
+    await expect(page).toHaveURL(/\/oldtimes-admin\/catalogo$/);
   });
 
   test("manages categories, brands, sizes and their product/home impact", async ({
@@ -92,8 +92,8 @@ test.describe("admin catalog options", () => {
     });
 
     await test.step("reflects catalog options in the product form", async () => {
-      await page.goto("/admin/productos/nuevo");
-      await expect(page).toHaveURL(/\/admin\/productos\/nuevo$/);
+      await page.goto("/oldtimes-admin/productos/nuevo");
+      await expect(page).toHaveURL(/\/oldtimes-admin\/productos\/nuevo$/);
 
       await page.getByLabel("Titulo *").fill(productTitle);
       await page.getByLabel("Marca *").selectOption({ label: brandName });
@@ -144,8 +144,8 @@ test.describe("admin catalog options", () => {
     });
 
     await test.step("edits category flags and a size label", async () => {
-      await page.goto("/admin/catalogo");
-      await expect(page).toHaveURL(/\/admin\/catalogo$/);
+      await page.goto("/oldtimes-admin/catalogo");
+      await expect(page).toHaveURL(/\/oldtimes-admin\/catalogo$/);
       await page.getByRole("button", { name: /^Categorias/ }).click();
       const createdCategory = categorySection.locator(".catalog-category-card").filter({
         has: page.getByRole("button", { name: `Mover categoria ${categoryName}` }),

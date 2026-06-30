@@ -13,7 +13,7 @@ export default async function ProtectedAdminLayout({
   const user = await getCurrentSupabaseUser(supabase);
 
   if (!isAdminUser(user)) {
-    redirect("/admin/login");
+    redirect("/oldtimes-admin/login");
   }
 
   return <AdminSessionTimeoutContainer>{children}</AdminSessionTimeoutContainer>;

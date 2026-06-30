@@ -1,16 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("public catalog", () => {
-  test("loads the catalog and exposes admin entry point", async ({ page }) => {
+  test("loads the catalog without exposing the admin entry point", async ({ page }) => {
     await page.goto("/");
 
     await expect(
       page.getByRole("heading", { name: "Prendas disponibles" }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: "Admin" })).toHaveAttribute(
-      "href",
-      "/admin/login",
-    );
+    await expect(page.getByRole("link", { name: "Admin" })).toHaveCount(0);
   });
 
   test("loads public filters from query params", async ({ page }) => {
