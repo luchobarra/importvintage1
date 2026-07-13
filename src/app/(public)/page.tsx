@@ -1,4 +1,5 @@
 import { CatalogFilters } from "@/components/catalog/CatalogFilters";
+import { HomeEditorialBanner } from "@/components/catalog/HomeEditorialBanner";
 import { ProductGridSkeleton } from "@/components/catalog/ProductGridSkeleton";
 import { ProductGridContainer } from "@/containers/catalog/ProductGridContainer";
 import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
@@ -50,8 +51,9 @@ export default async function Home({ searchParams }: HomeProps) {
 
   return (
     <main className="home">
+      <HomeEditorialBanner />
       <section className="home__container ui-page-container">
-        <header className="home__header">
+        <header className="home__header" id="productos">
           <div>
             <h1 className="home__title text-display">{heading.title}</h1>
             {heading.description ? (
