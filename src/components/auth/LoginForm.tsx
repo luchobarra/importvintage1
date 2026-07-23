@@ -1,4 +1,5 @@
 import type { AuthFormState } from "@/features/auth/actions";
+import { LogIn } from "lucide-react";
 
 type LoginFormProps = {
   action: (formData: FormData) => void;
@@ -38,6 +39,7 @@ export function LoginForm({ action, pending, state }: LoginFormProps) {
       ) : null}
 
       <button className="button button--primary" disabled={pending} type="submit">
+        <LogIn aria-hidden="true" size={16} />
         {pending ? "Ingresando..." : "Ingresar"}
       </button>
     </form>

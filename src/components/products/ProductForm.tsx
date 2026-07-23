@@ -79,7 +79,7 @@ export function ProductForm({
     <form className="product-form" noValidate onSubmit={onSubmit} ref={formRef}>
       <div className="product-form__grid">
         <label className={getFieldClassName(fieldErrors.title)} htmlFor="title">
-          <span>Titulo *</span>
+          <FieldLabel errors={fieldErrors} fieldName="title" label="Titulo *" />
           <input
             aria-describedby={getErrorId("title", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.title)}
@@ -90,11 +90,10 @@ export function ProductForm({
             required
             type="text"
           />
-          <FieldError fieldName="title" errors={fieldErrors} />
         </label>
 
         <label className={getFieldClassName(fieldErrors.brand)} htmlFor="brand">
-          <span>Marca *</span>
+          <FieldLabel errors={fieldErrors} fieldName="brand" label="Marca *" />
           <select
             aria-describedby={getErrorId("brand", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.brand)}
@@ -112,14 +111,17 @@ export function ProductForm({
               </option>
             ))}
           </select>
-          <FieldError fieldName="brand" errors={fieldErrors} />
         </label>
 
         <label
           className={getFieldClassName(fieldErrors.category)}
           htmlFor="category"
         >
-          <span>Categoria *</span>
+          <FieldLabel
+            errors={fieldErrors}
+            fieldName="category"
+            label="Categoria *"
+          />
           <select
             aria-describedby={getErrorId("category", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.category)}
@@ -137,11 +139,10 @@ export function ProductForm({
               </option>
             ))}
           </select>
-          <FieldError fieldName="category" errors={fieldErrors} />
         </label>
 
         <label className={getFieldClassName(fieldErrors.size)} htmlFor="size">
-          <span>Talle *</span>
+          <FieldLabel errors={fieldErrors} fieldName="size" label="Talle *" />
           <select
             aria-describedby={getErrorId("size", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.size)}
@@ -164,14 +165,17 @@ export function ProductForm({
               </option>
             ))}
           </select>
-          <FieldError fieldName="size" errors={fieldErrors} />
         </label>
 
         <label
           className={getFieldClassName(fieldErrors.condition)}
           htmlFor="condition"
         >
-          <span>Estado *</span>
+          <FieldLabel
+            errors={fieldErrors}
+            fieldName="condition"
+            label="Estado *"
+          />
           <select
             aria-describedby={getErrorId("condition", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.condition)}
@@ -189,11 +193,14 @@ export function ProductForm({
               </option>
             ))}
           </select>
-          <FieldError fieldName="condition" errors={fieldErrors} />
         </label>
 
         <label className={getFieldClassName(fieldErrors.price)} htmlFor="price">
-          <span>Precio en pesos *</span>
+          <FieldLabel
+            errors={fieldErrors}
+            fieldName="price"
+            label="Precio en pesos *"
+          />
           <input
             aria-describedby={getErrorId("price", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.price)}
@@ -206,7 +213,6 @@ export function ProductForm({
             required
             type="text"
           />
-          <FieldError fieldName="price" errors={fieldErrors} />
         </label>
       </div>
 
@@ -222,7 +228,11 @@ export function ProductForm({
         className={getFieldClassName(fieldErrors.description)}
         htmlFor="description"
       >
-        <span>Descripcion / estado *</span>
+        <FieldLabel
+          errors={fieldErrors}
+          fieldName="description"
+          label="Descripcion / estado *"
+        />
         <textarea
           aria-describedby={getDescriptionAriaDescribedBy(fieldErrors)}
           aria-invalid={Boolean(fieldErrors.description)}
@@ -237,7 +247,6 @@ export function ProductForm({
         <p className="form-field__hint">
           {descriptionLength}/{PRODUCT_DESCRIPTION_MAX_LENGTH} caracteres.
         </p>
-        <FieldError fieldName="description" errors={fieldErrors} />
       </label>
 
       <ImageUploader
@@ -273,23 +282,30 @@ export function ProductForm({
   );
 }
 
-function FieldError({
+function FieldLabel({
   errors,
   fieldName,
+  label,
 }: {
   errors: ProductFieldErrors;
   fieldName: ProductFieldName;
+  label: string;
 }) {
   const message = errors[fieldName];
 
-  if (!message) {
-    return null;
-  }
-
   return (
-    <p className="form-field__error" id={`${fieldName}-error`} role="alert">
-      {message}
-    </p>
+    <span className="form-field__label-row">
+      <span>{label}</span>
+      {message ? (
+        <small
+          className="form-field__error"
+          id={`${fieldName}-error`}
+          role="alert"
+        >
+          {message}
+        </small>
+      ) : null}
+    </span>
   );
 }
 

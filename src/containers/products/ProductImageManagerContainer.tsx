@@ -451,7 +451,7 @@ export function ProductImageManagerContainer({
         })}
       />
       <ResultModal
-        autoCloseMs={2500}
+        autoCloseMs={8000}
         description={result?.description ?? ""}
         isOpen={result !== null}
         onClose={handleCloseResult}

@@ -487,7 +487,7 @@ export function ProductFormContainer({ options }: ProductFormContainerProps) {
         message={getProductFormLoadingMessage(progress)}
       />
       <ResultModal
-        autoCloseMs={3000}
+        autoCloseMs={8000}
         description={result?.description ?? ""}
         isOpen={result !== null}
         onClose={handleCloseResult}

@@ -21,22 +21,21 @@ export function ResultModal({
 }: ResultModalProps) {
   const titleId = useId();
   const descriptionId = useId();
+  const isSuccess = variant === "success";
 
   useEffect(() => {
-    if (!isOpen || !autoCloseMs) {
+    if (!isOpen || !autoCloseMs || !isSuccess) {
       return;
     }
 
     const timeoutId = window.setTimeout(onClose, autoCloseMs);
 
     return () => window.clearTimeout(timeoutId);
-  }, [autoCloseMs, isOpen, onClose]);
+  }, [autoCloseMs, isOpen, isSuccess, onClose]);
 
   if (!isOpen) {
     return null;
   }
-
-  const isSuccess = variant === "success";
 
   return (
     <div className="result-modal" role="presentation">

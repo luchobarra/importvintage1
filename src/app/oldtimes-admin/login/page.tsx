@@ -26,11 +26,18 @@ export default async function AdminLoginPage({
   return (
     <main className="auth-page">
       <section className="auth-panel ui-panel ui-panel--narrow">
-        <p className="auth-panel__eyebrow">Panel privado</p>
-        <h1>Acceso administrador</h1>
-        <p className="auth-panel__copy">
-          Ingresa con el usuario administrador para gestionar el catalogo.
-        </p>
+        <div className="auth-panel__header">
+          <p className="auth-panel__eyebrow">Panel privado</p>
+          <h1>Old Times</h1>
+          <div className="auth-panel__ornament" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+          <p className="auth-panel__copy">
+            Acceso administrador para gestionar el catalogo.
+          </p>
+        </div>
         {hasExpiredSession ? (
           <p className="auth-panel__message" role="status">
             Sesion vencida por inactividad.
