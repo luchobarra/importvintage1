@@ -402,6 +402,43 @@ export async function setCatalogOptionStatus(
   return successState;
 }
 
+export async function deleteCatalogOption(
+  kind: CatalogOptionKind,
+  formData: FormData,
+): Promise<CatalogOptionActionState> {
+  const adminError = await validateAdminAccess();
+
+  if (adminError) {
+    return adminError;
+  }
+
+  const optionId = String(formData.get("id") ?? "");
+
+  if (!optionId) {
+    return { message: "Falta el ID de la opcion.", success: false };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from(getCatalogOptionTableName(kind))
+    .delete()
+    .eq("id", optionId);
+
+  if (error) {
+    return {
+      message: getCatalogOptionDeleteErrorMessage(kind, error.message),
+      success: false,
+    };
+  }
+
+  revalidateCatalogOptionPaths();
+
+  return {
+    message: "Opcion eliminada correctamente.",
+    success: true,
+  };
+}
+
 async function validateAdminAccess(): Promise<CatalogOptionActionState | null> {
   const supabase = await createSupabaseServerClient();
   const {
@@ -608,6 +645,39 @@ function getCatalogOptionErrorMessage(
   }
 
   return `No se pudo guardar la opcion: ${errorMessage}`;
+}
+
+function getCatalogOptionDeleteErrorMessage(
+  kind: CatalogOptionKind,
+  errorMessage: string,
+) {
+  const normalizedMessage = errorMessage.toLowerCase();
+
+  if (
+    normalizedMessage.includes("foreign key") ||
+    normalizedMessage.includes("violates") ||
+    normalizedMessage.includes("referenced")
+  ) {
+    return `No se puede eliminar esta ${getCatalogOptionKindDeleteLabel(kind)} porque esta siendo usada. Desactivala si queres ocultarla.`;
+  }
+
+  return `No se pudo eliminar la opcion: ${errorMessage}`;
+}
+
+function getCatalogOptionKindDeleteLabel(kind: CatalogOptionKind) {
+  if (kind === "brand") {
+    return "marca";
+  }
+
+  if (kind === "condition") {
+    return "estado";
+  }
+
+  if (kind === "category") {
+    return "categoria";
+  }
+
+  return "opcion";
 }
 
 function revalidateCatalogOptionPaths() {

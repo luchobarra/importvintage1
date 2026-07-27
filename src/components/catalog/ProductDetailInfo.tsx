@@ -31,7 +31,7 @@ export function ProductDetailInfo({
       <dl className="product-detail__meta">
         <div className="product-detail__meta-item product-detail__meta-item--size">
           <span className="product-detail__meta-icon" aria-hidden="true">
-            <Ruler size={18} strokeWidth={1.8} />
+            <Ruler size={15} strokeWidth={1.8} />
           </span>
           <div>
             <dt className="text-caption text-overline">Talle</dt>
@@ -40,7 +40,7 @@ export function ProductDetailInfo({
         </div>
         <div className="product-detail__meta-item product-detail__meta-item--category">
           <span className="product-detail__meta-icon" aria-hidden="true">
-            <Tag size={18} strokeWidth={1.8} />
+            <Tag size={15} strokeWidth={1.8} />
           </span>
           <div>
             <dt className="text-caption text-overline">Categoria</dt>
@@ -49,7 +49,7 @@ export function ProductDetailInfo({
         </div>
         <div className="product-detail__meta-item product-detail__meta-item--condition">
           <span className="product-detail__meta-icon" aria-hidden="true">
-            <ShieldCheck size={18} strokeWidth={1.8} />
+            <ShieldCheck size={15} strokeWidth={1.8} />
           </span>
           <div>
             <dt className="text-caption text-overline">Estado</dt>
@@ -58,7 +58,7 @@ export function ProductDetailInfo({
         </div>
         <div className="product-detail__meta-item product-detail__meta-item--availability">
           <span className="product-detail__meta-icon" aria-hidden="true">
-            <CircleCheck size={18} strokeWidth={1.8} />
+            <CircleCheck size={15} strokeWidth={1.8} />
           </span>
           <div>
             <dt className="text-caption text-overline">Disponibilidad</dt>

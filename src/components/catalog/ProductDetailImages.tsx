@@ -18,10 +18,14 @@ export function ProductDetailImages({
   onSelectImage,
 }: ProductDetailImagesProps) {
   const mainImage = images[selectedImageIndex] ?? images[0];
+  const hasThumbs = images.length > 1;
 
   return (
-    <section className="product-detail__gallery" aria-label={`Fotos de ${title}`}>
-      {images.length > 1 ? (
+    <section
+      className={`product-detail__gallery${hasThumbs ? " product-detail__gallery--with-thumbs" : ""}`}
+      aria-label={`Fotos de ${title}`}
+    >
+      {hasThumbs ? (
         <div aria-label="Seleccionar foto del producto" className="product-detail__thumbs">
           {images.map((image, index) => (
             <button
@@ -56,7 +60,7 @@ export function ProductDetailImages({
           ) : (
             <span className="product-detail__empty-image">Sin foto</span>
           )}
-          {images.length > 1 ? (
+          {hasThumbs ? (
             <span className="product-detail__image-count">
               Foto {selectedImageIndex + 1} / {images.length}
             </span>

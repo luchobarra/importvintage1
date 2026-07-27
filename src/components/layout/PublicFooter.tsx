@@ -1,6 +1,7 @@
 "use client";
 
 import { AtSign, Check, Copy, Mail, MessageCircle } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 const CONTACT_EMAIL = "importvintage1@gmail.com";
@@ -37,23 +38,38 @@ export function PublicFooter() {
           </div>
           <div className="public-footer__content">
             <p className="public-footer__lead">
-              Prendas vintage seleccionadas con criterio, identidad y estado
-              cuidado.
+              Archivo de prendas seleccionadas, piezas unicas y hallazgos con
+              historia.
             </p>
             <p>
-              Curamos piezas con historia para que cada compra se sienta unica,
-              usable y lista para volver a circular.
+              Cada pieza se publica con talle, estado y disponibilidad actual
+              para que el catalogo se lea claro, directo y con criterio.
             </p>
           </div>
-          <div className="public-footer__qualities" aria-label="Valores de la seleccion">
-            <span>Seleccion curada</span>
-            <span>Piezas unicas</span>
-            <span>Estado cuidado</span>
-          </div>
+          <nav className="public-footer__directory" aria-label="Indice editorial">
+            <div>
+              <p>Catalogo</p>
+              <Link href="/">Todas las prendas</Link>
+              <Link href="/?exclusive=true">Exclusivos</Link>
+            </div>
+            <div>
+              <p>Curaduria</p>
+              <span>Piezas unicas</span>
+              <span>Estado revisado</span>
+            </div>
+            <div>
+              <p>Archivo</p>
+              <span>Vintage diario</span>
+              <span>Seleccion vigente</span>
+            </div>
+          </nav>
         </section>
 
         <section className="public-footer__contact" aria-label="Datos de contacto">
-          <p className="public-footer__eyebrow">Contacto</p>
+          <div className="public-footer__contact-head">
+            <p className="public-footer__eyebrow">Contacto</p>
+            <p>Consultas, reservas y coordinacion de compra.</p>
+          </div>
           <div className="public-footer__links">
             <a
               className="public-footer__contact-link"
@@ -102,7 +118,7 @@ export function PublicFooter() {
         </section>
       </div>
       <div className="public-footer__bottom ui-page-container">
-        <span>Old Times Vintage</span>
+        <span>Lo bueno nunca pasa de moda.</span>
         <span>{CURRENT_YEAR}</span>
       </div>
     </footer>

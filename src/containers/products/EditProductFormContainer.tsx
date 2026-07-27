@@ -244,7 +244,7 @@ export function EditProductFormContainer({
       />
       <LoadingOverlay isVisible={isPending} message="Guardando cambios..." />
       <ResultModal
-        autoCloseMs={3000}
+        autoCloseMs={8000}
         description={result?.description ?? ""}
         isOpen={result !== null}
         onClose={handleCloseResult}

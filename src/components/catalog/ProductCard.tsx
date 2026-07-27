@@ -1,4 +1,5 @@
 import {
+  getProductConditionName,
   formatProductPrice,
   getProductBrandName,
   getProductSizeLabel,
@@ -20,6 +21,7 @@ export function ProductCard({ catalogHref, index = 0, product }: ProductCardProp
   const brandName = getProductBrandName(product);
   const productTitle = product.title;
   const sizeLabel = getProductSizeLabel(product);
+  const conditionName = getProductConditionName(product);
   const enterDelay = `${Math.min(index, 5) * 14}ms`;
   const imageLoading = index < 4 ? "eager" : "lazy";
   const detailHref = createPublicProductDetailHref(product.id, catalogHref);
@@ -42,7 +44,7 @@ export function ProductCard({ catalogHref, index = 0, product }: ProductCardProp
               src={mainImage.image_url}
               alt={`${productTitle} de ${brandName}`}
               loading={imageLoading}
-              sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 260px"
+              sizes="(max-width: 640px) 50vw, (max-width: 1120px) 33vw, 290px"
             />
           ) : (
             <span>Sin foto</span>
@@ -50,21 +52,22 @@ export function ProductCard({ catalogHref, index = 0, product }: ProductCardProp
         </div>
       </ViewTransition>
       <div className="product-card__body">
-        <p className="product-card__brand">{brandName}</p>
-        <h2 className="product-card__title">{productTitle}</h2>
-        <div className="product-card__ornament" aria-hidden="true">
-          <span />
-          <span />
-          <span />
+        <div className="product-card__kicker-row">
+          <p className="product-card__brand">{brandName}</p>
+          <span className="product-card__status">Disponible</span>
         </div>
+        <h2 className="product-card__title">{productTitle}</h2>
         <p className="product-card__price">{formatProductPrice(product.price)}</p>
-      </div>
-      <div className="product-card__footer">
-        <span className="product-card__size">
-          <span className="product-card__footer-label">Talle</span>
-          <strong>{sizeLabel}</strong>
-        </span>
-        <span className="product-card__status">Disponible</span>
+        <dl className="product-card__details">
+          <div>
+            <dt>Talle</dt>
+            <dd>{sizeLabel}</dd>
+          </div>
+          <div>
+            <dt>Estado</dt>
+            <dd>{conditionName}</dd>
+          </div>
+        </dl>
       </div>
     </ProductDetailIntentLink>
   );
