@@ -25,15 +25,27 @@ export function CatalogFilters({
   options,
   state,
 }: CatalogFiltersProps) {
+  const stateKey = getCatalogStateKey(state);
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [isSortSectionOpen, setIsSortSectionOpen] = useState(false);
-  const [pendingState, setPendingState] = useState(state);
+  const [pendingDraft, setPendingDraft] = useState(() => ({
+    state: { ...state, page: 1 },
+    stateKey,
+  }));
   const applyTimeoutRef = useRef<number | null>(null);
   const closeTimeoutRef = useRef<number | null>(null);
   const filterFormRef = useRef<HTMLFormElement>(null);
   const sortDetailsRef = useRef<HTMLDetailsElement>(null);
+  const syncedState = useMemo(
+    () => ({ ...state, page: 1 }),
+    [state],
+  );
+  const pendingState = useMemo(
+    () => (pendingDraft.stateKey === stateKey ? pendingDraft.state : syncedState),
+    [pendingDraft, stateKey, syncedState],
+  );
   const availableSizes = useMemo(
     () => getAvailableSizes(options, pendingState.category),
     [options, pendingState.category],
@@ -47,6 +59,7 @@ export function CatalogFilters({
     [options, pendingState],
   );
   const hasPendingChanges = !areCatalogStatesEqual(state, pendingState);
+  const isApplyPending = isApplying && pendingDraft.stateKey === stateKey;
   const drawerItems = hasPendingChanges ? pendingItems : activeItems;
   const letterSizes = availableSizes.filter(
     (size) => size.size_group === "letter",
@@ -112,7 +125,7 @@ export function CatalogFilters({
 
     const nextPendingState = { ...state, page: 1 };
 
-    setPendingState(nextPendingState);
+    setPendingDraft({ state: nextPendingState, stateKey });
     setIsSortSectionOpen(section === "sort");
     setIsApplying(false);
     setIsClosing(false);
@@ -124,7 +137,7 @@ export function CatalogFilters({
   }
 
   function handleFilterSubmit(event: FormEvent<HTMLFormElement>) {
-    if (isApplying) {
+    if (isApplyPending) {
       event.preventDefault();
       return;
     }
@@ -142,7 +155,11 @@ export function CatalogFilters({
   function handleFilterOptionChange(event: ChangeEvent<HTMLInputElement>) {
     const { checked, name, value } = event.currentTarget;
 
-    setPendingState((currentState) => {
+    setPendingDraft((currentDraft) => {
+      const currentState =
+        currentDraft.stateKey === stateKey
+          ? currentDraft.state
+          : syncedState;
       const nextState = {
         ...currentState,
         page: 1,
@@ -150,8 +167,11 @@ export function CatalogFilters({
 
       if (name === "brand") {
         return {
-          ...nextState,
-          brand: value,
+          state: {
+            ...nextState,
+            brand: value,
+          },
+          stateKey,
         };
       }
 
@@ -162,34 +182,46 @@ export function CatalogFilters({
         );
 
         return {
-          ...nextState,
-          category: value,
-          size: isCurrentSizeAvailable ? currentState.size : "",
+          state: {
+            ...nextState,
+            category: value,
+            size: isCurrentSizeAvailable ? currentState.size : "",
+          },
+          stateKey,
         };
       }
 
       if (name === "size") {
         return {
-          ...nextState,
-          size: value,
+          state: {
+            ...nextState,
+            size: value,
+          },
+          stateKey,
         };
       }
 
       if (name === "exclusivos") {
         return {
-          ...nextState,
-          exclusive: checked,
+          state: {
+            ...nextState,
+            exclusive: checked,
+          },
+          stateKey,
         };
       }
 
       if (name === "sort") {
         return {
-          ...nextState,
-          sort: value as PublicProductSort,
+          state: {
+            ...nextState,
+            sort: value as PublicProductSort,
+          },
+          stateKey,
         };
       }
 
-      return nextState;
+      return { state: nextState, stateKey };
     });
 
     closeOptionSection(event.currentTarget);
@@ -207,6 +239,42 @@ export function CatalogFilters({
     if (details === sortDetailsRef.current) {
       setIsSortSectionOpen(false);
     }
+  }
+
+  function handlePendingChipRemove(itemKey: string) {
+    setPendingDraft((currentDraft) => {
+      const currentState =
+        currentDraft.stateKey === stateKey
+          ? currentDraft.state
+          : syncedState;
+      const nextState = {
+        ...currentState,
+        page: 1,
+      };
+
+      if (itemKey === "brand") {
+        nextState.brand = "";
+      }
+
+      if (itemKey === "category") {
+        nextState.category = "";
+        nextState.size = "";
+      }
+
+      if (itemKey === "size") {
+        nextState.size = "";
+      }
+
+      if (itemKey === "exclusive") {
+        nextState.exclusive = false;
+      }
+
+      if (itemKey === "sort") {
+        nextState.sort = "";
+      }
+
+      return { state: nextState, stateKey };
+    });
   }
 
   return (
@@ -277,18 +345,50 @@ export function CatalogFilters({
             role="dialog"
           >
             <div className="catalog-filters__drawer-header">
-              <div>
-                <p className="catalog-filters__eyebrow">Catalogo</p>
+              <div className="catalog-filters__drawer-title-row">
                 <h2 className="catalog-filters__title">Filtros</h2>
+                <button
+                  aria-label="Cerrar filtros"
+                  className="catalog-filters__close"
+                  onClick={closeFilters}
+                  type="button"
+                >
+                  <X aria-hidden="true" size={18} strokeWidth={1.8} />
+                </button>
               </div>
-              <button
-                aria-label="Cerrar filtros"
-                className="catalog-filters__close"
-                onClick={closeFilters}
-                type="button"
+              <div
+                className="catalog-filters__drawer-chips"
+                aria-label={
+                  hasPendingChanges
+                    ? "Filtros pendientes"
+                    : "Filtros seleccionados"
+                }
+                data-empty={drawerItems.length === 0}
               >
-                <X aria-hidden="true" size={18} strokeWidth={1.8} />
-              </button>
+                {drawerItems.map((item) =>
+                  hasPendingChanges ? (
+                    <button
+                      aria-label={`Quitar filtro pendiente ${item.label}`}
+                      className="catalog-filters__drawer-chip catalog-filters__drawer-chip--pending"
+                      key={item.key}
+                      onClick={() => handlePendingChipRemove(item.key)}
+                      type="button"
+                    >
+                      <span>{item.label}</span>
+                      <X aria-hidden="true" size={11} strokeWidth={2} />
+                    </button>
+                  ) : (
+                    <Link
+                      className="catalog-filters__drawer-chip"
+                      href={item.href}
+                      key={item.key}
+                    >
+                      <span>{item.label}</span>
+                      <X aria-hidden="true" size={12} strokeWidth={2} />
+                    </Link>
+                  ),
+                )}
+              </div>
             </div>
 
             <form
@@ -297,37 +397,6 @@ export function CatalogFilters({
               onSubmit={handleFilterSubmit}
               ref={filterFormRef}
             >
-              {drawerItems.length > 0 ? (
-                <div
-                  className="catalog-filters__drawer-chips"
-                  aria-label={
-                    hasPendingChanges
-                      ? "Filtros pendientes"
-                      : "Filtros seleccionados"
-                  }
-                >
-                  {drawerItems.map((item) =>
-                    hasPendingChanges ? (
-                      <span
-                        className="catalog-filters__drawer-chip catalog-filters__drawer-chip--pending"
-                        key={item.key}
-                      >
-                        <span>{item.label}</span>
-                      </span>
-                    ) : (
-                      <Link
-                        className="catalog-filters__drawer-chip"
-                        href={item.href}
-                        key={item.key}
-                      >
-                        <span>{item.label}</span>
-                        <X aria-hidden="true" size={12} strokeWidth={2} />
-                      </Link>
-                    ),
-                  )}
-                </div>
-              ) : null}
-
               <div className="catalog-filters__fields">
                 <fieldset className="catalog-filters__group">
                   <legend className="catalog-filters__legend catalog-filters__legend--hidden">
@@ -481,12 +550,12 @@ export function CatalogFilters({
                   </button>
                 )}
                 <button
-                  aria-busy={isApplying}
+                  aria-busy={isApplyPending}
                   className="button button--primary catalog-filters__apply"
-                  disabled={isApplying}
+                  disabled={isApplyPending}
                   type="submit"
                 >
-                  {isApplying ? (
+                  {isApplyPending ? (
                     <>
                       <span
                         className="catalog-filters__apply-spinner"
@@ -672,6 +741,16 @@ function getSortOptions(): Array<{ label: string; value: PublicProductSort }> {
 
 function getSortLabel(sort: PublicProductSort) {
   return getSortOptions().find((option) => option.value === sort)?.label ?? "";
+}
+
+function getCatalogStateKey(state: PublicCatalogState) {
+  return [
+    state.brand,
+    state.category,
+    state.exclusive ? "1" : "0",
+    state.size,
+    state.sort,
+  ].join("|");
 }
 
 function areCatalogStatesEqual(
