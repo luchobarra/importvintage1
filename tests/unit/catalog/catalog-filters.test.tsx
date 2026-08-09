@@ -128,6 +128,76 @@ describe("CatalogFilters", () => {
       drawer.getByRole("button", { name: "Limpiar" }),
     ).toBeDisabled();
   });
+
+  it("removes drawer chips when active filters are cleared while the drawer stays open", () => {
+    const activeState = {
+      ...emptyPublicCatalogState,
+      brand: "vintage",
+      category: "buzos",
+    };
+    const { rerender } = render(
+      <CatalogFilters
+        hasActiveControls
+        options={testCatalogOptions}
+        state={activeState}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Filtrar" }));
+
+    expect(screen.getByLabelText("Filtros seleccionados")).toBeInTheDocument();
+
+    rerender(
+      <CatalogFilters
+        hasActiveControls={false}
+        options={testCatalogOptions}
+        state={emptyPublicCatalogState}
+      />,
+    );
+
+    const drawer = within(
+      screen.getByRole("dialog", { name: "Filtros del catalogo" }),
+    );
+    const selectedFilters = drawer.getByLabelText("Filtros seleccionados");
+
+    expect(drawer.queryByLabelText("Filtros pendientes")).not.toBeInTheDocument();
+    expect(selectedFilters).toBeEmptyDOMElement();
+    expect(
+      drawer.getByRole("button", { name: "Limpiar" }),
+    ).toBeDisabled();
+  });
+
+  it("lets pending drawer chips be removed before applying filters", () => {
+    render(
+      <CatalogFilters
+        hasActiveControls={false}
+        options={testCatalogOptions}
+        state={emptyPublicCatalogState}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Filtrar" }));
+
+    const drawer = within(
+      screen.getByRole("dialog", { name: "Filtros del catalogo" }),
+    );
+    const categoryGroup = within(drawer.getByRole("group", { name: "Categoria" }));
+
+    fireEvent.click(
+      categoryGroup.getByText("Categoria", { selector: "summary span" }),
+    );
+    fireEvent.click(categoryGroup.getByLabelText("Buzos"));
+
+    expect(drawer.getByLabelText("Filtros pendientes")).toBeInTheDocument();
+
+    fireEvent.click(
+      drawer.getByRole("button", { name: "Quitar filtro pendiente Buzos" }),
+    );
+
+    expect(drawer.queryByLabelText("Filtros pendientes")).not.toBeInTheDocument();
+    expect(drawer.getByLabelText("Filtros seleccionados")).toBeEmptyDOMElement();
+    expect(categoryGroup.getByLabelText("Todos los productos")).toBeChecked();
+  });
 });
 
 describe("parsePublicCatalogState", () => {

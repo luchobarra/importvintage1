@@ -16,12 +16,12 @@ const publicSans = Public_Sans({
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
   title: {
-    default: "Old Times Vintage",
-    template: "%s | Old Times Vintage",
+    default: "Retro Campus",
+    template: "%s | Retro Campus",
   },
   description: "Prendas vintage seleccionadas, disponibles para compra directa.",
   openGraph: {
-    siteName: "Old Times Vintage",
+    siteName: "Retro Campus",
     type: "website",
   },
 };

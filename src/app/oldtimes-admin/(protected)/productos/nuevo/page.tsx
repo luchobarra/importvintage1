@@ -4,14 +4,30 @@ import { EmptyProductList } from "@/components/products/EmptyProductList";
 import { ProductFormContainer } from "@/containers/products/ProductFormContainer";
 import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
 import type { CatalogOptions } from "@/features/catalog-options/types";
+import { getInventoryItemById } from "@/features/inventory/queries";
+import type { InventoryItem } from "@/features/inventory/types";
 import Link from "next/link";
 
-export default async function NewProductPage() {
+type NewProductPageProps = {
+  searchParams?: Promise<{
+    inventoryItemId?: string;
+  }>;
+};
+
+export default async function NewProductPage({
+  searchParams,
+}: NewProductPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const inventoryItemId = String(resolvedSearchParams?.inventoryItemId ?? "");
   let options: CatalogOptions | null = null;
+  let inventoryItem: InventoryItem | null = null;
   let errorMessage = "";
 
   try {
-    options = await getPublicCatalogOptions();
+    [options, inventoryItem] = await Promise.all([
+      getPublicCatalogOptions(),
+      inventoryItemId ? getInventoryItemById(inventoryItemId) : null,
+    ]);
   } catch (error) {
     errorMessage =
       error instanceof Error
@@ -24,7 +40,11 @@ export default async function NewProductPage() {
       <AdminHeader
         eyebrow="Productos"
         title="Nuevo producto"
-        description="Carga la informacion de la prenda y entre 1 y 5 fotos. La primera imagen se usa como foto principal."
+        description={
+          inventoryItem
+            ? "Publica este ingreso de stock en el catalogo con fotos y datos comerciales cuidados."
+            : "Carga la informacion de la prenda y entre 1 y 5 fotos. La primera imagen se usa como foto principal."
+        }
         actions={
           <Link className="button" href="/oldtimes-admin">
             Volver
@@ -34,7 +54,23 @@ export default async function NewProductPage() {
 
       <section className="admin-form-panel">
         {options ? (
-          <ProductFormContainer options={options} />
+          <ProductFormContainer
+            initialValues={
+              inventoryItem
+                ? {
+                    brandId: inventoryItem.brand_id,
+                    categoryId: inventoryItem.category_id,
+                    conditionId: inventoryItem.condition_id,
+                    description:
+                      inventoryItem.internal_description ?? "",
+                    inventoryItemId: inventoryItem.id,
+                    price: inventoryItem.estimated_sale_price,
+                    title: inventoryItem.title,
+                  }
+                : undefined
+            }
+            options={options}
+          />
         ) : (
           <EmptyProductList
             title="No se pudo cargar el formulario"

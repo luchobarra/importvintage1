@@ -42,7 +42,7 @@ function createProductContactMessage(product: Product, detailUrl: string) {
   const lines = [
     detailUrl,
     "",
-    "Hola, me interesa este producto de Old Times Vintage:",
+    "Hola, me interesa este producto de Retro Campus:",
     "",
     product.title,
     `Marca: ${getProductBrandName(product)}`,

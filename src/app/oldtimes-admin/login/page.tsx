@@ -1,7 +1,9 @@
+import { BrandLogo } from "@/components/layout/BrandLogo";
 import { LoginFormContainer } from "@/containers/auth/LoginFormContainer";
 import { isAdminUser } from "@/features/auth/admin";
 import { getCurrentSupabaseUser } from "@/features/auth/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 type AdminLoginPageProps = {
@@ -28,7 +30,17 @@ export default async function AdminLoginPage({
       <section className="auth-panel ui-panel ui-panel--narrow">
         <div className="auth-panel__header">
           <p className="auth-panel__eyebrow">Panel privado</p>
-          <h1>Old Times</h1>
+          <Link
+            aria-label="Ir al inicio de Retro Campus"
+            className="auth-panel__brand"
+            href="/"
+          >
+            <BrandLogo
+              className="auth-panel__brand-logo"
+              preload
+              sizes="160px"
+            />
+          </Link>
           <div className="auth-panel__ornament" aria-hidden="true">
             <span />
             <span />

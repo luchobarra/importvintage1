@@ -8,6 +8,7 @@ import {
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { BrandLogo } from "./BrandLogo";
 
 type PublicHeaderProps = {
   categories: CatalogCategory[];
@@ -133,13 +134,12 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
         </button>
 
         <div className="public-header__identity">
-          <Link className="public-header__brand" href="/">
-            <span className="public-header__brand-kicker">Old Times</span>
-            <span className="public-header__brand-mark">
-              <span aria-hidden="true" />
-              Vintage
-              <span aria-hidden="true" />
-            </span>
+          <Link aria-label="Ir al inicio de Retro Campus" className="public-header__brand" href="/">
+            <BrandLogo
+              className="public-header__brand-logo"
+              preload
+              sizes="(max-width: 640px) 76px, 96px"
+            />
           </Link>
           <p className="public-header__mobile-inline-tagline">{TAGLINE}</p>
         </div>
@@ -214,13 +214,16 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
             role="dialog"
           >
             <div className="public-header__mobile-head">
-              <Link className="public-header__mobile-brand" href="/" onClick={closeMenu}>
-                <span className="public-header__brand-kicker">Old Times</span>
-                <span className="public-header__brand-mark">
-                  <span aria-hidden="true" />
-                  Vintage
-                  <span aria-hidden="true" />
-                </span>
+              <Link
+                aria-label="Ir al inicio de Retro Campus"
+                className="public-header__mobile-brand"
+                href="/"
+                onClick={closeMenu}
+              >
+                <BrandLogo
+                  className="public-header__mobile-brand-logo"
+                  sizes="96px"
+                />
               </Link>
               <button
                 aria-label="Cerrar menu"

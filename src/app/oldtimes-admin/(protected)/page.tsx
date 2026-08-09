@@ -8,6 +8,7 @@ import {
   Home,
   LogOut,
   Package,
+  PackageSearch,
   Plus,
   SlidersHorizontal,
 } from "lucide-react";
@@ -47,6 +48,15 @@ export default async function AdminPage() {
           <span className="admin-action__title text-h3">Productos</span>
           <strong className="text-body">
             Ver y buscar prendas cargadas
+          </strong>
+        </Link>
+        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/stock">
+          <span className="admin-action__icon" aria-hidden="true">
+            <PackageSearch size={20} />
+          </span>
+          <span className="admin-action__title text-h3">Stock</span>
+          <strong className="text-body">
+            Controlar ingresos, ventas e inventario
           </strong>
         </Link>
         <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/productos/nuevo">

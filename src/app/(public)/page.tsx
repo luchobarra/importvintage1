@@ -19,12 +19,12 @@ type HomeProps = {
 export const metadata: Metadata = {
   title: "Prendas vintage seleccionadas",
   description:
-    "Explora prendas vintage disponibles en Old Times Vintage y contacta directo por WhatsApp.",
+    "Explora prendas vintage disponibles en Retro Campus y contacta directo por WhatsApp.",
   alternates: {
     canonical: createSiteUrl("/"),
   },
   openGraph: {
-    title: "Old Times Vintage",
+    title: "Retro Campus",
     description:
       "Prendas vintage seleccionadas, disponibles para compra directa.",
     url: createSiteUrl("/"),

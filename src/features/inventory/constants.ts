@@ -1,0 +1,3 @@
+export const MAX_INVENTORY_IMAGES = 2;
+export const INVENTORY_TEXT_MAX_LENGTH = 600;
+export const INVENTORY_NOTES_MAX_LENGTH = 900;

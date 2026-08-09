@@ -48,8 +48,9 @@ export type Product = {
   size: string;
   price: number;
   description: string | null;
+  inventory_item_id?: string | null;
   is_exclusive: boolean;
-  status: "available";
+  status: "available" | "sold";
   catalog_brands?: ProductCatalogBrand | null;
   catalog_categories?: ProductCatalogCategory | null;
   catalog_product_conditions?: ProductCatalogCondition | null;

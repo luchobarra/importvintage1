@@ -22,6 +22,7 @@ const PRODUCT_SELECT = `
   size,
   price,
   description,
+  inventory_item_id,
   is_exclusive,
   status,
   catalog_brands (

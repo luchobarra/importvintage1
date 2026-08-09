@@ -26,6 +26,15 @@ type ProductFormProps = {
   imageFeedbackMessage: string;
   imageFeedbackVariant: "error" | "info";
   images: SelectedImage[];
+  initialValues?: {
+    brandId?: string | null;
+    categoryId?: string | null;
+    conditionId?: string | null;
+    description?: string;
+    inventoryItemId?: string;
+    price?: number | null;
+    title?: string;
+  };
   isDragging: boolean;
   isPending: boolean;
   options: CatalogOptions;
@@ -58,6 +67,7 @@ export function ProductForm({
   imageFeedbackMessage,
   imageFeedbackVariant,
   images,
+  initialValues,
   isDragging,
   isPending,
   options,
@@ -77,12 +87,20 @@ export function ProductForm({
 
   return (
     <form className="product-form" noValidate onSubmit={onSubmit} ref={formRef}>
+      {initialValues?.inventoryItemId ? (
+        <input
+          name="inventory_item_id"
+          type="hidden"
+          value={initialValues.inventoryItemId}
+        />
+      ) : null}
       <div className="product-form__grid">
         <label className={getFieldClassName(fieldErrors.title)} htmlFor="title">
           <FieldLabel errors={fieldErrors} fieldName="title" label="Titulo *" />
           <input
             aria-describedby={getErrorId("title", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.title)}
+            defaultValue={initialValues?.title ?? ""}
             id="title"
             name="title"
             onBlur={onFieldBlur}
@@ -97,6 +115,7 @@ export function ProductForm({
           <select
             aria-describedby={getErrorId("brand", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.brand)}
+            defaultValue={initialValues?.brandId ?? ""}
             disabled={options.brands.length === 0}
             id="brand"
             name="brand"
@@ -125,6 +144,7 @@ export function ProductForm({
           <select
             aria-describedby={getErrorId("category", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.category)}
+            defaultValue={initialValues?.categoryId ?? ""}
             disabled={options.categories.length === 0}
             id="category"
             name="category"
@@ -179,6 +199,7 @@ export function ProductForm({
           <select
             aria-describedby={getErrorId("condition", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.condition)}
+            defaultValue={initialValues?.conditionId ?? ""}
             disabled={options.conditions.length === 0}
             id="condition"
             name="condition"
@@ -204,6 +225,9 @@ export function ProductForm({
           <input
             aria-describedby={getErrorId("price", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.price)}
+            defaultValue={
+              initialValues?.price ? String(Math.round(initialValues.price)) : ""
+            }
             id="price"
             inputMode="numeric"
             name="price"
@@ -236,6 +260,7 @@ export function ProductForm({
         <textarea
           aria-describedby={getDescriptionAriaDescribedBy(fieldErrors)}
           aria-invalid={Boolean(fieldErrors.description)}
+          defaultValue={initialValues?.description ?? ""}
           id="description"
           maxLength={PRODUCT_DESCRIPTION_MAX_LENGTH}
           name="description"

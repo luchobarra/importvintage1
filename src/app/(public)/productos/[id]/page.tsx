@@ -31,7 +31,7 @@ export async function generateMetadata({
     const price = formatProductPrice(product.price);
     const imageUrl = product.product_images[0]?.image_url;
     const productUrl = createSiteUrl(`/productos/${product.id}`);
-    const description = `${brandName} · Talle ${sizeLabel} · ${price}. Prenda disponible en Old Times Vintage.`;
+    const description = `${brandName} · Talle ${sizeLabel} · ${price}. Prenda disponible en Retro Campus.`;
 
     return {
       title: product.title,
@@ -40,7 +40,7 @@ export async function generateMetadata({
         canonical: productUrl,
       },
       openGraph: {
-        title: `${product.title} | Old Times Vintage`,
+        title: `${product.title} | Retro Campus`,
         description,
         images: imageUrl
           ? [
@@ -50,7 +50,7 @@ export async function generateMetadata({
               },
             ]
           : undefined,
-        siteName: "Old Times Vintage",
+        siteName: "Retro Campus",
         type: "website",
         url: productUrl,
       },
@@ -58,7 +58,7 @@ export async function generateMetadata({
   } catch {
     return {
       title: "Producto no disponible",
-      description: "Este producto ya no esta disponible en Old Times Vintage.",
+      description: "Este producto ya no esta disponible en Retro Campus.",
     };
   }
 }

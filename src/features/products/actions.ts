@@ -45,6 +45,7 @@ export async function createProductDraft(
   const priceValue = getPriceDigits(rawPriceValue);
   const description = String(formData.get("description") ?? "").trim();
   const isExclusive = formData.get("is_exclusive") === "on";
+  const inventoryItemId = String(formData.get("inventory_item_id") ?? "").trim();
   const price = Number(priceValue);
 
   if (
@@ -108,6 +109,7 @@ export async function createProductDraft(
       size: catalogSelection.size.value,
       price,
       description,
+      inventory_item_id: inventoryItemId || null,
       is_exclusive: isExclusive,
       status: "available",
     })

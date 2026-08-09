@@ -1,5 +1,4 @@
 import { PublicHeader } from "@/components/layout/PublicHeader";
-import { PublicHeaderSkeleton } from "@/components/layout/PublicHeaderSkeleton";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
 import { Suspense, ViewTransition } from "react";
@@ -11,7 +10,7 @@ type PublicLayoutProps = {
 export default function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <>
-      <Suspense fallback={<PublicHeaderSkeleton />}>
+      <Suspense fallback={<PublicHeader categories={[]} />}>
         <PublicHeaderContainer />
       </Suspense>
       <ViewTransition

@@ -48,10 +48,22 @@ type ResultState = {
 };
 
 type ProductFormContainerProps = {
+  initialValues?: {
+    brandId?: string | null;
+    categoryId?: string | null;
+    conditionId?: string | null;
+    description?: string;
+    inventoryItemId?: string;
+    price?: number | null;
+    title?: string;
+  };
   options: CatalogOptions;
 };
 
-export function ProductFormContainer({ options }: ProductFormContainerProps) {
+export function ProductFormContainer({
+  initialValues,
+  options,
+}: ProductFormContainerProps) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const formRef = useRef<HTMLFormElement>(null);
@@ -66,8 +78,12 @@ export function ProductFormContainer({ options }: ProductFormContainerProps) {
   const [result, setResult] = useState<ResultState | null>(null);
   const [fieldErrors, setFieldErrors] = useState<ProductFieldErrors>({});
   const [imageErrorMessage, setImageErrorMessage] = useState("");
-  const [descriptionLength, setDescriptionLength] = useState(0);
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [descriptionLength, setDescriptionLength] = useState(
+    initialValues?.description?.length ?? 0,
+  );
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    initialValues?.categoryId ?? "",
+  );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -458,6 +474,7 @@ export function ProductFormContainer({ options }: ProductFormContainerProps) {
         })}
         imageFeedbackVariant={imageErrorMessage ? "error" : "info"}
         images={images}
+        initialValues={initialValues}
         isDragging={isDragging}
         isPending={isPending}
         onCategoryChange={handleCategoryChange}
