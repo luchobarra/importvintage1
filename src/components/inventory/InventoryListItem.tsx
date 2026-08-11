@@ -43,7 +43,7 @@ export function InventoryListItem({ item }: InventoryListItemProps) {
         <div className="inventory-item__title-block">
           <p className="inventory-item__id">{item.visible_id}</p>
           <h2>
-            <Link href={`/oldtimes-admin/stock/${item.id}`}>
+            <Link href={`/retro-campus-admin/stock/${item.id}`}>
               {item.title}
             </Link>
           </h2>
@@ -80,7 +80,7 @@ export function InventoryListItem({ item }: InventoryListItemProps) {
       <Link
         aria-label={`Ver detalle de ${item.title}`}
         className="inventory-item__detail-button"
-        href={`/oldtimes-admin/stock/${item.id}`}
+        href={`/retro-campus-admin/stock/${item.id}`}
         title="Ver detalle"
       >
         <Eye aria-hidden="true" size={18} />

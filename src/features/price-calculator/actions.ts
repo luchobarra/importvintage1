@@ -85,7 +85,7 @@ export async function updatePriceCalculatorSettings(
     };
   }
 
-  revalidatePath("/oldtimes-admin/calculadora-precios");
+  revalidatePath("/retro-campus-admin/calculadora-precios");
 
   return {
     message: "Valores actualizados correctamente.",

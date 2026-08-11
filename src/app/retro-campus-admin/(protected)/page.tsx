@@ -41,7 +41,7 @@ export default async function AdminPage() {
       />
 
       <div className="admin-actions">
-        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/productos">
+        <Link className="admin-action ui-card ui-card--interactive" href="/retro-campus-admin/productos">
           <span className="admin-action__icon" aria-hidden="true">
             <Package size={20} />
           </span>
@@ -50,7 +50,7 @@ export default async function AdminPage() {
             Ver y buscar prendas cargadas
           </strong>
         </Link>
-        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/stock">
+        <Link className="admin-action ui-card ui-card--interactive" href="/retro-campus-admin/stock">
           <span className="admin-action__icon" aria-hidden="true">
             <PackageSearch size={20} />
           </span>
@@ -59,14 +59,14 @@ export default async function AdminPage() {
             Controlar ingresos, ventas e inventario
           </strong>
         </Link>
-        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/productos/nuevo">
+        <Link className="admin-action ui-card ui-card--interactive" href="/retro-campus-admin/productos/nuevo">
           <span className="admin-action__icon" aria-hidden="true">
             <Plus size={20} />
           </span>
           <span className="admin-action__title text-h3">Nuevo producto</span>
           <strong className="text-body">Cargar una prenda al catalogo</strong>
         </Link>
-        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/calculadora-precios">
+        <Link className="admin-action ui-card ui-card--interactive" href="/retro-campus-admin/calculadora-precios">
           <span className="admin-action__icon" aria-hidden="true">
             <Calculator size={20} />
           </span>
@@ -75,7 +75,7 @@ export default async function AdminPage() {
             Calcular costos, precios y margenes
           </strong>
         </Link>
-        <Link className="admin-action ui-card ui-card--interactive" href="/oldtimes-admin/catalogo">
+        <Link className="admin-action ui-card ui-card--interactive" href="/retro-campus-admin/catalogo">
           <span className="admin-action__icon" aria-hidden="true">
             <SlidersHorizontal size={20} />
           </span>

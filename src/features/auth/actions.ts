@@ -47,19 +47,19 @@ export async function login(
     };
   }
 
-  redirect("/oldtimes-admin");
+  redirect("/retro-campus-admin");
 }
 
 export async function logout() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 
-  redirect("/oldtimes-admin/login");
+  redirect("/retro-campus-admin/login");
 }
 
 export async function expireAdminSession() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 
-  redirect("/oldtimes-admin/login?reason=session-expired");
+  redirect("/retro-campus-admin/login?reason=session-expired");
 }

@@ -31,7 +31,7 @@ export async function generateMetadata({
     const price = formatProductPrice(product.price);
     const imageUrl = product.product_images[0]?.image_url;
     const productUrl = createSiteUrl(`/productos/${product.id}`);
-    const description = `${brandName} · Talle ${sizeLabel} · ${price}. Prenda disponible en Retro Campus.`;
+    const description = `${product.title} de ${brandName}, talle ${sizeLabel}, disponible en Retro Campus por ${price}. Ropa vintage seleccionada para compra directa.`;
 
     return {
       title: product.title,
@@ -53,6 +53,12 @@ export async function generateMetadata({
         siteName: "Retro Campus",
         type: "website",
         url: productUrl,
+      },
+      twitter: {
+        card: imageUrl ? "summary_large_image" : "summary",
+        description,
+        images: imageUrl ? [imageUrl] : ["/brand/retro-campus-logo.png"],
+        title: `${product.title} | Retro Campus`,
       },
     };
   } catch {

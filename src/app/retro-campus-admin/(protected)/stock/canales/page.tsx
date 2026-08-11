@@ -32,7 +32,7 @@ export default async function SalesChannelsPage() {
     <AdminShell>
       <AdminHeader
         actions={
-          <Link className="button button--secondary" href="/oldtimes-admin/stock">
+          <Link className="button button--secondary" href="/retro-campus-admin/stock">
             Volver
           </Link>
         }

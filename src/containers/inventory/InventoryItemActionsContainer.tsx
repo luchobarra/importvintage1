@@ -208,7 +208,7 @@ export function InventoryItemActionsContainer({
         {variant === "list" ? (
           <Link
             className="button button--primary"
-            href={`/oldtimes-admin/stock/${inventoryItemId}`}
+            href={`/retro-campus-admin/stock/${inventoryItemId}`}
           >
             <Eye aria-hidden="true" size={15} />
             Ver detalle
@@ -217,7 +217,7 @@ export function InventoryItemActionsContainer({
         {catalogProductId ? (
           <Link
             className="button button--secondary"
-            href={`/oldtimes-admin/productos/${catalogProductId}`}
+            href={`/retro-campus-admin/productos/${catalogProductId}`}
           >
             <ExternalLink aria-hidden="true" size={15} />
             Ver catalogo
@@ -225,7 +225,7 @@ export function InventoryItemActionsContainer({
         ) : (
           <Link
             className="button button--secondary"
-            href={`/oldtimes-admin/productos/nuevo?inventoryItemId=${inventoryItemId}`}
+            href={`/retro-campus-admin/productos/nuevo?inventoryItemId=${inventoryItemId}`}
           >
             <PackagePlus aria-hidden="true" size={15} />
             Publicar

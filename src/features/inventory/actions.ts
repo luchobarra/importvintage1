@@ -572,7 +572,7 @@ export async function createSalesChannel(
     };
   }
 
-  revalidatePath("/oldtimes-admin/stock/canales");
+  revalidatePath("/retro-campus-admin/stock/canales");
 
   return {
     message: "Medio de venta creado correctamente.",
@@ -600,8 +600,8 @@ export async function toggleSalesChannel(
     };
   }
 
-  revalidatePath("/oldtimes-admin/stock");
-  revalidatePath("/oldtimes-admin/stock/canales");
+  revalidatePath("/retro-campus-admin/stock");
+  revalidatePath("/retro-campus-admin/stock/canales");
 
   return {
     message: "Medio de venta actualizado correctamente.",
@@ -826,11 +826,11 @@ async function createAuthorizedSupabaseClient(errorMessage: string) {
 }
 
 function revalidateStockPaths(inventoryItemId?: string) {
-  revalidatePath("/oldtimes-admin");
-  revalidatePath("/oldtimes-admin/stock");
+  revalidatePath("/retro-campus-admin");
+  revalidatePath("/retro-campus-admin/stock");
 
   if (inventoryItemId) {
-    revalidatePath(`/oldtimes-admin/stock/${inventoryItemId}`);
+    revalidatePath(`/retro-campus-admin/stock/${inventoryItemId}`);
   }
 }
 

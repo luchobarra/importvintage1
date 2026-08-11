@@ -11,7 +11,7 @@ export default function AdminCatalogOptionsPage() {
         title="Configuracion de catalogo"
         description="Gestiona categorias, marcas y talles disponibles para productos y filtros publicos."
         actions={
-          <Link className="button" href="/oldtimes-admin">
+          <Link className="button" href="/retro-campus-admin">
             Volver
           </Link>
         }

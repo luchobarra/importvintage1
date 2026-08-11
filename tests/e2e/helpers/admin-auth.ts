@@ -5,9 +5,9 @@ import { getAdminCredentials } from "./test-env";
 export async function loginAsAdmin(page: Page) {
   const { email, password } = getAdminCredentials();
 
-  await page.goto("/oldtimes-admin/login");
+  await page.goto("/retro-campus-admin/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Contrasena").fill(password);
   await page.getByRole("button", { name: "Ingresar" }).click();
-  await expect(page).toHaveURL(/\/oldtimes-admin$/);
+  await expect(page).toHaveURL(/\/retro-campus-admin$/);
 }

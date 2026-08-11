@@ -208,7 +208,7 @@ export function EditProductFormContainer({
     setResult(null);
 
     if (shouldRedirect) {
-      router.push("/oldtimes-admin/productos");
+      router.push("/retro-campus-admin/productos");
     }
   }
 

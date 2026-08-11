@@ -11,7 +11,7 @@ export default function ProductsPage() {
         title="Productos"
         description="Busca y revisa las prendas cargadas en el catalogo."
         actions={
-          <Link className="button button--ghost" href="/oldtimes-admin">
+          <Link className="button button--ghost" href="/retro-campus-admin">
             Volver
           </Link>
         }
@@ -21,7 +21,7 @@ export default function ProductsPage() {
         <div className="admin-products-panel__toolbar">
           <Link
             className="button button--primary button--compact"
-            href="/oldtimes-admin/productos/nuevo"
+            href="/retro-campus-admin/productos/nuevo"
           >
             Nuevo producto
           </Link>

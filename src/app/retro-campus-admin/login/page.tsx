@@ -22,7 +22,7 @@ export default async function AdminLoginPage({
     resolvedSearchParams?.reason === "session-expired";
 
   if (isAdminUser(user)) {
-    redirect("/oldtimes-admin");
+    redirect("/retro-campus-admin");
   }
 
   return (

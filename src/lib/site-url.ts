@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://oldtimesvintage.vercel.app";
+const DEFAULT_SITE_URL = "https://retrocampus.store";
 
 export function getSiteUrl() {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();

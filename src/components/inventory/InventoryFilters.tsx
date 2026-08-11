@@ -353,7 +353,7 @@ export function InventoryFilters({ filters, options }: InventoryFiltersProps) {
             </div>
 
             <form
-              action="/oldtimes-admin/stock"
+              action="/retro-campus-admin/stock"
               className="catalog-filters__form"
               onSubmit={handleFilterSubmit}
               ref={filterFormRef}
@@ -542,7 +542,7 @@ export function InventoryFilters({ filters, options }: InventoryFiltersProps) {
 
               <div className="catalog-filters__actions">
                 {hasActiveControls ? (
-                  <Link className="button button--ghost catalog-filters__clear" href="/oldtimes-admin/stock">
+                  <Link className="button button--ghost catalog-filters__clear" href="/retro-campus-admin/stock">
                     Limpiar
                   </Link>
                 ) : (
@@ -845,7 +845,7 @@ function createInventoryStockHref(state: InventoryListFilters) {
 
   const queryString = params.toString();
 
-  return queryString ? `/oldtimes-admin/stock?${queryString}` : "/oldtimes-admin/stock";
+  return queryString ? `/retro-campus-admin/stock?${queryString}` : "/retro-campus-admin/stock";
 }
 
 function resetInventoryFilterValue(

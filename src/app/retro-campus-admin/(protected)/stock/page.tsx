@@ -55,15 +55,15 @@ export default async function StockPage({ searchParams }: StockPageProps) {
       <AdminHeader
         actions={
           <div className="admin-header__actions">
-            <Link className="button button--secondary" href="/oldtimes-admin/stock/canales">
+            <Link className="button button--secondary" href="/retro-campus-admin/stock/canales">
               <Settings aria-hidden="true" size={16} />
               Canales
             </Link>
-            <Link className="button button--secondary" href="/oldtimes-admin">
+            <Link className="button button--secondary" href="/retro-campus-admin">
               <BarChart3 aria-hidden="true" size={16} />
               Panel
             </Link>
-            <Link className="button button--primary" href="/oldtimes-admin/stock/nuevo">
+            <Link className="button button--primary" href="/retro-campus-admin/stock/nuevo">
               <Plus aria-hidden="true" size={16} />
               Nuevo ingreso
             </Link>

@@ -130,6 +130,22 @@ export async function getAvailableProducts() {
   return products;
 }
 
+export async function getAvailableProductSitemapItems() {
+  const supabase = createSupabasePublicServerClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, created_at")
+    .eq("status", "available")
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as Array<{ created_at?: string | null; id: string }>;
+}
+
 export async function getSimilarAvailableProducts(
   product: Product,
   limit = 12,

@@ -682,7 +682,7 @@ function getCatalogOptionKindDeleteLabel(kind: CatalogOptionKind) {
 
 function revalidateCatalogOptionPaths() {
   revalidatePath("/");
-  revalidatePath("/oldtimes-admin/catalogo");
-  revalidatePath("/oldtimes-admin/productos");
-  revalidatePath("/oldtimes-admin/productos/nuevo");
+  revalidatePath("/retro-campus-admin/catalogo");
+  revalidatePath("/retro-campus-admin/productos");
+  revalidatePath("/retro-campus-admin/productos/nuevo");
 }

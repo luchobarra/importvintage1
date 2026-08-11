@@ -5,8 +5,10 @@ import {
   createPublicCatalogHref,
   emptyPublicCatalogState,
 } from "@/features/products/public-filters";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { AlignJustify, ChevronDown, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import type { MouseEvent } from "react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { BrandLogo } from "./BrandLogo";
 
@@ -17,14 +19,23 @@ type PublicHeaderProps = {
 const TAGLINE = "Lo bueno nunca pasa de moda";
 
 export function PublicHeader({ categories }: PublicHeaderProps) {
+  const pathname = usePathname();
+  const router = useRouter();
   const menuId = useId();
   const categoriesId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMenuClosing, setIsMenuClosing] = useState(false);
   const [isDesktopProductsOpen, setIsDesktopProductsOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
+  const [currentSearch, setCurrentSearch] = useState("");
   const closeTimeoutRef = useRef<number | null>(null);
   const productsRef = useRef<HTMLDivElement>(null);
+  const searchParams = new URLSearchParams(currentSearch);
+  const selectedCategory = searchParams.get("category") ?? "";
+  const hasExclusiveFilter = searchParams.get("exclusivos") === "1";
+  const isCatalogRoute = pathname === "/";
+  const isAllProductsSelected =
+    isCatalogRoute && selectedCategory === "" && !hasExclusiveFilter;
 
   const closeMenu = useCallback(() => {
     if (!isMenuOpen || isMenuClosing) {
@@ -56,6 +67,17 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [closeMenu, isDesktopProductsOpen, isMenuOpen]);
+
+  useEffect(() => {
+    function syncCurrentSearch() {
+      setCurrentSearch(window.location.search);
+    }
+
+    syncCurrentSearch();
+    window.addEventListener("popstate", syncCurrentSearch);
+
+    return () => window.removeEventListener("popstate", syncCurrentSearch);
+  }, []);
 
   useEffect(() => {
     if (!isDesktopProductsOpen) {
@@ -119,6 +141,21 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
     setIsDesktopProductsOpen(false);
   }
 
+  function handleMobileCatalogLinkClick(
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) {
+    if (isModifiedClick(event)) {
+      return;
+    }
+
+    event.preventDefault();
+    closeMenu();
+    setCurrentSearch(new URL(href, window.location.origin).search);
+    router.push(href, { scroll: false });
+    scrollToCatalogStart();
+  }
+
   return (
     <header className="public-header" style={{ viewTransitionName: "site-header" }}>
       <div className="public-header__inner ui-page-container">
@@ -130,7 +167,12 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
           onClick={toggleMenu}
           type="button"
         >
-          <Menu aria-hidden="true" size={28} strokeWidth={1.7} />
+          <AlignJustify
+            aria-hidden="true"
+            className="public-header__menu-icon"
+            size={21}
+            strokeWidth={2.45}
+          />
         </button>
 
         <div className="public-header__identity">
@@ -262,14 +304,26 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
                 data-open={isMobileProductsOpen}
                 id={categoriesId}
               >
-                <Link href="/" onClick={closeMenu}>
+                <Link
+                  data-current={isAllProductsSelected}
+                  href="/"
+                  onClick={(event) => handleMobileCatalogLinkClick(event, "/")}
+                >
                   Todos los productos
                 </Link>
                 {categories.map((category) => (
                   <Link
+                    data-current={
+                      isCatalogRoute && selectedCategory === category.slug
+                    }
                     href={getCategoryHref(category.slug)}
                     key={category.id}
-                    onClick={closeMenu}
+                    onClick={(event) =>
+                      handleMobileCatalogLinkClick(
+                        event,
+                        getCategoryHref(category.slug),
+                      )
+                    }
                   >
                     {category.name}
                   </Link>
@@ -278,8 +332,11 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
 
               <Link
                 className="public-header__mobile-link"
+                data-current={isCatalogRoute && hasExclusiveFilter}
                 href={getExclusiveProductsHref()}
-                onClick={closeMenu}
+                onClick={(event) =>
+                  handleMobileCatalogLinkClick(event, getExclusiveProductsHref())
+                }
               >
                 Exclusivos
               </Link>
@@ -306,4 +363,28 @@ function getExclusiveProductsHref() {
     ...emptyPublicCatalogState,
     exclusive: true,
   });
+}
+
+function scrollToCatalogStart() {
+  const catalogStart = document.querySelector<HTMLElement>(".home__container");
+  const header = document.querySelector<HTMLElement>(".public-header");
+  const headerOffset = header?.getBoundingClientRect().height ?? 0;
+  const top = catalogStart
+    ? catalogStart.getBoundingClientRect().top + window.scrollY - headerOffset
+    : 0;
+
+  window.scrollTo({
+    behavior: "smooth",
+    top: Math.max(0, top),
+  });
+}
+
+function isModifiedClick(event: MouseEvent<HTMLAnchorElement>) {
+  return (
+    event.button !== 0 ||
+    event.metaKey ||
+    event.altKey ||
+    event.ctrlKey ||
+    event.shiftKey
+  );
 }

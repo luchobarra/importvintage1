@@ -58,7 +58,7 @@ export async function uploadTestImage(page: Page, fileName = "product.png") {
 }
 
 export async function createProductFromAdmin(page: Page, product: TestProductInput) {
-  await page.goto("/oldtimes-admin/productos/nuevo");
+  await page.goto("/retro-campus-admin/productos/nuevo");
   await fillProductForm(page, product);
   await uploadTestImage(page);
   await expect(page.getByAltText("Vista previa 1")).toBeVisible();
@@ -75,7 +75,7 @@ export async function createProductFromAdmin(page: Page, product: TestProductInp
 
 export async function searchProductByTitle(page: Page, title: string) {
   await waitForSettledPage(page);
-  await gotoWithRetry(page, "/oldtimes-admin/productos");
+  await gotoWithRetry(page, "/retro-campus-admin/productos");
   await page.getByLabel("Titulo").fill(title);
   await page.getByRole("button", { name: "Buscar" }).click();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
@@ -87,7 +87,7 @@ export async function openProductEditorFromList(page: Page, title: string) {
     .filter({ has: page.getByRole("heading", { name: title }) });
 
   await productItem.getByRole("link", { name: "Editar" }).click();
-  await expect(page).toHaveURL(/\/oldtimes-admin\/productos\/[^/]+$/);
+  await expect(page).toHaveURL(/\/retro-campus-admin\/productos\/[^/]+$/);
   await expect(page.getByRole("heading", { name: "Editar producto" })).toBeVisible();
 }
 

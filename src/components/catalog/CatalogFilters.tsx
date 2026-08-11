@@ -9,10 +9,19 @@ import {
   type PublicCatalogState,
   type PublicProductSort,
 } from "@/features/products/public-filters";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 import { ArrowDownUp, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
-import type { ChangeEvent, FormEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { ChangeEvent, FormEvent, MouseEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 type CatalogFiltersProps = {
   hasActiveControls: boolean;
@@ -20,23 +29,30 @@ type CatalogFiltersProps = {
   state: PublicCatalogState;
 };
 
+const FILTER_ACTION_TIMEOUT_MS = 1400;
+
 export function CatalogFilters({
   hasActiveControls,
   options,
   state,
 }: CatalogFiltersProps) {
+  const router = useRouter();
   const stateKey = getCatalogStateKey(state);
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [isApplying, setIsApplying] = useState(false);
+  const [processingAction, setProcessingAction] = useState<{
+    stateKey: string;
+    type: "apply" | "clear";
+  } | null>(null);
   const [isSortSectionOpen, setIsSortSectionOpen] = useState(false);
+  const [, startNavigationTransition] = useTransition();
   const [pendingDraft, setPendingDraft] = useState(() => ({
     state: { ...state, page: 1 },
     stateKey,
   }));
-  const applyTimeoutRef = useRef<number | null>(null);
+  const actionTimeoutRef = useRef<number | null>(null);
   const closeTimeoutRef = useRef<number | null>(null);
-  const filterFormRef = useRef<HTMLFormElement>(null);
+  const navigationFrameRef = useRef<number | null>(null);
   const sortDetailsRef = useRef<HTMLDetailsElement>(null);
   const syncedState = useMemo(
     () => ({ ...state, page: 1 }),
@@ -59,7 +75,9 @@ export function CatalogFilters({
     [options, pendingState],
   );
   const hasPendingChanges = !areCatalogStatesEqual(state, pendingState);
-  const isApplyPending = isApplying && pendingDraft.stateKey === stateKey;
+  const isProcessing = processingAction?.stateKey === stateKey;
+  const isApplyPending = isProcessing && processingAction.type === "apply";
+  const isClearPending = isProcessing && processingAction.type === "clear";
   const drawerItems = hasPendingChanges ? pendingItems : activeItems;
   const letterSizes = availableSizes.filter(
     (size) => size.size_group === "letter",
@@ -111,8 +129,12 @@ export function CatalogFilters({
         window.clearTimeout(closeTimeoutRef.current);
       }
 
-      if (applyTimeoutRef.current !== null) {
-        window.clearTimeout(applyTimeoutRef.current);
+      if (actionTimeoutRef.current !== null) {
+        window.clearTimeout(actionTimeoutRef.current);
+      }
+
+      if (navigationFrameRef.current !== null) {
+        window.cancelAnimationFrame(navigationFrameRef.current);
       }
     };
   }, []);
@@ -127,7 +149,7 @@ export function CatalogFilters({
 
     setPendingDraft({ state: nextPendingState, stateKey });
     setIsSortSectionOpen(section === "sort");
-    setIsApplying(false);
+    setProcessingAction(null);
     setIsClosing(false);
     setIsOpen(true);
 
@@ -137,19 +159,71 @@ export function CatalogFilters({
   }
 
   function handleFilterSubmit(event: FormEvent<HTMLFormElement>) {
-    if (isApplyPending) {
+    if (isProcessing) {
       event.preventDefault();
       return;
     }
 
     event.preventDefault();
-    setIsApplying(true);
+    processFilterAction("apply", createPublicCatalogHref(pendingState));
+  }
+
+  function handleClearFilters() {
+    if (isProcessing || !hasActiveControls) {
+      return;
+    }
+
+    processFilterAction("clear", "/");
+  }
+
+  function processFilterAction(action: "apply" | "clear", href: string) {
+    setProcessingAction({ stateKey, type: action });
+
+    if (actionTimeoutRef.current !== null) {
+      window.clearTimeout(actionTimeoutRef.current);
+    }
+
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current);
+    }
+
     closeTimeoutRef.current = window.setTimeout(() => {
-      setIsClosing(true);
-    }, 420);
-    applyTimeoutRef.current = window.setTimeout(() => {
-      filterFormRef.current?.submit();
-    }, 1250);
+      closeTimeoutRef.current = null;
+      closeFilters();
+    }, 520);
+
+    actionTimeoutRef.current = window.setTimeout(() => {
+      setProcessingAction(null);
+      actionTimeoutRef.current = null;
+    }, FILTER_ACTION_TIMEOUT_MS);
+
+    navigationFrameRef.current = window.requestAnimationFrame(() => {
+      startNavigationTransition(() => {
+        router.push(href, { scroll: false });
+        scrollToCatalogStart();
+      });
+      navigationFrameRef.current = null;
+    });
+  }
+
+  function handleCatalogLinkClick(
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) {
+    if (isModifiedClick(event)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (isOpen) {
+      closeFilters();
+    }
+
+    startNavigationTransition(() => {
+      router.push(href, { scroll: false });
+      scrollToCatalogStart();
+    });
   }
 
   function handleFilterOptionChange(event: ChangeEvent<HTMLInputElement>) {
@@ -316,6 +390,7 @@ export function CatalogFilters({
                 className="catalog-filters__chip"
                 href={item.href}
                 key={item.key}
+                onClick={(event) => handleCatalogLinkClick(event, item.href)}
               >
                 <span>{item.label}</span>
                 <X aria-hidden="true" size={12} strokeWidth={2} />
@@ -346,6 +421,10 @@ export function CatalogFilters({
           >
             <div className="catalog-filters__drawer-header">
               <div className="catalog-filters__drawer-title-row">
+                <BrandLogo
+                  className="catalog-filters__drawer-logo"
+                  sizes="44px"
+                />
                 <h2 className="catalog-filters__title">Filtros</h2>
                 <button
                   aria-label="Cerrar filtros"
@@ -382,6 +461,9 @@ export function CatalogFilters({
                       className="catalog-filters__drawer-chip"
                       href={item.href}
                       key={item.key}
+                      onClick={(event) =>
+                        handleCatalogLinkClick(event, item.href)
+                      }
                     >
                       <span>{item.label}</span>
                       <X aria-hidden="true" size={12} strokeWidth={2} />
@@ -395,7 +477,6 @@ export function CatalogFilters({
               action="/"
               className="catalog-filters__form"
               onSubmit={handleFilterSubmit}
-              ref={filterFormRef}
             >
               <div className="catalog-filters__fields">
                 <fieldset className="catalog-filters__group">
@@ -536,33 +617,35 @@ export function CatalogFilters({
               </div>
 
               <div className="catalog-filters__actions">
-                {hasActiveControls ? (
-                  <Link className="button button--ghost catalog-filters__clear" href="/">
-                    Limpiar
-                  </Link>
-                ) : (
-                  <button
-                    className="button button--ghost catalog-filters__clear"
-                    disabled
-                    type="button"
-                  >
-                    Limpiar
-                  </button>
-                )}
+                <button
+                  aria-busy={isClearPending}
+                  aria-label={isClearPending ? "Limpiando filtros" : undefined}
+                  className="button button--ghost catalog-filters__clear"
+                  disabled={isProcessing || !hasActiveControls}
+                  onClick={handleClearFilters}
+                  type="button"
+                >
+                  {isClearPending ? (
+                    <span
+                      className="catalog-filters__action-spinner"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    "Limpiar"
+                  )}
+                </button>
                 <button
                   aria-busy={isApplyPending}
+                  aria-label={isApplyPending ? "Aplicando filtros" : undefined}
                   className="button button--primary catalog-filters__apply"
-                  disabled={isApplyPending}
+                  disabled={isProcessing}
                   type="submit"
                 >
                   {isApplyPending ? (
-                    <>
-                      <span
-                        className="catalog-filters__apply-spinner"
-                        aria-hidden="true"
-                      />
-                      Aplicando...
-                    </>
+                    <span
+                      className="catalog-filters__action-spinner"
+                      aria-hidden="true"
+                    />
                   ) : (
                     "Aplicar filtros"
                   )}
@@ -751,6 +834,30 @@ function getCatalogStateKey(state: PublicCatalogState) {
     state.size,
     state.sort,
   ].join("|");
+}
+
+function scrollToCatalogStart() {
+  const catalogStart = document.querySelector<HTMLElement>(".home__container");
+  const header = document.querySelector<HTMLElement>(".public-header");
+  const headerOffset = header?.getBoundingClientRect().height ?? 0;
+  const top = catalogStart
+    ? catalogStart.getBoundingClientRect().top + window.scrollY - headerOffset
+    : 0;
+
+  window.scrollTo({
+    behavior: "smooth",
+    top: Math.max(0, top),
+  });
+}
+
+function isModifiedClick(event: MouseEvent<HTMLAnchorElement>) {
+  return (
+    event.button !== 0 ||
+    event.metaKey ||
+    event.altKey ||
+    event.ctrlKey ||
+    event.shiftKey
+  );
 }
 
 function areCatalogStatesEqual(

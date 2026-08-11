@@ -17,17 +17,43 @@ type HomeProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Prendas vintage seleccionadas",
+  title: "Retro Campus - Ropa vintage seleccionada",
   description:
-    "Explora prendas vintage disponibles en Retro Campus y contacta directo por WhatsApp.",
+    "Explora el catalogo online de Retro Campus: ropa vintage seleccionada, prendas unicas, buzos, camperas, pantalones y piezas exclusivas disponibles para compra directa.",
   alternates: {
     canonical: createSiteUrl("/"),
   },
+  keywords: [
+    "Retro Campus",
+    "ropa vintage Retro Campus",
+    "catalogo de ropa vintage",
+    "prendas vintage seleccionadas",
+    "buzos vintage",
+    "camperas vintage",
+    "pantalones vintage",
+    "moda circular",
+    "piezas exclusivas vintage",
+  ],
   openGraph: {
-    title: "Retro Campus",
+    title: "Retro Campus - Catalogo online de ropa vintage",
     description:
-      "Prendas vintage seleccionadas, disponibles para compra directa.",
+      "Ropa vintage seleccionada por Retro Campus: prendas unicas, piezas exclusivas y compra directa.",
+    images: [
+      {
+        url: "/brand/retro-campus-logo.png",
+        alt: "Logo de Retro Campus",
+        height: 816,
+        width: 720,
+      },
+    ],
     url: createSiteUrl("/"),
+  },
+  twitter: {
+    card: "summary",
+    description:
+      "Ropa vintage seleccionada por Retro Campus: prendas unicas y piezas exclusivas.",
+    images: ["/brand/retro-campus-logo.png"],
+    title: "Retro Campus - Ropa vintage seleccionada",
   },
 };
 

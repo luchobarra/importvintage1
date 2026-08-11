@@ -46,7 +46,7 @@ export default async function NewProductPage({
             : "Carga la informacion de la prenda y entre 1 y 5 fotos. La primera imagen se usa como foto principal."
         }
         actions={
-          <Link className="button" href="/oldtimes-admin">
+          <Link className="button" href="/retro-campus-admin">
             Volver
           </Link>
         }

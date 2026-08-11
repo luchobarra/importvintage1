@@ -11,7 +11,7 @@ export default function AdminPriceCalculatorPage() {
         title="Calculadora de precios"
         description="Calcula precio de venta, costo total y margenes usando los valores estandar del negocio."
         actions={
-          <Link className="button" href="/oldtimes-admin">
+          <Link className="button" href="/retro-campus-admin">
             Volver
           </Link>
         }

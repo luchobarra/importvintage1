@@ -297,7 +297,7 @@ export function InventoryFormContainer({
         title: "Ingreso cargado",
         variant: "success",
       });
-      router.push("/oldtimes-admin/stock");
+      router.push("/retro-campus-admin/stock");
       router.refresh();
     } catch (error) {
       if (uploadedPaths.length > 0) {

@@ -22,7 +22,7 @@ export function AdminHeader({
         <Link
           aria-label="Ir al inicio del panel Retro Campus"
           className="admin-header__brand"
-          href="/oldtimes-admin"
+          href="/retro-campus-admin"
         >
           <BrandLogo className="admin-header__brand-logo" sizes="88px" />
         </Link>
