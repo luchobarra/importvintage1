@@ -8,6 +8,7 @@ import {
 import { createSupabasePublicServerClient } from "@/lib/supabase/public-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Product } from "@/features/products/types";
+import { cache } from "react";
 
 const PRODUCT_SELECT = `
   id,
@@ -200,7 +201,9 @@ export async function getSimilarAvailableProducts(
   return products.slice(0, limit);
 }
 
-export async function getAvailableProductById(productId: string) {
+export const getAvailableProductById = cache(async function getAvailableProductById(
+  productId: string,
+) {
   const supabase = createSupabasePublicServerClient();
 
   const { data, error } = await supabase
@@ -219,7 +222,7 @@ export async function getAvailableProductById(productId: string) {
   }
 
   return data as unknown as Product;
-}
+});
 
 type AvailableProductSubsetOptions = {
   brandId?: string;

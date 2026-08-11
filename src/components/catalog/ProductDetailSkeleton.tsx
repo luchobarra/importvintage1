@@ -2,9 +2,9 @@ export function ProductDetailSkeleton() {
   return (
     <div className="product-detail product-detail--loading" aria-hidden="true">
       <div className="product-detail__media-column">
-        <div className="product-detail__gallery">
+        <div className="product-detail__gallery product-detail__gallery--with-thumbs">
           <div className="product-detail__thumbs">
-            {Array.from({ length: 3 }, (_, index) => (
+            {Array.from({ length: 5 }, (_, index) => (
               <div
                 className="product-detail__thumb product-detail__skeleton"
                 key={index}
