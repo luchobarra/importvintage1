@@ -818,13 +818,13 @@ a {
   overflow: hidden;
   border-top: 1px solid var(--tone-ink-48);
   background:
-    linear-gradient(135deg, #211816 0%, #2b2220 52%, #1c200c 100%),
+    linear-gradient(135deg, #201817 0%, #2a211f 58%, #1c210f 100%),
     url("/backgrounds/home-aged-leather.png");
   background-position: center;
   background-size: auto, cover;
   box-shadow:
     inset 0 1px 0 var(--tone-paper-18),
-    inset 0 5rem 7rem rgb(0 0 0 / 18%);
+    inset 0 4rem 6rem rgb(0 0 0 / 16%);
   color: var(--palette-paper-soft);
 }
 
@@ -839,18 +839,18 @@ a {
 .public-footer::before {
   inset: 0;
   background:
-    linear-gradient(90deg, rgb(0 0 0 / 30%), transparent 40%, rgb(0 0 0 / 24%) 100%),
-    radial-gradient(ellipse at 80% 14%, var(--tone-secondary-18), transparent 34%),
-    radial-gradient(ellipse at 12% 88%, var(--tone-primary-28), transparent 36%);
+    linear-gradient(90deg, rgb(0 0 0 / 26%), transparent 48%, rgb(0 0 0 / 22%) 100%),
+    radial-gradient(ellipse at 82% 16%, var(--tone-secondary-14), transparent 34%),
+    radial-gradient(ellipse at 14% 86%, var(--tone-primary-24), transparent 38%);
 }
 
 .public-footer::after {
-  right: clamp(-9rem, -12vw, -4rem);
-  bottom: clamp(-7rem, -8vw, -3rem);
-  width: clamp(18rem, 38vw, 34rem);
+  right: clamp(-10rem, -13vw, -5rem);
+  bottom: clamp(-8rem, -9vw, -4rem);
+  width: clamp(16rem, 34vw, 30rem);
   aspect-ratio: 1;
   border: 1px solid var(--tone-paper-10);
-  opacity: 0.7;
+  opacity: 0.52;
   rotate: -10deg;
 }
 
@@ -858,14 +858,14 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(0.9rem, 2vw, 2rem);
+  gap: clamp(0.72rem, 1.8vw, 1.7rem);
   border-bottom: 1px solid var(--tone-paper-14);
   color: var(--tone-paper-52);
-  font-size: clamp(0.54rem, 0.66vw, 0.64rem);
+  font-size: clamp(0.52rem, 0.62vw, 0.6rem);
   font-weight: 850;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.18em;
   line-height: 1;
-  padding: clamp(0.72rem, 1.2vw, 0.95rem) clamp(1rem, 3vw, 2rem);
+  padding: clamp(0.68rem, 1vw, 0.82rem) clamp(1rem, 3vw, 2rem);
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -893,36 +893,36 @@ a {
   grid-template-areas:
     "brand contact"
     "proof contact";
-  grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.38fr);
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
   align-items: start;
-  gap: clamp(2.25rem, 5vw, 4.5rem);
-  padding-block: clamp(3rem, 5.8vw, 5rem) clamp(2.5rem, 4.2vw, 3.7rem);
+  gap: clamp(1.35rem, 2.6vw, 2rem) clamp(2rem, 4.5vw, 4.7rem);
+  padding-block: clamp(2.1rem, 4.2vw, 3.7rem) clamp(1.8rem, 3.2vw, 2.6rem);
 }
 
 .public-footer__brand-block {
   grid-area: brand;
   position: relative;
   display: grid;
-  max-width: 47rem;
-  gap: clamp(1rem, 1.8vw, 1.45rem);
+  max-width: 43rem;
+  gap: clamp(0.9rem, 1.5vw, 1.25rem);
   align-content: start;
-  padding: clamp(0.2rem, 0.7vw, 0.6rem) 0;
+  padding: clamp(0.15rem, 0.6vw, 0.45rem) 0;
 }
 
 .public-footer__brand-block::before {
   position: absolute;
-  top: clamp(4.7rem, 7vw, 6rem);
+  top: clamp(4.3rem, 6.4vw, 5.5rem);
   left: clamp(-0.4rem, -0.5vw, 0rem);
   z-index: -1;
   content: "";
-  width: min(80vw, 39rem);
-  height: clamp(6.5rem, 10vw, 9rem);
+  width: min(76vw, 36rem);
+  height: clamp(5.8rem, 9vw, 8rem);
   border-top: 1px solid var(--tone-paper-18);
   border-bottom: 1px solid var(--tone-paper-10);
   background:
     linear-gradient(90deg, var(--tone-paper-6), transparent 72%),
     repeating-linear-gradient(90deg, transparent 0 2.7rem, var(--tone-paper-6) 2.7rem 2.76rem);
-  opacity: 0.72;
+  opacity: 0.56;
 }
 
 .public-footer__brand-row {
@@ -950,19 +950,19 @@ a {
 
 .public-footer__brand-logo {
   display: block;
-  width: clamp(5.2rem, 8.2vw, 7rem);
+  width: clamp(4.9rem, 7.4vw, 6.5rem);
   height: auto;
   filter: drop-shadow(0 0.6rem 0.75rem rgb(0 0 0 / 28%));
 }
 
 .public-footer__edition {
-  max-width: 10.5rem;
+  max-width: 11rem;
   margin: 0.35rem 0 0;
   border-left: 1px solid var(--tone-secondary-42);
   color: var(--tone-paper-64);
-  font-size: clamp(0.62rem, 0.72vw, 0.72rem);
+  font-size: clamp(0.58rem, 0.68vw, 0.68rem);
   font-weight: 780;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   line-height: 1.55;
   padding-left: clamp(0.75rem, 1.3vw, 1rem);
   text-transform: uppercase;
@@ -970,27 +970,27 @@ a {
 
 .public-footer__content {
   display: grid;
-  max-width: 39rem;
-  gap: clamp(0.68rem, 1vw, 0.9rem);
-  margin-top: clamp(0.9rem, 1.8vw, 1.4rem);
+  max-width: 41rem;
+  gap: clamp(0.62rem, 0.95vw, 0.82rem);
+  margin-top: clamp(0.7rem, 1.4vw, 1.15rem);
 }
 
 .public-footer__content p {
   margin: 0;
-  color: var(--tone-paper-72);
-  font-size: clamp(0.9rem, 1vw, 1rem);
-  line-height: 1.68;
+  color: var(--tone-paper-76);
+  font-size: clamp(0.88rem, 0.98vw, 0.98rem);
+  line-height: 1.62;
 }
 
 .public-footer__lead {
-  max-width: 37rem;
+  max-width: 38rem;
   color: var(--palette-paper-soft) !important;
   font-family: var(--font-vintage-serif);
-  font-size: clamp(1.95rem, 3.4vw, 3.35rem) !important;
+  font-size: clamp(1.7rem, 3vw, 3rem) !important;
   font-style: normal;
   font-weight: 540;
   letter-spacing: 0;
-  line-height: 1 !important;
+  line-height: 1.03 !important;
 }
 
 .public-footer__eyebrow {
@@ -998,9 +998,9 @@ a {
   margin: 0;
   border-bottom: 1px solid var(--tone-secondary-52);
   color: var(--tone-secondary-68);
-  font-size: clamp(0.56rem, 0.64vw, 0.62rem);
+  font-size: clamp(0.54rem, 0.62vw, 0.6rem);
   font-weight: 880;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.17em;
   line-height: 1.2;
   padding-bottom: 0.34rem;
   text-transform: uppercase;
@@ -1010,7 +1010,7 @@ a {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
-  width: min(100%, 37rem);
+  width: min(100%, 41rem);
   border: 1px solid var(--tone-paper-14);
   background: var(--tone-paper-14);
 }
@@ -1018,53 +1018,55 @@ a {
 .public-footer__pillar {
   display: grid;
   min-width: 0;
-  gap: clamp(0.62rem, 1.2vw, 0.9rem);
-  background: rgb(251 250 244 / 5%);
-  padding: clamp(0.78rem, 1.25vw, 0.95rem);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(0.54rem, 0.9vw, 0.78rem);
+  background: rgb(251 250 244 / 6%);
+  padding: clamp(0.68rem, 1vw, 0.82rem);
 }
 
 .public-footer__pillar span {
   color: var(--tone-secondary-56);
   font-family: var(--font-vintage-serif);
-  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-size: clamp(1rem, 1.45vw, 1.34rem);
   font-style: italic;
-  line-height: 0.85;
+  line-height: 0.9;
 }
 
 .public-footer__pillar p {
   margin: 0;
   color: var(--tone-paper-88);
-  font-size: clamp(0.58rem, 0.68vw, 0.66rem);
+  font-size: clamp(0.52rem, 0.6vw, 0.58rem);
   font-weight: 850;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   line-height: 1.35;
   text-transform: uppercase;
 }
 
 .public-footer__quote {
-  max-width: 31rem;
+  max-width: 23rem;
   margin: 0;
   border-left: 1px solid var(--tone-paper-18);
   color: var(--tone-paper-78);
   font-family: var(--font-vintage-serif);
-  font-size: clamp(0.98rem, 1.35vw, 1.2rem);
+  font-size: clamp(0.98rem, 1.25vw, 1.14rem);
   font-style: italic;
   line-height: 1.42;
-  padding-left: clamp(0.9rem, 1.8vw, 1.4rem);
+  padding-left: clamp(0.8rem, 1.4vw, 1.1rem);
 }
 
 .public-footer__contact {
   grid-area: contact;
   display: grid;
-  width: min(100%, 23rem);
+  width: min(100%, 24rem);
   justify-self: end;
 }
 
 .public-footer__proof {
   grid-area: proof;
   display: grid;
-  width: min(100%, 37rem);
-  gap: clamp(0.95rem, 1.8vw, 1.35rem);
+  width: min(100%, 41rem);
+  gap: clamp(0.78rem, 1.4vw, 1.05rem);
 }
 
 .public-footer__contact-card {
@@ -1072,7 +1074,7 @@ a {
   position: relative;
   align-self: start;
   align-content: start;
-  gap: clamp(0.9rem, 1.7vw, 1.15rem);
+  gap: clamp(0.72rem, 1.2vw, 0.9rem);
   overflow: hidden;
   border: 1px solid var(--tone-paper-18);
   background:
@@ -1081,9 +1083,9 @@ a {
   background-size: auto, var(--home-paper-background-size);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 52%),
-    0 1.1rem 2.4rem rgb(0 0 0 / 22%);
+    0 1rem 2rem rgb(0 0 0 / 20%);
   color: var(--vintage-text-strong);
-  padding: clamp(1rem, 2vw, 1.35rem);
+  padding: clamp(0.88rem, 1.55vw, 1.08rem);
 }
 
 .public-footer__contact-card::before {
@@ -1109,7 +1111,7 @@ a {
 
 .public-footer__contact-head {
   display: grid;
-  gap: clamp(0.55rem, 1.2vw, 0.8rem);
+  gap: clamp(0.42rem, 0.82vw, 0.58rem);
   padding-top: clamp(0.55rem, 1vw, 0.75rem);
 }
 
@@ -1120,15 +1122,15 @@ a {
 
 .public-footer__contact-head h2 {
   font-family: var(--font-vintage-serif);
-  font-size: clamp(1.55rem, 2.3vw, 2.05rem);
+  font-size: clamp(1.5rem, 2.1vw, 1.95rem);
   font-weight: 560;
   letter-spacing: 0;
-  line-height: 0.98;
+  line-height: 1.02;
 }
 
 .public-footer__contact-head p {
   color: var(--tone-ink-68);
-  font-size: clamp(0.8rem, 0.88vw, 0.88rem);
+  font-size: clamp(0.8rem, 0.86vw, 0.86rem);
   line-height: 1.52;
 }
 
@@ -1142,7 +1144,7 @@ a {
   color: var(--palette-olive-dark);
   font-size: clamp(0.54rem, 0.62vw, 0.58rem);
   font-weight: 850;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.13em;
   line-height: 1;
   padding: 0.46rem 0.56rem;
   text-transform: uppercase;
@@ -1150,14 +1152,80 @@ a {
 
 .public-footer__links {
   display: grid;
-  gap: clamp(0.5rem, 0.86vw, 0.62rem);
-  margin-top: clamp(0.2rem, 0.6vw, 0.45rem);
+  gap: clamp(0.42rem, 0.68vw, 0.52rem);
+  margin-top: clamp(0.12rem, 0.45vw, 0.32rem);
+}
+
+.public-footer__community {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.62rem, 1vw, 0.78rem);
+  border: 1px solid var(--tone-primary-24);
+  background: rgb(75 83 32 / 7%);
+  color: var(--vintage-text-strong);
+  padding: clamp(0.62rem, 0.92vw, 0.74rem);
+}
+
+.public-footer__community-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.18rem;
+}
+
+.public-footer__community-copy span {
+  color: var(--palette-olive-dark);
+  font-size: clamp(0.56rem, 0.64vw, 0.6rem);
+  font-weight: 850;
+  letter-spacing: 0.13em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.public-footer__community-copy p {
+  margin: 0;
+  color: var(--tone-ink-68);
+  font-size: clamp(0.72rem, 0.78vw, 0.78rem);
+  line-height: 1.34;
+}
+
+.public-footer__community-link {
+  display: inline-flex;
+  min-height: 2.24rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  border: 1px solid var(--tone-ink-18);
+  background: rgb(255 255 255 / 38%);
+  color: var(--vintage-text-strong);
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  padding: 0.56rem 0.66rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.public-footer__community-link:hover,
+.public-footer__community-link:focus-visible {
+  border-color: var(--tone-ink-34);
+  background: rgb(255 255 255 / 62%);
+  box-shadow: 0 0.45rem 0.9rem var(--tone-ink-8);
+  outline: none;
+  transform: translateY(-0.06rem);
 }
 
 .public-footer__contact-link {
   display: flex;
   position: relative;
-  min-height: clamp(3.05rem, 4.2vw, 3.45rem);
+  min-height: clamp(2.82rem, 3.45vw, 3.12rem);
   align-items: center;
   gap: clamp(0.7rem, 1.4vw, 0.9rem);
   border: 1px solid var(--tone-ink-14);
@@ -1169,7 +1237,7 @@ a {
   font-size: 0.82rem;
   font-weight: 760;
   line-height: 1.25;
-  padding: clamp(0.72rem, 1.2vw, 0.9rem);
+  padding: clamp(0.62rem, 0.96vw, 0.74rem);
   text-decoration: none;
   transition:
     background var(--transition-fast),
@@ -1225,7 +1293,7 @@ a {
 
 .public-footer__contact-copy strong {
   overflow: hidden;
-  font-size: clamp(0.74rem, 0.84vw, 0.84rem);
+  font-size: clamp(0.72rem, 0.82vw, 0.82rem);
   font-weight: 780;
   line-height: 1.18;
   text-overflow: ellipsis;
@@ -7336,10 +7404,10 @@ a {
   .public-footer__inner {
     grid-template-areas:
       "brand"
-      "contact"
-      "proof";
+      "proof"
+      "contact";
     grid-template-columns: 1fr;
-    gap: clamp(2rem, 5vw, 3.25rem);
+    gap: clamp(1.6rem, 4.5vw, 2.75rem);
   }
 
   .public-footer__brand-block {
@@ -7361,14 +7429,25 @@ a {
   }
 
   .public-footer__contact-card {
-    grid-template-columns: minmax(0, 0.78fr) minmax(18rem, 1fr);
-    align-items: start;
+    grid-template-columns: 1fr;
+    width: min(100%, 32rem);
+    justify-self: center;
     min-height: 0;
-    padding: clamp(1rem, 2.8vw, 1.35rem);
+    padding: clamp(0.94rem, 2.3vw, 1.18rem);
   }
 
   .public-footer__links {
     margin-top: 0;
+  }
+
+  .public-footer__proof {
+    display: grid;
+    justify-content: stretch;
+    gap: clamp(0.85rem, 2.4vw, 1.2rem);
+  }
+
+  .public-footer__editorial-grid {
+    width: 100%;
   }
 
   .public-footer__bottom {
@@ -7549,8 +7628,8 @@ a {
 
   .public-footer__inner {
     justify-items: center;
-    gap: clamp(1rem, 4.5vw, 1.45rem);
-    padding-block: clamp(1.55rem, 7vw, 2.1rem);
+    gap: clamp(1rem, 4.8vw, 1.55rem);
+    padding-block: clamp(1.45rem, 6.4vw, 1.95rem);
   }
 
   .public-footer__brand-row {
@@ -7594,7 +7673,7 @@ a {
 
   .public-footer__content {
     justify-items: center;
-    margin-top: var(--space-2);
+    margin-top: var(--space-1);
     gap: var(--space-2);
     text-align: center;
   }
@@ -7606,8 +7685,8 @@ a {
   }
 
   .public-footer__lead {
-    max-width: 20rem;
-    font-size: clamp(1.46rem, 7vw, 1.82rem) !important;
+    max-width: 21rem;
+    font-size: clamp(1.36rem, 6.2vw, 1.72rem) !important;
     line-height: 1.08 !important;
   }
 
@@ -7628,9 +7707,9 @@ a {
   .public-footer__contact-card {
     grid-template-columns: 1fr;
     width: min(100%, 22rem);
-    gap: 0.65rem;
+    gap: 0.58rem;
     margin-inline: auto;
-    padding: clamp(0.72rem, 3.2vw, 0.86rem);
+    padding: clamp(0.72rem, 3.2vw, 0.88rem);
   }
 
   .public-footer__contact-head {
@@ -7659,6 +7738,40 @@ a {
     gap: 0.38rem;
   }
 
+  .public-footer__community {
+    grid-template-columns: minmax(0, 1fr) auto;
+    justify-items: stretch;
+    gap: 0.5rem;
+    border-width: 1px 0 0;
+    background: transparent;
+    padding: 0.68rem 0 0.05rem;
+    text-align: left;
+  }
+
+  .public-footer__community-copy span {
+    font-size: 0.52rem;
+    letter-spacing: 0.11em;
+  }
+
+  .public-footer__community-copy p {
+    max-width: none;
+    font-size: 0.72rem;
+    line-height: 1.32;
+  }
+
+  .public-footer__community-link {
+    width: auto;
+    min-height: 2.08rem;
+    align-self: center;
+    background: rgb(255 255 255 / 42%);
+    font-size: 0.58rem;
+    padding-inline: 0.54rem;
+  }
+
+  .public-footer__community-link svg:first-child {
+    display: none;
+  }
+
   .public-footer__editorial-grid {
     grid-template-columns: 1fr;
     width: min(100%, 22rem);
@@ -7679,6 +7792,7 @@ a {
 
   .public-footer__pillar p {
     padding-bottom: 0.08rem;
+    letter-spacing: 0.1em;
   }
 
   .public-footer__quote {
@@ -7693,8 +7807,8 @@ a {
   }
 
   .public-footer__contact-link {
-    min-height: 2.56rem;
-    padding: 0.5rem 0.64rem;
+    min-height: 2.46rem;
+    padding: 0.48rem 0.62rem;
   }
 
   .public-footer__contact-link > svg:first-child {
