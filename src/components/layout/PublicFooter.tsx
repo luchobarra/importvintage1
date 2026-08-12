@@ -178,7 +178,7 @@ export function PublicFooter() {
         <span>Lo bueno nunca pasa de moda.</span>
         <nav aria-label="Accesos del footer">
           <Link href="/">Catalogo</Link>
-          <Link href="/?exclusive=true">Exclusivos</Link>
+          <Link href="/?exclusivos=1">Exclusivos</Link>
           <a href={INSTAGRAM_URL} rel="noopener noreferrer" target="_blank">
             Instagram
           </a>

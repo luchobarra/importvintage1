@@ -239,6 +239,28 @@ export async function deleteInventoryItem(
     };
   }
 
+  const { data: publishedProduct, error: publishedProductError } = await supabase
+    .from("products")
+    .select("id")
+    .eq("inventory_item_id", inventoryItemId)
+    .limit(1)
+    .maybeSingle();
+
+  if (publishedProductError) {
+    return {
+      message: `No se pudo validar la publicacion del ingreso: ${publishedProductError.message}`,
+      success: false,
+    };
+  }
+
+  if (publishedProduct) {
+    return {
+      message:
+        "Este ingreso esta publicado en el catalogo. Primero elimina o actualiza la publicacion vinculada.",
+      success: false,
+    };
+  }
+
   const { data: images, error: imagesQueryError } = await supabase
     .from("inventory_item_images")
     .select("image_path")

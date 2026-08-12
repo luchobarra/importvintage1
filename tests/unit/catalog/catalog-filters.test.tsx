@@ -103,10 +103,7 @@ describe("CatalogFilters", () => {
     expect(
       drawer.getByRole("button", { name: "Aplicar filtros" }),
     ).toBeInTheDocument();
-    expect(drawer.getByRole("link", { name: "Limpiar" })).toHaveAttribute(
-      "href",
-      "/",
-    );
+    expect(drawer.getByRole("button", { name: "Limpiar" })).toBeEnabled();
   });
 
   it("disables the clear action when there are no active controls", () => {

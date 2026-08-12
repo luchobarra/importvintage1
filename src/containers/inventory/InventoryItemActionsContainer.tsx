@@ -75,6 +75,7 @@ export function InventoryItemActionsContainer({
   const [pendingMessage, setPendingMessage] = useState("Procesando...");
   const [result, setResult] = useState<ResultState | null>(null);
   const [isPending, startTransition] = useTransition();
+  const isPublished = Boolean(catalogProductId);
   const defaultSaleChannelId =
     catalogProductId && salesChannels.find((channel) => channel.slug === "catalogo")?.id;
 
@@ -257,8 +258,18 @@ export function InventoryItemActionsContainer({
         </button>
         <button
           className="button button--secondary button--danger"
-          disabled={isPending}
+          aria-label={
+            isPublished
+              ? "No se puede eliminar un ingreso publicado"
+              : "Eliminar ingreso"
+          }
+          disabled={isPending || isPublished}
           onClick={() => setIsDeleteConfirmOpen(true)}
+          title={
+            isPublished
+              ? "Primero elimina o actualiza la publicacion vinculada."
+              : "Eliminar ingreso"
+          }
           type="button"
         >
           <Trash2 aria-hidden="true" size={15} />
