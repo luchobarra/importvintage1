@@ -12,7 +12,7 @@ export function ProductDetailError() {
           No pudimos cargar este producto. Intenta de nuevo mas tarde o volve al
           catalogo.
         </p>
-        <Link className="button button--ghost" href="/">
+        <Link className="button button--ghost product-detail__back-link" href="/">
           Volver al catalogo
         </Link>
       </div>
