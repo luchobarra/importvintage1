@@ -1459,19 +1459,25 @@ a {
 .public-header__menu-button {
   width: 2.28rem;
   height: 2.28rem;
-  border-color: currentColor;
+  border-color: color-mix(in srgb, var(--palette-navy) 86%, var(--tone-paper-24));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--palette-navy) 92%, var(--tone-paper-10)), var(--palette-navy));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 16%),
+    0 0.38rem 0.82rem rgb(2 29 56 / 22%);
+  color: var(--palette-paper-soft);
   padding: 0;
-  color: var(--tone-ink-78);
 }
 
 .public-header__menu-button:hover,
 .public-header__menu-button:active {
-  border-color: currentColor;
-  background: var(--catalog-filter-accent);
+  border-color: color-mix(in srgb, var(--palette-navy) 70%, var(--tone-paper-42));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--palette-navy) 82%, var(--tone-paper-18)), color-mix(in srgb, var(--palette-navy) 96%, var(--tone-ink-12)));
   box-shadow:
-    inset 0 1px 0 var(--tone-paper-72),
-    0 0.34rem 0.72rem var(--tone-ink-14);
-  color: var(--vintage-text-strong);
+    inset 0 1px 0 rgb(255 255 255 / 22%),
+    0 0.46rem 0.92rem rgb(2 29 56 / 26%);
+  color: var(--palette-paper-soft);
   transform: none;
 }
 
