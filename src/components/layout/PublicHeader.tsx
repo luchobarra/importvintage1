@@ -157,7 +157,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
   }
 
   return (
-    <header className="public-header" style={{ viewTransitionName: "site-header" }}>
+    <header className="public-header">
       <div className="public-header__inner ui-page-container">
         <button
           aria-controls={menuId}
