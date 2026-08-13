@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Retro Campus Catalog
 
-## Getting Started
+Catalogo online y panel interno para Retro Campus. El proyecto combina una experiencia publica mobile first para explorar prendas vintage con un admin privado para gestionar productos, catalogo, stock, canales de venta y calculos de precio.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 con App Router, React 19 y TypeScript.
+- Supabase para autenticacion, datos, storage y politicas RLS.
+- Vitest + Testing Library para unit tests.
+- Playwright para pruebas end-to-end.
+- Vercel para deploy productivo.
+
+## Requisitos
+
+- Node.js compatible con Next.js 16.
+- pnpm.
+- Proyecto Supabase con las migraciones de `supabase/migrations`.
+- Variables de entorno locales.
+
+## Variables de Entorno
+
+Crear `.env.local` a partir de `.env.local.example`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.local.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Completar:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SITE_URL=
+SELLER_WHATSAPP_NUMBER=
+ADMIN_EMAIL=
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Notas:
 
-## Learn More
+- `NEXT_PUBLIC_SITE_URL` debe apuntar al dominio canonico de produccion, por ejemplo `https://retrocampus.store`.
+- `SELLER_WHATSAPP_NUMBER` se usa para enlaces de contacto directo por producto.
+- `ADMIN_EMAIL` identifica usuarios con acceso administrativo.
 
-To learn more about Next.js, take a look at the following resources:
+## Desarrollo Local
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm install
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Abrir [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev              # servidor local
+pnpm lint             # ESLint
+pnpm test:unit        # unit tests
+pnpm test:e2e         # pruebas end-to-end
+pnpm test:all         # unit + e2e
+pnpm build            # build de produccion
+pnpm start            # servir build local
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Estructura
+
+```text
+src/app/                         rutas publicas, admin, metadata, robots y sitemap
+src/components/                  componentes presentacionales reutilizables
+src/containers/                  componentes con datos, acciones y estado de UI
+src/features/                    logica de dominio: productos, inventario, auth, imagenes
+src/lib/                         clientes, helpers y adaptadores compartidos
+supabase/migrations/             esquema, RLS y cambios de base de datos
+tests/unit/                      unit tests y setup de mocks
+tests/e2e/                       flujos Playwright
+public/                          assets publicos de marca y fondos
+```
+
+## Convenciones
+
+- Mantener la UI publica mobile first y optimizada para catalogo.
+- Separar componentes visuales de containers con datos o side effects.
+- Centralizar queries/actions por dominio dentro de `src/features`.
+- No exponer rutas admin antiguas ni nombres de marca anteriores.
+- Antes de mergear, correr validaciones locales y revisar el flujo publico en desktop y mobile.
+
+## Testing
+
+Unit tests:
+
+```bash
+pnpm test:unit
+```
+
+E2E:
+
+```bash
+cp .env.test.example .env.test.local
+pnpm test:e2e
+```
+
+Los E2E deben usar un Supabase de prueba. Ver [tests/README.md](tests/README.md) para credenciales, flags y reglas de limpieza de datos.
+
+## Deploy
+
+El proyecto esta preparado para Vercel.
+
+Checklist de produccion:
+
+- Configurar `NEXT_PUBLIC_SITE_URL=https://retrocampus.store`.
+- Configurar `SELLER_WHATSAPP_NUMBER` y `ADMIN_EMAIL`.
+- Aplicar migraciones de Supabase antes de publicar cambios de admin o stock.
+- Verificar que `retrocampus.store` sea el dominio canonico y que `www` redirija correctamente.
+- Correr `pnpm test:unit`, `pnpm lint` y `pnpm build`.
+
+## Pull Requests
+
+Antes de abrir o mergear un PR:
+
+- Confirmar que la rama este actualizada con `main`.
+- Resolver conflictos localmente.
+- Correr unit tests, lint y build.
+- Revisar que no haya referencias visibles a marcas/dominios anteriores.
+- Validar manualmente catalogo, detalle de producto, filtros, footer y responsive.
+- Documentar cambios relevantes en el cuerpo del PR, incluyendo migraciones o variables nuevas.
