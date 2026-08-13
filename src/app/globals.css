@@ -1460,9 +1460,8 @@ a {
   width: 2.28rem;
   height: 2.28rem;
   border-color: var(--palette-navy);
-  background: var(--palette-rose-soft);
+  background: color-mix(in srgb, var(--palette-rose-soft) 58%, var(--palette-paper-warm));
   box-shadow:
-    inset 0 1px 0 var(--tone-paper-92),
     0 0.32rem 0.68rem var(--tone-ink-14);
   color: var(--vintage-text-strong);
   padding: 0;
@@ -1471,9 +1470,8 @@ a {
 .public-header__menu-button:hover,
 .public-header__menu-button:active {
   border-color: var(--palette-navy);
-  background: var(--palette-rose-soft);
+  background: color-mix(in srgb, var(--palette-rose-soft) 58%, var(--palette-paper-warm));
   box-shadow:
-    inset 0 1px 0 var(--tone-paper-100),
     0 0.38rem 0.76rem var(--tone-ink-16);
   color: var(--vintage-text-strong);
   transform: none;
