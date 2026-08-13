@@ -13,19 +13,21 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import {
+  CONTACT_EMAIL,
+  CONTACT_INSTAGRAM,
+  CONTACT_PHONE_LABEL,
+  CONTACT_WHATSAPP_URL,
+  WHATSAPP_GROUP_URL,
+} from "@/features/contact/constants";
 import { BrandLogo } from "./BrandLogo";
 
-const CONTACT_EMAIL = "importvintage1@gmail.com";
-const CONTACT_INSTAGRAM = "retrocampus";
-const CONTACT_PHONE_LABEL = "+54 9 2223 57-6658";
-const CONTACT_WHATSAPP_URL = "https://wa.me/5492223576658";
-const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/C6Wv2mDeCxPCM86DDPT6Rb";
 const INSTAGRAM_URL = `https://www.instagram.com/${CONTACT_INSTAGRAM}/`;
 const CURRENT_YEAR = new Date().getFullYear();
 
 const FOOTER_PILLARS = [
-  "Seleccion pieza por pieza",
-  "Estado informado",
+  "Prendas unicas",
+  "Seleccion cuidadosa",
   "Reserva simple",
 ] as const;
 

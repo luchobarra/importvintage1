@@ -12,6 +12,7 @@ import {
   type ProductFormState,
 } from "@/features/products/actions";
 import type { CatalogOptions } from "@/features/catalog-options/types";
+import { sanitizeMeasurementInput } from "@/features/measurements/formatters";
 import {
   formatProductPriceInput,
   getPriceDigits,
@@ -131,6 +132,11 @@ export function EditProductFormContainer({
     handleFieldChange(event);
   }
 
+  function handleMeasurementChange(event: ChangeEvent<HTMLInputElement>) {
+    event.target.value = sanitizeMeasurementInput(event.target.value);
+    handleFieldChange(event);
+  }
+
   function handleCategoryChange(event: ChangeEvent<HTMLSelectElement>) {
     setSelectedCategoryId(event.currentTarget.value);
     handleFieldChange(event);
@@ -226,6 +232,7 @@ export function EditProductFormContainer({
         onCategoryChange={handleCategoryChange}
         onFieldBlur={handleFieldBlur}
         onFieldChange={handleFieldChange}
+        onMeasurementChange={handleMeasurementChange}
         onPriceChange={handlePriceChange}
         onSubmit={handleSubmit}
         options={options}
@@ -262,6 +269,8 @@ function isProductFieldName(fieldName: string): fieldName is ProductFieldName {
     "category",
     "condition",
     "size",
+    "height_cm",
+    "width_cm",
     "price",
     "description",
   ].includes(fieldName);

@@ -21,6 +21,8 @@ const PRODUCT_SELECT = `
   condition,
   size_id,
   size,
+  height_cm,
+  width_cm,
   price,
   description,
   inventory_item_id,

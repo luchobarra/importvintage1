@@ -1,4 +1,5 @@
 import type { CatalogOptions } from "@/features/catalog-options/types";
+import { formatMeasurementInput } from "@/features/measurements/formatters";
 import { PRODUCT_DESCRIPTION_MAX_LENGTH } from "@/features/products/constants";
 import type { ProductFormState } from "@/features/products/actions";
 import {
@@ -33,6 +34,7 @@ type EditProductFormProps = {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) => void;
+  onMeasurementChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onPriceChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
@@ -53,6 +55,7 @@ export function EditProductForm({
   onCategoryChange,
   onFieldBlur,
   onFieldChange,
+  onMeasurementChange,
   onPriceChange,
   onSubmit,
 }: EditProductFormProps) {
@@ -152,6 +155,54 @@ export function EditProductForm({
               </option>
             ))}
           </select>
+        </label>
+
+        <label
+          className={getFieldClassName(fieldErrors.height_cm)}
+          htmlFor="height_cm"
+        >
+          <FieldLabel
+            errors={fieldErrors}
+            fieldName="height_cm"
+            label="Alto en cm *"
+          />
+          <input
+            aria-describedby={getErrorId("height_cm", fieldErrors)}
+            aria-invalid={Boolean(fieldErrors.height_cm)}
+            defaultValue={formatMeasurementInput(product.height_cm)}
+            id="height_cm"
+            inputMode="decimal"
+            name="height_cm"
+            onBlur={onFieldBlur}
+            onChange={onMeasurementChange}
+            placeholder="Ej: 68,5"
+            required
+            type="text"
+          />
+        </label>
+
+        <label
+          className={getFieldClassName(fieldErrors.width_cm)}
+          htmlFor="width_cm"
+        >
+          <FieldLabel
+            errors={fieldErrors}
+            fieldName="width_cm"
+            label="Ancho en cm *"
+          />
+          <input
+            aria-describedby={getErrorId("width_cm", fieldErrors)}
+            aria-invalid={Boolean(fieldErrors.width_cm)}
+            defaultValue={formatMeasurementInput(product.width_cm)}
+            id="width_cm"
+            inputMode="decimal"
+            name="width_cm"
+            onBlur={onFieldBlur}
+            onChange={onMeasurementChange}
+            placeholder="Ej: 54"
+            required
+            type="text"
+          />
         </label>
 
         <label

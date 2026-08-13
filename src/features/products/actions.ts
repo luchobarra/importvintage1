@@ -1,6 +1,10 @@
 "use server";
 
 import { isAdminUser } from "@/features/auth/admin";
+import {
+  isValidMeasurementInput,
+  normalizeMeasurementInput,
+} from "@/features/measurements/formatters";
 import { PRODUCT_DESCRIPTION_MAX_LENGTH } from "@/features/products/constants";
 import { getPriceDigits } from "@/features/products/form-validation";
 import type { ProductImageInput } from "@/features/products/types";
@@ -41,11 +45,15 @@ export async function createProductDraft(
   const categoryId = String(formData.get("category") ?? "").trim();
   const conditionId = String(formData.get("condition") ?? "").trim();
   const sizeId = String(formData.get("size") ?? "").trim();
+  const heightValue = String(formData.get("height_cm") ?? "").trim();
+  const widthValue = String(formData.get("width_cm") ?? "").trim();
   const rawPriceValue = String(formData.get("price") ?? "").trim();
   const priceValue = getPriceDigits(rawPriceValue);
   const description = String(formData.get("description") ?? "").trim();
   const isExclusive = formData.get("is_exclusive") === "on";
   const inventoryItemId = String(formData.get("inventory_item_id") ?? "").trim();
+  const heightCm = Number(normalizeMeasurementInput(heightValue));
+  const widthCm = Number(normalizeMeasurementInput(widthValue));
   const price = Number(priceValue);
 
   if (
@@ -54,11 +62,23 @@ export async function createProductDraft(
     !categoryId ||
     !conditionId ||
     !sizeId ||
+    !heightValue ||
+    !widthValue ||
     !priceValue ||
     !description
   ) {
     return {
       message: "Completa todos los campos obligatorios.",
+      success: false,
+    };
+  }
+
+  if (
+    !isValidMeasurementInput(heightValue, true) ||
+    !isValidMeasurementInput(widthValue, true)
+  ) {
+    return {
+      message: "Las medidas deben ser numeros mayores a cero y usar coma para decimales.",
       success: false,
     };
   }
@@ -107,6 +127,8 @@ export async function createProductDraft(
       condition: catalogSelection.condition.name,
       size_id: sizeId,
       size: catalogSelection.size.value,
+      height_cm: heightCm,
+      width_cm: widthCm,
       price,
       description,
       inventory_item_id: inventoryItemId || null,
@@ -210,10 +232,14 @@ export async function updateProduct(
   const categoryId = String(formData.get("category") ?? "").trim();
   const conditionId = String(formData.get("condition") ?? "").trim();
   const sizeId = String(formData.get("size") ?? "").trim();
+  const heightValue = String(formData.get("height_cm") ?? "").trim();
+  const widthValue = String(formData.get("width_cm") ?? "").trim();
   const rawPriceValue = String(formData.get("price") ?? "").trim();
   const priceValue = getPriceDigits(rawPriceValue);
   const description = String(formData.get("description") ?? "").trim();
   const isExclusive = formData.get("is_exclusive") === "on";
+  const heightCm = Number(normalizeMeasurementInput(heightValue));
+  const widthCm = Number(normalizeMeasurementInput(widthValue));
   const price = Number(priceValue);
 
   if (
@@ -223,11 +249,23 @@ export async function updateProduct(
     !categoryId ||
     !conditionId ||
     !sizeId ||
+    !heightValue ||
+    !widthValue ||
     !priceValue ||
     !description
   ) {
     return {
       message: "Completa todos los campos obligatorios.",
+      success: false,
+    };
+  }
+
+  if (
+    !isValidMeasurementInput(heightValue, true) ||
+    !isValidMeasurementInput(widthValue, true)
+  ) {
+    return {
+      message: "Las medidas deben ser numeros mayores a cero y usar coma para decimales.",
       success: false,
     };
   }
@@ -276,6 +314,8 @@ export async function updateProduct(
       condition: catalogSelection.condition.name,
       size_id: sizeId,
       size: catalogSelection.size.value,
+      height_cm: heightCm,
+      width_cm: widthCm,
       price,
       description,
       is_exclusive: isExclusive,

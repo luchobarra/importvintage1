@@ -23,6 +23,8 @@ const INVENTORY_SELECT = `
   purchase_date,
   purchase_price,
   estimated_sale_price,
+  height_cm,
+  width_cm,
   internal_description,
   condition_notes,
   internal_notes,

@@ -46,6 +46,8 @@ export type Product = {
   condition: string;
   size_id: string | null;
   size: string;
+  height_cm: number;
+  width_cm: number;
   price: number;
   description: string | null;
   inventory_item_id?: string | null;

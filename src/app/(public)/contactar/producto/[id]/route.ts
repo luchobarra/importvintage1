@@ -1,3 +1,4 @@
+import { CONTACT_WHATSAPP_NUMBER } from "@/features/contact/constants";
 import { createProductWhatsappUrl } from "@/features/products/contact";
 import { getAvailableProductById } from "@/features/products/queries";
 import { NextResponse, type NextRequest } from "next/server";
@@ -13,18 +14,12 @@ export async function GET(
   { params }: ContactProductRouteContext,
 ) {
   const { id } = await params;
-  const productDetailUrl = new URL(`/productos/${id}`, request.nextUrl.origin);
-  const sellerPhoneNumber = process.env.SELLER_WHATSAPP_NUMBER;
-
-  if (!sellerPhoneNumber) {
-    return NextResponse.redirect(productDetailUrl);
-  }
 
   try {
     const product = await getAvailableProductById(id);
     const whatsappUrl = createProductWhatsappUrl({
       product,
-      sellerPhoneNumber,
+      sellerPhoneNumber: CONTACT_WHATSAPP_NUMBER,
     });
 
     return NextResponse.redirect(whatsappUrl);

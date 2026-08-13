@@ -2,6 +2,7 @@ import {
   INVENTORY_NOTES_MAX_LENGTH,
   INVENTORY_TEXT_MAX_LENGTH,
 } from "@/features/inventory/constants";
+import { isValidMeasurementInput } from "@/features/measurements/formatters";
 import { getPriceDigits } from "@/features/products/form-validation";
 
 export type InventoryFieldName =
@@ -11,6 +12,8 @@ export type InventoryFieldName =
   | "purchase_date"
   | "purchase_price"
   | "estimated_sale_price"
+  | "height_cm"
+  | "width_cm"
   | "internal_description"
   | "internal_notes";
 
@@ -36,6 +39,8 @@ export function validateInventoryFormFields(formData: FormData) {
   const purchaseDate = getRequiredText(formData, "purchase_date");
   const purchasePrice = getRequiredText(formData, "purchase_price");
   const estimatedSalePrice = getRequiredText(formData, "estimated_sale_price");
+  const heightCm = String(formData.get("height_cm") ?? "").trim();
+  const widthCm = String(formData.get("width_cm") ?? "").trim();
   const internalDescription = getRequiredText(formData, "internal_description");
   const internalNotes = String(formData.get("internal_notes") ?? "").trim();
 
@@ -61,6 +66,14 @@ export function validateInventoryFormFields(formData: FormData) {
 
   if (!isValidMoneyInput(estimatedSalePrice, false)) {
     errors.estimated_sale_price = "Ingresa un precio estimado valido.";
+  }
+
+  if (!isValidMeasurementInput(heightCm, false)) {
+    errors.height_cm = "Usa un numero mayor a 0 con coma decimal.";
+  }
+
+  if (!isValidMeasurementInput(widthCm, false)) {
+    errors.width_cm = "Usa un numero mayor a 0 con coma decimal.";
   }
 
   if (!internalDescription) {
@@ -146,6 +159,8 @@ function getFirstInventoryInvalidField(errors: InventoryFieldErrors) {
       "purchase_date",
       "purchase_price",
       "estimated_sale_price",
+      "height_cm",
+      "width_cm",
       "internal_description",
       "internal_notes",
     ] as InventoryFieldName[]).find((fieldName) => errors[fieldName]) ?? null

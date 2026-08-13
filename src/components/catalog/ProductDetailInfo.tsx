@@ -1,9 +1,9 @@
 import {
   formatProductPrice,
-  getProductCategoryName,
   getProductConditionName,
   getProductSizeLabel,
 } from "@/features/products/formatters";
+import { formatCompactMeasurementValue } from "@/features/measurements/formatters";
 import { createProductContactHref } from "@/features/products/contact";
 import type { Product } from "@/features/products/types";
 import { CircleCheck, Ruler, ShieldCheck, Tag } from "lucide-react";
@@ -18,7 +18,6 @@ export function ProductDetailInfo({
   catalogHref = "/",
   product,
 }: ProductDetailInfoProps) {
-  const categoryName = getProductCategoryName(product);
   const conditionName = getProductConditionName(product);
   const sizeLabel = getProductSizeLabel(product);
 
@@ -31,20 +30,29 @@ export function ProductDetailInfo({
       <dl className="product-detail__meta">
         <div className="product-detail__meta-item product-detail__meta-item--size">
           <span className="product-detail__meta-icon" aria-hidden="true">
-            <Ruler size={15} strokeWidth={1.8} />
+            <Tag size={15} strokeWidth={1.8} />
           </span>
           <div>
             <dt className="text-caption text-overline">Talle</dt>
             <dd className="text-body-lg">{sizeLabel}</dd>
           </div>
         </div>
-        <div className="product-detail__meta-item product-detail__meta-item--category">
+        <div className="product-detail__meta-item product-detail__meta-item--measurements">
           <span className="product-detail__meta-icon" aria-hidden="true">
-            <Tag size={15} strokeWidth={1.8} />
+            <Ruler size={15} strokeWidth={1.8} />
           </span>
           <div>
-            <dt className="text-caption text-overline">Categoria</dt>
-            <dd className="text-body-lg">{categoryName}</dd>
+            <dt className="text-caption text-overline">Medidas</dt>
+            <dd className="product-detail__measurements-value">
+              <span>
+                <strong>Alto:</strong>{" "}
+                <strong>{formatCompactMeasurementValue(product.height_cm)}</strong>
+              </span>
+              <span>
+                <strong>Ancho:</strong>{" "}
+                <strong>{formatCompactMeasurementValue(product.width_cm)}</strong>
+              </span>
+            </dd>
           </div>
         </div>
         <div className="product-detail__meta-item product-detail__meta-item--condition">

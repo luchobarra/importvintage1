@@ -131,9 +131,6 @@ export function ProductGrid({
               "Ver mas productos"
             )}
           </button>
-          <p className="catalog-load-more__status">
-            Mostrando {visibleProducts.length} de {availableProductCount}
-          </p>
         </div>
       ) : null}
     </>

@@ -11,6 +11,10 @@ import type {
   InventoryMovementType,
 } from "@/features/inventory/types";
 import { normalizeMoneyInput } from "@/features/inventory/validation";
+import {
+  isValidMeasurementInput,
+  normalizeMeasurementInput,
+} from "@/features/measurements/formatters";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -640,11 +644,13 @@ function parseInventoryPayload(formData: FormData):
         condition_id: string;
         condition_notes: string;
         estimated_sale_price: number | null;
+        height_cm: number | null;
         internal_description: string;
         internal_notes: string | null;
         purchase_date: string;
         purchase_price: number;
         title: string;
+        width_cm: number | null;
       };
     }
   | InventoryActionError {
@@ -657,6 +663,8 @@ function parseInventoryPayload(formData: FormData):
   const estimatedSalePriceValue = normalizeMoneyInput(
     formData.get("estimated_sale_price"),
   );
+  const heightValue = String(formData.get("height_cm") ?? "").trim();
+  const widthValue = String(formData.get("width_cm") ?? "").trim();
   const internalDescription = String(
     formData.get("internal_description") ?? "",
   ).trim();
@@ -665,6 +673,10 @@ function parseInventoryPayload(formData: FormData):
   const estimatedSalePrice = estimatedSalePriceValue
     ? Number(estimatedSalePriceValue)
     : null;
+  const heightCm = heightValue
+    ? Number(normalizeMeasurementInput(heightValue))
+    : null;
+  const widthCm = widthValue ? Number(normalizeMeasurementInput(widthValue)) : null;
 
   if (
     !title ||
@@ -705,6 +717,16 @@ function parseInventoryPayload(formData: FormData):
   }
 
   if (
+    !isValidMeasurementInput(heightValue, false) ||
+    !isValidMeasurementInput(widthValue, false)
+  ) {
+    return {
+      message: "Las medidas deben ser numeros mayores a cero y usar coma para decimales.",
+      success: false,
+    };
+  }
+
+  if (
     internalDescription.length > INVENTORY_TEXT_MAX_LENGTH ||
     internalNotes.length > INVENTORY_NOTES_MAX_LENGTH
   ) {
@@ -722,11 +744,13 @@ function parseInventoryPayload(formData: FormData):
       condition_id: conditionId,
       condition_notes: "",
       estimated_sale_price: estimatedSalePrice,
+      height_cm: heightCm,
       internal_description: internalDescription,
       internal_notes: internalNotes || null,
       purchase_date: purchaseDate,
       purchase_price: purchasePrice,
       title,
+      width_cm: widthCm,
     },
   };
 }

@@ -75,6 +75,8 @@ export type InventoryItem = {
   purchase_date: string;
   purchase_price: number;
   estimated_sale_price: number | null;
+  height_cm: number | null;
+  width_cm: number | null;
   internal_description: string | null;
   condition_notes: string | null;
   internal_notes: string | null;

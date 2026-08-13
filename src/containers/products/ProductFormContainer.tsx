@@ -12,6 +12,7 @@ import type { CatalogOptions } from "@/features/catalog-options/types";
 import { optimizeImage } from "@/features/images/optimize-image";
 import type { SelectedImage, UploadProgress } from "@/features/images/types";
 import { withTimeout } from "@/features/images/with-timeout";
+import { sanitizeMeasurementInput } from "@/features/measurements/formatters";
 import {
   createProductDraft,
   deleteProductDraft,
@@ -53,9 +54,11 @@ type ProductFormContainerProps = {
     categoryId?: string | null;
     conditionId?: string | null;
     description?: string;
+    heightCm?: number | null;
     inventoryItemId?: string;
     price?: number | null;
     title?: string;
+    widthCm?: number | null;
   };
   options: CatalogOptions;
 };
@@ -297,6 +300,11 @@ export function ProductFormContainer({
     handleFieldChange(event);
   }
 
+  function handleMeasurementChange(event: ChangeEvent<HTMLInputElement>) {
+    event.target.value = sanitizeMeasurementInput(event.target.value);
+    handleFieldChange(event);
+  }
+
   function handleCategoryChange(event: ChangeEvent<HTMLSelectElement>) {
     setSelectedCategoryId(event.currentTarget.value);
     handleFieldChange(event);
@@ -483,6 +491,7 @@ export function ProductFormContainer({
         onFieldBlur={handleFieldBlur}
         onFieldChange={handleFieldChange}
         onFileChange={handleFileChange}
+        onMeasurementChange={handleMeasurementChange}
         onPriceChange={handlePriceChange}
         onRemoveImage={removeImage}
         onSubmit={handleSubmit}
@@ -530,6 +539,8 @@ function isProductFieldName(fieldName: string): fieldName is ProductFieldName {
     "category",
     "condition",
     "size",
+    "height_cm",
+    "width_cm",
     "price",
     "description",
   ].includes(fieldName);

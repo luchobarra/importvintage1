@@ -1,6 +1,7 @@
 import { ImageUploader } from "@/components/products/ImageUploader";
 import type { CatalogOptions } from "@/features/catalog-options/types";
 import type { SelectedImage } from "@/features/images/types";
+import { formatMeasurementInput } from "@/features/measurements/formatters";
 import type { ProductFormState } from "@/features/products/actions";
 import {
   MAX_PRODUCT_IMAGES,
@@ -31,9 +32,11 @@ type ProductFormProps = {
     categoryId?: string | null;
     conditionId?: string | null;
     description?: string;
+    heightCm?: number | null;
     inventoryItemId?: string;
     price?: number | null;
     title?: string;
+    widthCm?: number | null;
   };
   isDragging: boolean;
   isPending: boolean;
@@ -54,6 +57,7 @@ type ProductFormProps = {
     >,
   ) => void;
   onFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onMeasurementChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onPriceChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onRemoveImage: (imageId: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -79,6 +83,7 @@ export function ProductForm({
   onFieldBlur,
   onFieldChange,
   onFileChange,
+  onMeasurementChange,
   onPriceChange,
   onRemoveImage,
   onSubmit,
@@ -185,6 +190,54 @@ export function ProductForm({
               </option>
             ))}
           </select>
+        </label>
+
+        <label
+          className={getFieldClassName(fieldErrors.height_cm)}
+          htmlFor="height_cm"
+        >
+          <FieldLabel
+            errors={fieldErrors}
+            fieldName="height_cm"
+            label="Alto en cm *"
+          />
+          <input
+            aria-describedby={getErrorId("height_cm", fieldErrors)}
+            aria-invalid={Boolean(fieldErrors.height_cm)}
+            defaultValue={formatMeasurementInput(initialValues?.heightCm)}
+            id="height_cm"
+            inputMode="decimal"
+            name="height_cm"
+            onBlur={onFieldBlur}
+            onChange={onMeasurementChange}
+            placeholder="Ej: 68,5"
+            required
+            type="text"
+          />
+        </label>
+
+        <label
+          className={getFieldClassName(fieldErrors.width_cm)}
+          htmlFor="width_cm"
+        >
+          <FieldLabel
+            errors={fieldErrors}
+            fieldName="width_cm"
+            label="Ancho en cm *"
+          />
+          <input
+            aria-describedby={getErrorId("width_cm", fieldErrors)}
+            aria-invalid={Boolean(fieldErrors.width_cm)}
+            defaultValue={formatMeasurementInput(initialValues?.widthCm)}
+            id="width_cm"
+            inputMode="decimal"
+            name="width_cm"
+            onBlur={onFieldBlur}
+            onChange={onMeasurementChange}
+            placeholder="Ej: 54"
+            required
+            type="text"
+          />
         </label>
 
         <label

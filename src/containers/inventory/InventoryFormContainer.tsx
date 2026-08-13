@@ -29,6 +29,7 @@ import {
 import { optimizeImage } from "@/features/images/optimize-image";
 import type { SelectedImage, UploadProgress } from "@/features/images/types";
 import { withTimeout } from "@/features/images/with-timeout";
+import { sanitizeMeasurementInput } from "@/features/measurements/formatters";
 import { calculateProductPrice } from "@/features/price-calculator/calculations";
 import {
   formatCurrency,
@@ -352,6 +353,11 @@ export function InventoryFormContainer({
     clearFieldError(event.currentTarget.name);
   }
 
+  function handleMeasurementChange(event: ChangeEvent<HTMLInputElement>) {
+    event.target.value = sanitizeMeasurementInput(event.target.value);
+    clearFieldError(event.currentTarget.name);
+  }
+
   function handleFieldChange(
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) {
@@ -507,6 +513,7 @@ export function InventoryFormContainer({
         onDrop={handleDrop}
         onFieldChange={handleFieldChange}
         onFileChange={handleFileChange}
+        onMeasurementChange={handleMeasurementChange}
         onPriceChange={handlePriceChange}
         onRemoveImage={removeImage}
         onSubmit={handleSubmit}
@@ -517,6 +524,7 @@ export function InventoryFormContainer({
           condition_notes: item?.condition_notes ?? "",
           condition_id: item?.condition_id ?? "",
           estimated_sale_price: item?.estimated_sale_price ?? null,
+          height_cm: item?.height_cm ?? null,
           internal_description: item?.internal_description ?? "",
           internal_notes: item?.internal_notes ?? "",
           purchase_date: item?.purchase_date ?? getTodayDateInputValue(),
@@ -525,6 +533,7 @@ export function InventoryFormContainer({
           estimated_sale_price_input: estimatedSalePriceValue,
           title: item?.title ?? "",
           visible_id: item?.visible_id ?? "",
+          width_cm: item?.width_cm ?? null,
         }}
       />
       <LoadingOverlay

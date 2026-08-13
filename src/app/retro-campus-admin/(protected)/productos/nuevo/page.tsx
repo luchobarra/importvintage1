@@ -63,9 +63,11 @@ export default async function NewProductPage({
                     conditionId: inventoryItem.condition_id,
                     description:
                       inventoryItem.internal_description ?? "",
+                    heightCm: inventoryItem.height_cm,
                     inventoryItemId: inventoryItem.id,
                     price: inventoryItem.estimated_sale_price,
                     title: inventoryItem.title,
+                    widthCm: inventoryItem.width_cm,
                   }
                 : undefined
             }

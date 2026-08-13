@@ -12,6 +12,7 @@ import {
 } from "@/features/inventory/constants";
 import type { InventoryFieldErrors } from "@/features/inventory/validation";
 import type { SelectedImage } from "@/features/images/types";
+import { formatMeasurementInput } from "@/features/measurements/formatters";
 import type { ChangeEvent, DragEvent, FormEvent, RefObject } from "react";
 
 type InventoryFormValues = {
@@ -21,6 +22,7 @@ type InventoryFormValues = {
   condition_id?: string | null;
   estimated_sale_price?: number | null;
   estimated_sale_price_input?: string;
+  height_cm?: number | null;
   internal_description?: string | null;
   internal_notes?: string | null;
   purchase_date: string;
@@ -28,6 +30,7 @@ type InventoryFormValues = {
   purchase_price_input?: string;
   title?: string | null;
   visible_id?: string | null;
+  width_cm?: number | null;
 };
 
 type InventoryFormProps = {
@@ -57,6 +60,7 @@ type InventoryFormProps = {
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => void;
   onFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onMeasurementChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onPriceChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onRemoveImage: (imageId: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -84,6 +88,7 @@ export function InventoryForm({
   onDrop,
   onFieldChange,
   onFileChange,
+  onMeasurementChange,
   onPriceChange,
   onRemoveImage,
   onSubmit,
@@ -268,6 +273,40 @@ export function InventoryForm({
             </dl>
           </div>
         </div>
+      </div>
+
+      <div className="inventory-form__row inventory-form__row--two">
+        <label
+          className={getFieldClassName(fieldErrors.height_cm)}
+          htmlFor="height_cm"
+        >
+          <FieldLabel error={fieldErrors.height_cm} label="Alto en cm" />
+          <input
+            defaultValue={formatMeasurementInput(values.height_cm)}
+            id="height_cm"
+            inputMode="decimal"
+            name="height_cm"
+            onChange={onMeasurementChange}
+            placeholder="Ej: 68,5"
+            type="text"
+          />
+        </label>
+
+        <label
+          className={getFieldClassName(fieldErrors.width_cm)}
+          htmlFor="width_cm"
+        >
+          <FieldLabel error={fieldErrors.width_cm} label="Ancho en cm" />
+          <input
+            defaultValue={formatMeasurementInput(values.width_cm)}
+            id="width_cm"
+            inputMode="decimal"
+            name="width_cm"
+            onChange={onMeasurementChange}
+            placeholder="Ej: 54"
+            type="text"
+          />
+        </label>
       </div>
 
       <label

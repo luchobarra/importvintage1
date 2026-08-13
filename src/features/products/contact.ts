@@ -3,6 +3,7 @@ import {
   getProductBrandName,
   getProductSizeLabel,
 } from "@/features/products/formatters";
+import { formatMeasurementValue } from "@/features/measurements/formatters";
 import type { Product } from "@/features/products/types";
 import { createSiteUrl } from "@/lib/site-url";
 
@@ -26,7 +27,7 @@ export function createProductWhatsappUrl({
   const normalizedPhoneNumber = normalizeWhatsappPhoneNumber(sellerPhoneNumber);
 
   if (!normalizedPhoneNumber) {
-    throw new Error("SELLER_WHATSAPP_NUMBER no esta configurado.");
+    throw new Error("El numero de WhatsApp no esta configurado.");
   }
 
   const detailUrl = createProductDetailUrl(product.id);
@@ -47,6 +48,7 @@ function createProductContactMessage(product: Product, detailUrl: string) {
     product.title,
     `Marca: ${getProductBrandName(product)}`,
     `Talle: ${getProductSizeLabel(product)}`,
+    `Medidas: alto ${formatMeasurementValue(product.height_cm)}, ancho ${formatMeasurementValue(product.width_cm)}`,
     `Precio: ${formatProductPrice(product.price)}`,
     "",
     "Sigue disponible?",

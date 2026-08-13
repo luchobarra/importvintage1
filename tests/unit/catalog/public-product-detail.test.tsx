@@ -16,6 +16,8 @@ const testProduct: Product = {
   condition: "Muy bueno",
   size_id: null,
   size: "L",
+  height_cm: 68.5,
+  width_cm: 54,
   price: 25000,
   description: "Campera en excelente estado.",
   is_exclusive: true,
@@ -71,8 +73,9 @@ describe("public product detail flow", () => {
     expect(screen.getByText("Campera en excelente estado.")).toBeInTheDocument();
     expect(screen.getByText("Talle")).toBeInTheDocument();
     expect(screen.getByText("L")).toBeInTheDocument();
-    expect(screen.getByText("Categoria")).toBeInTheDocument();
-    expect(screen.getAllByText("buzos")).toHaveLength(2);
+    expect(screen.getByText("Medidas")).toBeInTheDocument();
+    expect(screen.getByText("68,5cm")).toBeInTheDocument();
+    expect(screen.getByText("54cm")).toBeInTheDocument();
     expect(screen.getByText("Estado")).toBeInTheDocument();
     expect(screen.getByText("Muy bueno")).toBeInTheDocument();
 

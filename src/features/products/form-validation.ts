@@ -1,4 +1,5 @@
 import { PRODUCT_DESCRIPTION_MAX_LENGTH } from "@/features/products/constants";
+import { isValidMeasurementInput } from "@/features/measurements/formatters";
 
 export type ProductFieldName =
   | "title"
@@ -6,6 +7,8 @@ export type ProductFieldName =
   | "category"
   | "condition"
   | "size"
+  | "height_cm"
+  | "width_cm"
   | "price"
   | "description";
 
@@ -17,6 +20,8 @@ const PRODUCT_FIELD_LABELS: Record<ProductFieldName, string> = {
   category: "categoria",
   condition: "estado",
   size: "talle",
+  height_cm: "alto",
+  width_cm: "ancho",
   price: "precio",
   description: "descripcion",
 };
@@ -27,6 +32,8 @@ const PRODUCT_FIELD_ORDER: ProductFieldName[] = [
   "category",
   "condition",
   "size",
+  "height_cm",
+  "width_cm",
   "price",
   "description",
 ];
@@ -76,6 +83,12 @@ export function validateProductField(
 
     if (!Number.isFinite(numericValue) || numericValue <= 0) {
       return "El precio debe ser un numero entero mayor a 0.";
+    }
+  }
+
+  if (fieldName === "height_cm" || fieldName === "width_cm") {
+    if (!isValidMeasurementInput(normalizedValue, true)) {
+      return "La medida debe ser un numero mayor a 0 y usar coma para decimales.";
     }
   }
 
