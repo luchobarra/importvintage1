@@ -173,7 +173,17 @@ export function CatalogFilters({
       return;
     }
 
-    processFilterAction("clear", "/");
+    processFilterAction(
+      "clear",
+      createPublicCatalogHref({
+        ...state,
+        brand: "",
+        category: "",
+        page: 1,
+        size: "",
+        sort: "",
+      }),
+    );
   }
 
   function processFilterAction(action: "apply" | "clear", href: string) {
@@ -593,14 +603,6 @@ export function CatalogFilters({
                       <span>Ordenar</span>
                     </summary>
                     <div className="catalog-filters__option-list">
-                      <FilterOption
-                        checked={pendingState.exclusive}
-                        inputType="checkbox"
-                        label="Exclusivos"
-                        name="exclusivos"
-                        onChange={handleFilterOptionChange}
-                        value="1"
-                      />
                       {getSortOptions().map((option) => (
                         <FilterOption
                           checked={pendingState.sort === option.value}
@@ -789,14 +791,6 @@ function getActiveItems(options: CatalogOptions, state: PublicCatalogState) {
       href: createPublicCatalogHref({ ...state, page: 1, size: "" }),
       key: "size",
       label: `Talle ${selectedSize.label}`,
-    });
-  }
-
-  if (state.exclusive) {
-    items.push({
-      href: createPublicCatalogHref({ ...state, exclusive: false, page: 1 }),
-      key: "exclusive",
-      label: "Exclusivos",
     });
   }
 

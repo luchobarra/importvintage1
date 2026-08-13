@@ -156,6 +156,19 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
     scrollToCatalogStart();
   }
 
+  function handleMobileContactClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (isModifiedClick(event)) {
+      return;
+    }
+
+    event.preventDefault();
+    closeMenu();
+
+    window.setTimeout(() => {
+      scrollToContactSection();
+    }, 380);
+  }
+
   return (
     <header className="public-header">
       <div className="public-header__inner ui-page-container">
@@ -340,7 +353,11 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
               >
                 Exclusivos
               </Link>
-              <a className="public-header__mobile-link" href="#contacto" onClick={closeMenu}>
+              <a
+                className="public-header__mobile-link"
+                href="#contacto"
+                onClick={handleMobileContactClick}
+              >
                 Contacto
               </a>
             </nav>
@@ -372,6 +389,24 @@ function scrollToCatalogStart() {
   const top = catalogStart
     ? catalogStart.getBoundingClientRect().top + window.scrollY - headerOffset
     : 0;
+
+  window.scrollTo({
+    behavior: "smooth",
+    top: Math.max(0, top),
+  });
+}
+
+function scrollToContactSection() {
+  const contactSection = document.querySelector<HTMLElement>("#contacto");
+  const header = document.querySelector<HTMLElement>(".public-header");
+
+  if (!contactSection) {
+    return;
+  }
+
+  const headerOffset = header?.getBoundingClientRect().height ?? 0;
+  const top =
+    contactSection.getBoundingClientRect().top + window.scrollY - headerOffset;
 
   window.scrollTo({
     behavior: "smooth",

@@ -82,13 +82,12 @@ describe("CatalogFilters", () => {
       "href",
       "/?category=buzos&size=L&exclusivos=1&sort=price_asc",
     );
-    expect(drawer.getByRole("link", { name: "Exclusivos" })).toHaveAttribute(
-      "href",
-      "/?brand=vintage&category=buzos&size=L&sort=price_asc",
-    );
     expect(
-      sortGroup.getByRole("checkbox", { name: "Exclusivos" }),
-    ).toBeChecked();
+      drawer.queryByRole("link", { name: "Exclusivos" }),
+    ).not.toBeInTheDocument();
+    expect(
+      sortGroup.queryByRole("checkbox", { name: "Exclusivos" }),
+    ).not.toBeInTheDocument();
     expect(brandGroup.getByLabelText("Vintage")).toHaveAttribute("name", "brand");
     expect(categoryGroup.getByLabelText("Buzos")).toHaveAttribute(
       "name",

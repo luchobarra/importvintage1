@@ -37,13 +37,32 @@ export async function ProductGridContainer({
     return (
       <EmptyCatalog
         isError
-        title="Error de conexion"
-        message={errorMessage}
+        title={
+          state.exclusive ? "No pudimos cargar exclusivos" : "Error de conexion"
+        }
+        message={
+          state.exclusive
+            ? "Volve a intentar en unos minutos o consultanos por WhatsApp."
+            : errorMessage
+        }
       />
     );
   }
 
   if (products.length === 0) {
+    if (state.exclusive) {
+      return (
+        <EmptyCatalog
+          title="Todavia no hay exclusivos disponibles"
+          message="Esta seleccion se actualiza cuando ingresan piezas especiales. Mientras tanto, podes ver el catalogo completo o consultarnos por WhatsApp."
+        >
+          <Link className="button button--primary" href="/">
+            Ver catalogo completo
+          </Link>
+        </EmptyCatalog>
+      );
+    }
+
     if (hasActiveControls) {
       return (
         <>

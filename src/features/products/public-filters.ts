@@ -133,12 +133,7 @@ function getPublicSortValue(value: string): PublicProductSort {
 }
 
 function getPublicProductFilterValues(filters: PublicProductFilters) {
-  return [
-    filters.brand,
-    filters.category,
-    filters.size,
-    filters.exclusive ? "exclusive" : "",
-  ];
+  return [filters.brand, filters.category, filters.size];
 }
 
 function appendCatalogParam(

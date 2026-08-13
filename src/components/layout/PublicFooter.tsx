@@ -53,12 +53,12 @@ export function PublicFooter() {
       <div className="public-footer__inner ui-page-container">
         <section className="public-footer__brand-block" aria-label="Retro Campus">
           <div className="public-footer__brand-row">
-            <Link className="public-footer__brand" href="/">
+            <div className="public-footer__brand" aria-label="Retro Campus">
               <BrandLogo
                 className="public-footer__brand-logo"
                 sizes="(max-width: 640px) 96px, 128px"
               />
-            </Link>
+            </div>
             <p className="public-footer__edition">Archivo vintage seleccionado</p>
           </div>
 
@@ -177,7 +177,13 @@ export function PublicFooter() {
       <div className="public-footer__bottom ui-page-container">
         <span>Lo bueno nunca pasa de moda.</span>
         <nav aria-label="Accesos del footer">
-          <Link href="/">Catalogo</Link>
+          <a
+            href={CONTACT_WHATSAPP_URL}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Consultas
+          </a>
           <Link href="/?exclusivos=1">Exclusivos</Link>
           <a href={INSTAGRAM_URL} rel="noopener noreferrer" target="_blank">
             Instagram
