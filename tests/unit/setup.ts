@@ -1,8 +1,23 @@
 import "@testing-library/jest-dom/vitest";
-import React from "react";
+import React, { type ReactNode } from "react";
 import { vi } from "vitest";
 
+vi.mock("react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react")>();
+
+  return {
+    ...actual,
+    ViewTransition: ({
+      children,
+    }: {
+      children: ReactNode;
+      name?: string;
+    }) => actual.createElement(actual.Fragment, null, children),
+  };
+});
+
 vi.mock("next/navigation", () => ({
+  notFound: vi.fn(),
   redirect: vi.fn(),
   usePathname: () => "/",
   useRouter: () => ({
@@ -39,7 +54,7 @@ vi.mock("next/image", () => ({
 
 vi.mock("next/link", () => ({
   default: (linkProps: {
-    children: React.ReactNode;
+    children: ReactNode;
     href: string | { pathname?: string };
     prefetch?: boolean;
     transitionTypes?: string[];
@@ -60,17 +75,3 @@ vi.mock("next/link", () => ({
   },
   useLinkStatus: () => ({ pending: false }),
 }));
-
-vi.mock("react", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("react")>();
-
-  return {
-    ...actual,
-    ViewTransition: ({
-      children,
-    }: {
-      children: React.ReactNode;
-      name?: string;
-    }) => actual.createElement(actual.Fragment, null, children),
-  };
-});

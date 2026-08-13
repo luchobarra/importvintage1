@@ -419,13 +419,13 @@ export function CatalogFilters({
             data-state={isClosing ? "closing" : "open"}
             role="dialog"
           >
-            <div className="catalog-filters__drawer-header">
-              <div className="catalog-filters__drawer-title-row">
-                <BrandLogo
-                  className="catalog-filters__drawer-logo"
-                  sizes="44px"
-                />
-                <h2 className="catalog-filters__title">Filtros</h2>
+              <div className="catalog-filters__drawer-header">
+                <div className="catalog-filters__drawer-title-row">
+                  <BrandLogo
+                    className="catalog-filters__drawer-logo"
+                    sizes="44px"
+                  />
+                  <h2 className="catalog-filters__title">Filtros</h2>
                 <button
                   aria-label="Cerrar filtros"
                   className="catalog-filters__close"
