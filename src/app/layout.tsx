@@ -25,8 +25,19 @@ export const metadata: Metadata = {
   description:
     "Retro Campus es un catalogo online de ropa vintage seleccionada: prendas unicas, buzos, camperas, pantalones y piezas exclusivas disponibles para compra directa.",
   icons: {
+    shortcut: "/favicon.ico",
     apple: "/apple-icon.png",
-    icon: "/icon.png",
+    icon: [
+      {
+        url: "/favicon.ico",
+        sizes: "any",
+      },
+      {
+        url: "/icon.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
   },
   keywords: [
     "Retro Campus",

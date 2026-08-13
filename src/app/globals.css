@@ -4023,8 +4023,8 @@ dd.product-detail__measurements-value strong {
 
 .product-detail__contact-button::after {
   position: absolute;
-  inset: 0.16rem;
-  border: 0.5px solid var(--paper-surface-cool);
+  inset: 0.14rem;
+  border: 1px solid var(--paper-surface-cool);
   border-radius: inherit;
   content: "";
   pointer-events: none;
