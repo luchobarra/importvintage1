@@ -1459,7 +1459,7 @@ a {
 .public-header__menu-button {
   width: 2.28rem;
   height: 2.28rem;
-  border-color: var(--palette-navy);
+  border-color: var(--palette-rose-dark);
   background: color-mix(in srgb, var(--palette-rose-soft) 58%, var(--palette-paper-warm));
   box-shadow:
     0 0.32rem 0.68rem var(--tone-ink-14);
@@ -1469,7 +1469,7 @@ a {
 
 .public-header__menu-button:hover,
 .public-header__menu-button:active {
-  border-color: var(--palette-navy);
+  border-color: var(--palette-rose-dark);
   background: color-mix(in srgb, var(--palette-rose-soft) 58%, var(--palette-paper-warm));
   box-shadow:
     0 0.38rem 0.76rem var(--tone-ink-16);
