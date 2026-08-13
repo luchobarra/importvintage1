@@ -3,15 +3,15 @@ import Link from "next/link";
 const editorialBanner = {
   cta: "Ver prendas",
   description:
-    "Prendas con historia, caracter e identidad. Seleccionadas para quienes buscan algo mas que ropa.",
+    "Una seleccion de ropa vintage con identidad, calidad y presencia. Piezas elegidas para quienes buscan vestir algo propio.",
   href: "/#productos",
-  title: "Lo autentico nunca pasa de moda.",
+  title: "Retro Campus",
 };
 
 export function HomeEditorialBanner() {
   return (
     <section
-      aria-label="Historia principal del catalogo vintage"
+      aria-label="Historia principal de Retro Campus"
       className="home-editorial-banner"
     >
       <div className="home-editorial-banner__viewport">

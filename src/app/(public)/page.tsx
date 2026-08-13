@@ -19,15 +19,17 @@ type HomeProps = {
 export const metadata: Metadata = {
   title: "Retro Campus - Ropa vintage seleccionada",
   description:
-    "Explora el catalogo online de Retro Campus: ropa vintage seleccionada, prendas unicas, buzos, camperas, pantalones y piezas exclusivas disponibles para compra directa.",
+    "Retro Campus es una marca de ropa vintage seleccionada, enfocada en prendas unicas con identidad, calidad y presencia. Nuevos ingresos disponibles en catalogo online, Instagram y grupo de WhatsApp.",
   alternates: {
     canonical: createSiteUrl("/"),
   },
   keywords: [
     "Retro Campus",
     "ropa vintage Retro Campus",
-    "catalogo de ropa vintage",
+    "marca de ropa vintage",
+    "ropa vintage seleccionada",
     "prendas vintage seleccionadas",
+    "prendas unicas",
     "buzos vintage",
     "camperas vintage",
     "pantalones vintage",
@@ -35,9 +37,9 @@ export const metadata: Metadata = {
     "piezas exclusivas vintage",
   ],
   openGraph: {
-    title: "Retro Campus - Catalogo online de ropa vintage",
+    title: "Retro Campus - Ropa vintage seleccionada",
     description:
-      "Ropa vintage seleccionada por Retro Campus: prendas unicas, piezas exclusivas y compra directa.",
+      "Marca de ropa vintage seleccionada: prendas unicas con identidad, calidad y presencia, disponibles en catalogo online, Instagram y grupo de WhatsApp.",
     images: [
       {
         url: "/brand/retro-campus-logo.png",
@@ -51,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     description:
-      "Ropa vintage seleccionada por Retro Campus: prendas unicas y piezas exclusivas.",
+      "Marca de ropa vintage seleccionada: prendas unicas con identidad, calidad y presencia.",
     images: ["/brand/retro-campus-logo.png"],
     title: "Retro Campus - Ropa vintage seleccionada",
   },
