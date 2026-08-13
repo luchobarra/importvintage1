@@ -1460,7 +1460,7 @@ a {
   width: 2.28rem;
   height: 2.28rem;
   border-color: var(--palette-rose-dark);
-  background: color-mix(in srgb, var(--palette-rose-soft) 58%, var(--palette-paper-warm));
+  background: color-mix(in srgb, var(--paper-surface-warm) 80%, var(--vintage-text) 20%);
   box-shadow:
     0 0.32rem 0.68rem var(--tone-ink-14);
   color: var(--vintage-text-strong);
@@ -1470,7 +1470,7 @@ a {
 .public-header__menu-button:hover,
 .public-header__menu-button:active {
   border-color: var(--palette-rose-dark);
-  background: color-mix(in srgb, var(--palette-rose-soft) 58%, var(--palette-paper-warm));
+  background: color-mix(in srgb, var(--paper-surface-warm) 76%, var(--vintage-text) 24%);
   box-shadow:
     0 0.38rem 0.76rem var(--tone-ink-16);
   color: var(--vintage-text-strong);
@@ -3507,7 +3507,7 @@ a {
   min-width: 0;
   margin: 0;
   color: var(--color-card-kicker);
-  font-size: clamp(0.44rem, 0.44vw, 0.5rem);
+  font-size: clamp(0.48rem, 0.48vw, 0.54rem);
   font-weight: 680;
   letter-spacing: 0.1em;
   line-height: 1.1;
@@ -3552,8 +3552,8 @@ a {
   margin: clamp(0.22rem, 0.32vw, 0.32rem) 0 0;
   color: var(--palette-rose-dark);
   font-family: var(--font-vintage-serif);
-  font-size: clamp(1.14rem, 1.22vw, 1.36rem);
-  font-weight: 650;
+  font-size: clamp(1.2rem, 1.3vw, 1.46rem);
+  font-weight: 760;
   letter-spacing: 0.015em;
   line-height: 1.1;
   text-overflow: ellipsis;
@@ -3572,7 +3572,7 @@ a {
   align-items: center;
   gap: 0.3rem;
   color: var(--color-card-kicker);
-  font-size: clamp(0.44rem, 0.44vw, 0.5rem);
+  font-size: clamp(0.48rem, 0.48vw, 0.54rem);
   font-weight: 680;
   letter-spacing: 0.07em;
   line-height: 1.2;
@@ -3582,10 +3582,12 @@ a {
 
 .product-card__status::before {
   content: "";
+  flex: 0 0 auto;
   width: 0.26rem;
   height: 0.26rem;
   border-radius: 999px;
   background: currentColor;
+  translate: 0 -0.03em;
 }
 
 .product-card__details {
@@ -3616,7 +3618,7 @@ a {
   max-width: 100%;
   margin: 0;
   color: var(--vintage-text-soft);
-  font-size: clamp(0.44rem, 0.44vw, 0.5rem);
+  font-size: clamp(0.48rem, 0.48vw, 0.54rem);
   font-weight: 680;
   letter-spacing: 0.07em;
   line-height: 1.1;
@@ -3630,7 +3632,7 @@ a {
   max-width: 100%;
   margin: 0;
   color: var(--vintage-text-strong);
-  font-size: clamp(0.56rem, 0.56vw, 0.64rem);
+  font-size: clamp(0.62rem, 0.62vw, 0.7rem);
   font-weight: 700;
   line-height: 1.15;
   text-overflow: ellipsis;
