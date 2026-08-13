@@ -141,6 +141,24 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
     setIsDesktopProductsOpen(false);
   }
 
+  function handleHomeLogoClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (isModifiedClick(event)) {
+      return;
+    }
+
+    event.preventDefault();
+    setCurrentSearch("");
+    router.push("/", { scroll: false });
+
+    if (isMenuOpen) {
+      closeMenu();
+      window.setTimeout(scrollToPageTop, 380);
+      return;
+    }
+
+    window.setTimeout(scrollToPageTop, 60);
+  }
+
   function handleMobileCatalogLinkClick(
     event: MouseEvent<HTMLAnchorElement>,
     href: string,
@@ -189,7 +207,12 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
         </button>
 
         <div className="public-header__identity">
-          <Link aria-label="Ir al inicio de Retro Campus" className="public-header__brand" href="/">
+          <Link
+            aria-label="Ir al inicio de Retro Campus"
+            className="public-header__brand"
+            href="/"
+            onClick={handleHomeLogoClick}
+          >
             <BrandLogo
               className="public-header__brand-logo"
               preload
@@ -273,7 +296,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
                 aria-label="Ir al inicio de Retro Campus"
                 className="public-header__mobile-brand"
                 href="/"
-                onClick={closeMenu}
+                onClick={handleHomeLogoClick}
               >
                 <BrandLogo
                   className="public-header__mobile-brand-logo"
@@ -355,7 +378,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
               </Link>
               <a
                 className="public-header__mobile-link"
-                href="#contacto"
+                href="#contacto-directo"
                 onClick={handleMobileContactClick}
               >
                 Contacto
@@ -396,8 +419,15 @@ function scrollToCatalogStart() {
   });
 }
 
+function scrollToPageTop() {
+  window.scrollTo({
+    behavior: "smooth",
+    top: 0,
+  });
+}
+
 function scrollToContactSection() {
-  const contactSection = document.querySelector<HTMLElement>("#contacto");
+  const contactSection = document.querySelector<HTMLElement>("#contacto-directo");
   const header = document.querySelector<HTMLElement>(".public-header");
 
   if (!contactSection) {

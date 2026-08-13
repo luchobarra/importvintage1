@@ -53,7 +53,7 @@ export function PublicFooter() {
       <div className="public-footer__inner ui-page-container">
         <section className="public-footer__brand-block" aria-label="Retro Campus">
           <div className="public-footer__brand-row">
-            <div className="public-footer__brand" aria-label="Retro Campus">
+            <div className="public-footer__brand">
               <BrandLogo
                 className="public-footer__brand-logo"
                 sizes="(max-width: 640px) 96px, 128px"
@@ -75,7 +75,11 @@ export function PublicFooter() {
           </div>
         </section>
 
-        <section className="public-footer__contact" aria-label="Datos de contacto">
+        <section
+          className="public-footer__contact"
+          id="contacto-directo"
+          aria-label="Datos de contacto"
+        >
           <div className="public-footer__contact-card">
             <div className="public-footer__contact-head">
               <span className="public-footer__contact-badge">

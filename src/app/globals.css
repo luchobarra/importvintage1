@@ -680,7 +680,6 @@ a {
 
 .public-header__brand:focus-visible,
 .public-header__mobile-brand:focus-visible,
-.public-footer__brand:focus-visible,
 .auth-panel__brand:focus-visible,
 .admin-header__brand:focus-visible {
   border-radius: var(--radius-sm);
@@ -954,19 +953,12 @@ a {
 
 .public-footer__brand {
   display: inline-flex;
-  position: relative;
   width: fit-content;
   align-items: center;
   justify-content: center;
   color: var(--palette-paper-soft);
   justify-self: start;
   line-height: 1;
-  text-decoration: none;
-  transition: opacity var(--transition-fast);
-}
-
-.public-footer__brand:hover {
-  opacity: 0.84;
 }
 
 .public-footer__brand-logo {
@@ -7615,6 +7607,10 @@ a {
 }
 
 @media (max-width: 640px) {
+  .public-footer {
+    padding-bottom: clamp(16rem, 42dvh, 22rem);
+  }
+
   .home-editorial-banner {
     gap: var(--space-2);
     padding: 0 0 var(--space-4);
