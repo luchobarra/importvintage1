@@ -435,12 +435,14 @@ function scrollToContactSection() {
   }
 
   const headerOffset = header?.getBoundingClientRect().height ?? 0;
-  const top =
+  const targetTop =
     contactSection.getBoundingClientRect().top + window.scrollY - headerOffset;
+  const maxScrollTop =
+    document.documentElement.scrollHeight - window.innerHeight;
 
   window.scrollTo({
     behavior: "smooth",
-    top: Math.max(0, top),
+    top: Math.max(0, Math.min(targetTop, maxScrollTop)),
   });
 }
 
