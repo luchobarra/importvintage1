@@ -46,8 +46,7 @@ export function PublicFooter() {
     <footer className="public-footer" id="contacto">
       <div className="public-footer__marquee" aria-hidden="true">
         <span>Vintage seleccionado</span>
-        <span>Estado claro</span>
-        <span>Compra directa</span>
+        <span>Prendas unicas</span>
       </div>
 
       <div className="public-footer__inner ui-page-container">
