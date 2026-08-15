@@ -3828,8 +3828,12 @@ a {
   inset: 0;
   z-index: 120;
   display: grid;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   place-items: center;
   overflow: hidden;
+  overscroll-behavior: contain;
   background:
     radial-gradient(circle at 50% 42%, rgb(251 250 244 / 8%), transparent 34%),
     rgb(12 10 9 / 94%);
@@ -3837,10 +3841,19 @@ a {
 }
 
 .product-image-viewer__surface {
-  position: relative;
+  position: absolute;
+  inset: 0;
+  display: grid;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
+  place-items: center;
   overflow: hidden;
+  padding:
+    max(3.85rem, calc(env(safe-area-inset-top) + 2.85rem))
+    max(0.85rem, calc(env(safe-area-inset-right) + 0.5rem))
+    max(3.85rem, calc(env(safe-area-inset-bottom) + 2.85rem))
+    max(0.85rem, calc(env(safe-area-inset-left) + 0.5rem));
   touch-action: none;
 }
 
@@ -3848,9 +3861,12 @@ a {
   --viewer-offset-x: 0px;
   --viewer-offset-y: 0px;
   --viewer-scale: 1;
-  position: absolute;
-  inset: max(4.5rem, env(safe-area-inset-top)) 1rem max(4.8rem, env(safe-area-inset-bottom));
+  position: relative;
+  width: min(100%, 58rem);
+  height: 100%;
+  max-height: 100%;
   transform: translate(var(--viewer-offset-x), var(--viewer-offset-y)) scale(var(--viewer-scale));
+  transform-origin: center center;
   transition: transform 0.12s ease-out;
   will-change: transform;
 }
@@ -8471,6 +8487,41 @@ dd.product-detail__measurements-value strong {
 
   .product-detail__main-image--zoom-active {
     touch-action: none;
+  }
+
+  .product-image-viewer__surface {
+    padding:
+      max(3.35rem, calc(env(safe-area-inset-top) + 2.45rem))
+      max(0.45rem, calc(env(safe-area-inset-right) + 0.3rem))
+      max(3.35rem, calc(env(safe-area-inset-bottom) + 2.45rem))
+      max(0.45rem, calc(env(safe-area-inset-left) + 0.3rem));
+  }
+
+  .product-image-viewer__image {
+    width: 100%;
+  }
+
+  .product-image-viewer__close,
+  .product-image-viewer__nav {
+    width: 2.45rem;
+    height: 2.45rem;
+  }
+
+  .product-image-viewer__close {
+    top: max(0.78rem, env(safe-area-inset-top));
+    right: max(0.78rem, env(safe-area-inset-right));
+  }
+
+  .product-image-viewer__nav--prev {
+    left: max(0.45rem, env(safe-area-inset-left));
+  }
+
+  .product-image-viewer__nav--next {
+    right: max(0.45rem, env(safe-area-inset-right));
+  }
+
+  .product-image-viewer__count {
+    bottom: max(0.92rem, env(safe-area-inset-bottom));
   }
 
   .product-detail__thumbs {

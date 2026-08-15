@@ -3,6 +3,7 @@
 import type { ProductImage } from "@/features/products/types";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
+import { createPortal } from "react-dom";
 import type {
   CSSProperties,
   PointerEvent,
@@ -249,6 +250,75 @@ export function ProductDetailImages({
     touchStateRef.current = null;
   }
 
+  const viewer =
+    isViewerOpen && viewerImage ? (
+      <div className="product-image-viewer" role="dialog" aria-modal="true">
+        <button
+          aria-label="Cerrar visor"
+          className="product-image-viewer__close"
+          onClick={closeViewer}
+          type="button"
+        >
+          <X size={20} strokeWidth={1.8} />
+        </button>
+
+        {images.length > 1 ? (
+          <button
+            aria-label="Ver foto anterior"
+            className="product-image-viewer__nav product-image-viewer__nav--prev"
+            onClick={() => selectRelativeViewerImage("back")}
+            type="button"
+          >
+            <ChevronLeft size={22} strokeWidth={1.8} />
+          </button>
+        ) : null}
+
+        <div
+          className="product-image-viewer__surface"
+          onTouchEnd={handleViewerTouchEnd}
+          onTouchMove={handleViewerTouchMove}
+          onTouchStart={handleViewerTouchStart}
+        >
+          <div
+            className="product-image-viewer__image"
+            style={
+              {
+                "--viewer-offset-x": `${viewerOffset.x}px`,
+                "--viewer-offset-y": `${viewerOffset.y}px`,
+                "--viewer-scale": viewerScale,
+              } as CSSProperties
+            }
+          >
+            <Image
+              alt={title}
+              draggable={false}
+              fill
+              quality={95}
+              sizes="100vw"
+              src={viewerImage.image_url}
+            />
+          </div>
+        </div>
+
+        {images.length > 1 ? (
+          <button
+            aria-label="Ver foto siguiente"
+            className="product-image-viewer__nav product-image-viewer__nav--next"
+            onClick={() => selectRelativeViewerImage("forward")}
+            type="button"
+          >
+            <ChevronRight size={22} strokeWidth={1.8} />
+          </button>
+        ) : null}
+
+        {images.length > 1 ? (
+          <span className="product-image-viewer__count">
+            {viewerIndex + 1} / {images.length}
+          </span>
+        ) : null}
+      </div>
+    ) : null;
+
   return (
     <section
       className={`product-detail__gallery${hasThumbs ? " product-detail__gallery--with-thumbs" : ""}`}
@@ -322,73 +392,7 @@ export function ProductDetailImages({
           ) : null}
         </button>
       </ViewTransition>
-      {isViewerOpen && viewerImage ? (
-        <div className="product-image-viewer" role="dialog" aria-modal="true">
-          <button
-            aria-label="Cerrar visor"
-            className="product-image-viewer__close"
-            onClick={closeViewer}
-            type="button"
-          >
-            <X size={20} strokeWidth={1.8} />
-          </button>
-
-          {images.length > 1 ? (
-            <button
-              aria-label="Ver foto anterior"
-              className="product-image-viewer__nav product-image-viewer__nav--prev"
-              onClick={() => selectRelativeViewerImage("back")}
-              type="button"
-            >
-              <ChevronLeft size={22} strokeWidth={1.8} />
-            </button>
-          ) : null}
-
-          <div
-            className="product-image-viewer__surface"
-            onTouchEnd={handleViewerTouchEnd}
-            onTouchMove={handleViewerTouchMove}
-            onTouchStart={handleViewerTouchStart}
-          >
-            <div
-              className="product-image-viewer__image"
-              style={
-                {
-                  "--viewer-offset-x": `${viewerOffset.x}px`,
-                  "--viewer-offset-y": `${viewerOffset.y}px`,
-                  "--viewer-scale": viewerScale,
-                } as CSSProperties
-              }
-            >
-              <Image
-                alt={title}
-                draggable={false}
-                fill
-                quality={95}
-                sizes="100vw"
-                src={viewerImage.image_url}
-              />
-            </div>
-          </div>
-
-          {images.length > 1 ? (
-            <button
-              aria-label="Ver foto siguiente"
-              className="product-image-viewer__nav product-image-viewer__nav--next"
-              onClick={() => selectRelativeViewerImage("forward")}
-              type="button"
-            >
-              <ChevronRight size={22} strokeWidth={1.8} />
-            </button>
-          ) : null}
-
-          {images.length > 1 ? (
-            <span className="product-image-viewer__count">
-              {viewerIndex + 1} / {images.length}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
+      {viewer ? createPortal(viewer, document.body) : null}
     </section>
   );
 }
