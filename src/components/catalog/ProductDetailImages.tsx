@@ -55,7 +55,7 @@ export function ProductDetailImages({
   }
 
   function handlePointerMove(event: PointerEvent<HTMLButtonElement>) {
-    if (!isZoomActive && event.pointerType !== "mouse") {
+    if (!isZoomActive) {
       return;
     }
 
@@ -67,14 +67,28 @@ export function ProductDetailImages({
 
     if (event.pointerType !== "mouse") {
       event.currentTarget.setPointerCapture(event.pointerId);
-      setIsZoomActive((currentValue) => !currentValue);
+      setIsZoomActive(true);
       return;
     }
 
     setIsZoomActive(true);
   }
 
-  function handlePointerLeave() {
+  function handlePointerUp(event: PointerEvent<HTMLButtonElement>) {
+    if (event.pointerType !== "mouse") {
+      setIsZoomActive(false);
+    }
+  }
+
+  function handlePointerCancel() {
+    setIsZoomActive(false);
+  }
+
+  function handlePointerLeave(event: PointerEvent<HTMLButtonElement>) {
+    if (event.pointerType !== "mouse") {
+      return;
+    }
+
     setIsZoomActive(false);
   }
 
@@ -119,8 +133,10 @@ export function ProductDetailImages({
           disabled={!mainImage}
           onPointerDown={handlePointerDown}
           onPointerEnter={handlePointerEnter}
+          onPointerCancel={handlePointerCancel}
           onPointerLeave={handlePointerLeave}
           onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
           style={
             {
               "--zoom-x": `${zoomPosition.x}%`,
