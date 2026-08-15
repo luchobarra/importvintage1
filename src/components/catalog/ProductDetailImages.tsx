@@ -20,6 +20,11 @@ type ProductDetailImagesProps = {
   onSelectImage: (index: number) => void;
 };
 
+type ViewerPoint = {
+  x: number;
+  y: number;
+};
+
 export function ProductDetailImages({
   images,
   productId,
@@ -35,8 +40,16 @@ export function ProductDetailImages({
   const [viewerIndex, setViewerIndex] = useState(selectedImageIndex);
   const [viewerScale, setViewerScale] = useState(1);
   const [viewerOffset, setViewerOffset] = useState({ x: 0, y: 0 });
+  const [isViewerInteracting, setIsViewerInteracting] = useState(false);
+  const viewerImageRef = useRef<HTMLDivElement>(null);
+  const lastViewerTapRef = useRef<{
+    time: number;
+    x: number;
+    y: number;
+  } | null>(null);
   const touchStateRef = useRef<{
     distance: number;
+    focal: ViewerPoint;
     offset: { x: number; y: number };
     scale: number;
     startX: number;
@@ -58,6 +71,8 @@ export function ProductDetailImages({
   const resetViewerZoom = useCallback(() => {
     setViewerScale(1);
     setViewerOffset({ x: 0, y: 0 });
+    setIsViewerInteracting(false);
+    lastViewerTapRef.current = null;
     touchStateRef.current = null;
   }, []);
 
@@ -88,6 +103,32 @@ export function ProductDetailImages({
   const selectRelativeViewerImage = useCallback((direction: "back" | "forward") => {
     selectViewerImage(viewerIndex + (direction === "forward" ? 1 : -1));
   }, [selectViewerImage, viewerIndex]);
+
+  const applyViewerTransform = useCallback((scale: number, offset: ViewerPoint) => {
+    const nextScale = clamp(scale, 1, 3);
+    const nextOffset = nextScale <= 1.01
+      ? { x: 0, y: 0 }
+      : clampViewerOffset(offset, nextScale, viewerImageRef.current);
+
+    setViewerScale(nextScale);
+    setViewerOffset(nextOffset);
+  }, []);
+
+  const toggleViewerZoom = useCallback((point: ViewerPoint) => {
+    if (viewerScale > 1.08) {
+      applyViewerTransform(1, { x: 0, y: 0 });
+      return;
+    }
+
+    const framePoint = getPointFromElementCenter(viewerImageRef.current, point);
+    const nextScale = 2.2;
+    const nextOffset = {
+      x: -framePoint.x * (nextScale - 1),
+      y: -framePoint.y * (nextScale - 1),
+    };
+
+    applyViewerTransform(nextScale, nextOffset);
+  }, [applyViewerTransform, viewerScale]);
 
   useEffect(() => {
     if (!isViewerOpen) {
@@ -175,25 +216,36 @@ export function ProductDetailImages({
   }
 
   function handleViewerTouchStart(event: TouchEvent<HTMLDivElement>) {
+    setIsViewerInteracting(true);
+
     if (event.touches.length === 1) {
+      const touch = event.touches[0];
+
       touchStateRef.current = {
         distance: 0,
+        focal: getPointFromElementCenter(viewerImageRef.current, {
+          x: touch.clientX,
+          y: touch.clientY,
+        }),
         offset: viewerOffset,
         scale: viewerScale,
-        startX: event.touches[0].clientX,
-        startY: event.touches[0].clientY,
+        startX: touch.clientX,
+        startY: touch.clientY,
       };
       return;
     }
 
     if (event.touches.length === 2) {
       event.preventDefault();
+      const center = getTouchCenter(event);
+
       touchStateRef.current = {
         distance: getTouchDistance(event),
+        focal: getPointFromElementCenter(viewerImageRef.current, center),
         offset: viewerOffset,
         scale: viewerScale,
-        startX: getTouchCenter(event).x,
-        startY: getTouchCenter(event).y,
+        startX: center.x,
+        startY: center.y,
       };
     }
   }
@@ -207,13 +259,20 @@ export function ProductDetailImages({
 
     if (event.touches.length === 2 && touchState.distance > 0) {
       event.preventDefault();
+      const center = getTouchCenter(event);
       const nextScale = clamp(
         touchState.scale * (getTouchDistance(event) / touchState.distance),
         1,
         3,
       );
+      const ratio = nextScale / touchState.scale;
+      const currentFocal = getPointFromElementCenter(viewerImageRef.current, center);
+      const nextOffset = {
+        x: currentFocal.x - (touchState.focal.x - touchState.offset.x) * ratio,
+        y: currentFocal.y - (touchState.focal.y - touchState.offset.y) * ratio,
+      };
 
-      setViewerScale(nextScale);
+      applyViewerTransform(nextScale, nextOffset);
       return;
     }
 
@@ -221,7 +280,7 @@ export function ProductDetailImages({
       event.preventDefault();
       const touch = event.touches[0];
 
-      setViewerOffset({
+      applyViewerTransform(viewerScale, {
         x: touchState.offset.x + touch.clientX - touchState.startX,
         y: touchState.offset.y + touch.clientY - touchState.startY,
       });
@@ -231,23 +290,69 @@ export function ProductDetailImages({
   function handleViewerTouchEnd(event: TouchEvent<HTMLDivElement>) {
     const touchState = touchStateRef.current;
 
-    if (!touchState || event.touches.length > 0) {
+    if (!touchState) {
+      return;
+    }
+
+    if (event.touches.length === 1) {
+      const touch = event.touches[0];
+      touchStateRef.current = {
+        distance: 0,
+        focal: getPointFromElementCenter(viewerImageRef.current, {
+          x: touch.clientX,
+          y: touch.clientY,
+        }),
+        offset: viewerOffset,
+        scale: viewerScale,
+        startX: touch.clientX,
+        startY: touch.clientY,
+      };
       return;
     }
 
     const changedTouch = event.changedTouches[0];
     const deltaX = changedTouch.clientX - touchState.startX;
     const deltaY = changedTouch.clientY - touchState.startY;
+    const movedDistance = Math.hypot(deltaX, deltaY);
+    const now = window.performance.now();
+    const previousTap = lastViewerTapRef.current;
+    const isTap = movedDistance < 12 && touchState.distance === 0;
+    const isDoubleTap = Boolean(
+      isTap &&
+      previousTap &&
+      now - previousTap.time < 320 &&
+      Math.hypot(changedTouch.clientX - previousTap.x, changedTouch.clientY - previousTap.y) < 34,
+    );
 
-    if (viewerScale <= 1.02 && Math.abs(deltaX) > 58 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
-      selectRelativeViewerImage(deltaX < 0 ? "forward" : "back");
+    if (isDoubleTap) {
+      setIsViewerInteracting(false);
+      toggleViewerZoom({ x: changedTouch.clientX, y: changedTouch.clientY });
+      lastViewerTapRef.current = null;
+      touchStateRef.current = null;
+      return;
     }
 
-    if (viewerScale <= 1.02) {
+    if (isTap) {
+      lastViewerTapRef.current = {
+        time: now,
+        x: changedTouch.clientX,
+        y: changedTouch.clientY,
+      };
+    }
+
+    if (viewerScale <= 1.02 && Math.abs(deltaX) > 58 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+      setIsViewerInteracting(false);
+      selectRelativeViewerImage(deltaX < 0 ? "forward" : "back");
+      touchStateRef.current = null;
+      return;
+    }
+
+    if (viewerScale <= 1.02 && !isTap) {
       resetViewerZoom();
     }
 
     touchStateRef.current = null;
+    setIsViewerInteracting(false);
   }
 
   const viewer =
@@ -280,7 +385,10 @@ export function ProductDetailImages({
           onTouchStart={handleViewerTouchStart}
         >
           <div
-            className="product-image-viewer__image"
+            className={`product-image-viewer__image${
+              isViewerInteracting ? " product-image-viewer__image--interacting" : ""
+            }`}
+            ref={viewerImageRef}
             style={
               {
                 "--viewer-offset-x": `${viewerOffset.x}px`,
@@ -417,5 +525,33 @@ function getTouchCenter(event: TouchEvent<HTMLDivElement>) {
   return {
     x: (firstTouch.clientX + secondTouch.clientX) / 2,
     y: (firstTouch.clientY + secondTouch.clientY) / 2,
+  };
+}
+
+function getPointFromElementCenter(element: HTMLElement | null, point: ViewerPoint) {
+  if (!element) {
+    return { x: 0, y: 0 };
+  }
+
+  const rect = element.getBoundingClientRect();
+
+  return {
+    x: point.x - (rect.left + rect.width / 2),
+    y: point.y - (rect.top + rect.height / 2),
+  };
+}
+
+function clampViewerOffset(offset: ViewerPoint, scale: number, element: HTMLElement | null) {
+  if (!element || scale <= 1) {
+    return { x: 0, y: 0 };
+  }
+
+  const rect = element.getBoundingClientRect();
+  const maxX = Math.max(0, (rect.width * scale - rect.width) / 2);
+  const maxY = Math.max(0, (rect.height * scale - rect.height) / 2);
+
+  return {
+    x: clamp(offset.x, -maxX, maxX),
+    y: clamp(offset.y, -maxY, maxY),
   };
 }

@@ -3871,9 +3871,14 @@ a {
   will-change: transform;
 }
 
+.product-image-viewer__image--interacting {
+  transition: none;
+}
+
 .product-image-viewer__image img {
   object-fit: contain;
   user-select: none;
+  -webkit-user-drag: none;
 }
 
 .product-image-viewer__close,
