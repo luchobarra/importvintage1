@@ -3823,6 +3823,104 @@ a {
   transform: scale(var(--product-detail-zoom-scale));
 }
 
+.product-image-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgb(251 250 244 / 8%), transparent 34%),
+    rgb(12 10 9 / 94%);
+  color: var(--palette-paper-soft);
+}
+
+.product-image-viewer__surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.product-image-viewer__image {
+  --viewer-offset-x: 0px;
+  --viewer-offset-y: 0px;
+  --viewer-scale: 1;
+  position: absolute;
+  inset: max(4.5rem, env(safe-area-inset-top)) 1rem max(4.8rem, env(safe-area-inset-bottom));
+  transform: translate(var(--viewer-offset-x), var(--viewer-offset-y)) scale(var(--viewer-scale));
+  transition: transform 0.12s ease-out;
+  will-change: transform;
+}
+
+.product-image-viewer__image img {
+  object-fit: contain;
+  user-select: none;
+}
+
+.product-image-viewer__close,
+.product-image-viewer__nav {
+  position: absolute;
+  z-index: 2;
+  display: inline-grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid rgb(251 250 244 / 22%);
+  border-radius: 999px;
+  background: rgb(251 250 244 / 10%);
+  color: var(--palette-paper-soft);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.product-image-viewer__close {
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+}
+
+.product-image-viewer__nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.product-image-viewer__nav--prev {
+  left: max(0.9rem, env(safe-area-inset-left));
+}
+
+.product-image-viewer__nav--next {
+  right: max(0.9rem, env(safe-area-inset-right));
+}
+
+.product-image-viewer__close:hover,
+.product-image-viewer__close:focus-visible,
+.product-image-viewer__nav:hover,
+.product-image-viewer__nav:focus-visible {
+  border-color: rgb(251 250 244 / 42%);
+  background: rgb(251 250 244 / 16%);
+  outline: none;
+}
+
+.product-image-viewer__count {
+  position: absolute;
+  bottom: max(1.1rem, env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 2;
+  color: rgb(251 250 244 / 72%);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
 .product-detail__thumbs {
   display: grid;
   gap: var(--space-3);
