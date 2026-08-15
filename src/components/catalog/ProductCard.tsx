@@ -34,11 +34,11 @@ export function ProductCard({ catalogHref, index = 0, product }: ProductCardProp
       style={{ "--product-card-enter-delay": enterDelay } as CSSProperties}
       transitionTypes={["nav-forward"]}
     >
+      {product.is_exclusive ? (
+        <span className="product-card__exclusive-badge">Exclusivo</span>
+      ) : null}
       <ViewTransition name={`product-image-${product.id}`}>
         <div className="product-card__image">
-          {product.is_exclusive ? (
-            <span className="product-card__exclusive-badge">Exclusivo</span>
-          ) : null}
           {mainImage ? (
             <ProductCardImage
               src={mainImage.image_url}
