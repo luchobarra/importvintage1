@@ -96,7 +96,7 @@ export function ProductDetailInfo({
           href={catalogHref}
           transitionTypes={["nav-back"]}
         >
-          Volver al catalogo
+          Volver al catálogo
         </Link>
       </div>
     </section>

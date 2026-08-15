@@ -11,7 +11,7 @@ export async function optimizeImage(file: File, position: number) {
 
   if (!context) {
     URL.revokeObjectURL(image.src);
-    throw new Error("No se pudo preparar la optimizacion de imagenes.");
+    throw new Error("No se pudo preparar la optimización de imágenes.");
   }
 
   canvas.width = width;
@@ -41,7 +41,7 @@ function loadImage(file: File) {
     image.onload = () => resolve(image);
     image.onerror = () => {
       URL.revokeObjectURL(imageUrl);
-      reject(new Error("No se pudo leer una de las imagenes."));
+      reject(new Error("No se pudo leer una de las imágenes."));
     };
 
     image.src = imageUrl;

@@ -64,7 +64,7 @@ export async function generateMetadata({
   } catch {
     return {
       title: "Producto no disponible",
-      description: "Este producto ya no esta disponible en Retro Campus.",
+      description: "Este producto ya no está disponible en Retro Campus.",
     };
   }
 }

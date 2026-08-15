@@ -52,7 +52,7 @@ export default async function NewInventoryItemPage() {
             Volver
           </Link>
         }
-        description="Carga una prenda con fotos simples y datos utiles para seguimiento comercial."
+        description="Carga una prenda con fotos simples y datos útiles para seguimiento comercial."
         eyebrow="Stock"
         title="Nuevo ingreso"
       />

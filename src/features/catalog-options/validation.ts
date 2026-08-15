@@ -4,7 +4,7 @@ export type CatalogOptionKind = "brand" | "category" | "condition" | "size";
 
 export const CATALOG_OPTION_LABELS: Record<CatalogOptionKind, string> = {
   brand: "marca",
-  category: "categoria",
+  category: "categoría",
   condition: "estado",
   size: "talle",
 };
@@ -45,11 +45,11 @@ export function validateCatalogOptionName(kind: CatalogOptionKind, value: string
   }
 
   if (kind !== "size" && !createSlug(normalizedValue)) {
-    return `La ${CATALOG_OPTION_LABELS[kind]} necesita letras o numeros.`;
+    return `La ${CATALOG_OPTION_LABELS[kind]} necesita letras o números.`;
   }
 
   if (kind === "size" && !createSizeValue(normalizedValue)) {
-    return "El talle necesita letras o numeros.";
+    return "El talle necesita letras o números.";
   }
 
   return "";
@@ -62,7 +62,7 @@ export function validateCatalogSizeValue(
   const normalizedValue = createSizeValue(value);
 
   if (group === "numeric" && !/^\d+$/.test(normalizedValue)) {
-    return "El talle numerico debe tener solo numeros.";
+    return "El talle numérico debe tener solo números.";
   }
 
   if (group === "letter" && !/[A-Z]/.test(normalizedValue)) {

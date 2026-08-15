@@ -122,7 +122,7 @@ export function InventoryDetailPanel({
               value={formatInventoryCurrency(item.purchase_price)}
             />
             <DetailItem
-              label="Categoria"
+              label="Categoría"
               value={item.catalog_categories?.name ?? "-"}
             />
             <DetailItem
@@ -135,9 +135,9 @@ export function InventoryDetailPanel({
             />
           </DetailBlock>
 
-          <DetailBlock title="Catalogo">
+          <DetailBlock title="Catálogo">
             <DetailItem
-              label="Publicacion"
+              label="Publicación"
               value={catalogProduct ? catalogProduct.title : "Sin publicar"}
             />
             <DetailItem
@@ -199,8 +199,8 @@ export function InventoryDetailPanel({
 
         <div className="inventory-detail__text-grid">
           <TextBlock
-            label="Descripcion"
-            value={item.internal_description || "Sin descripcion."}
+            label="Descripción"
+            value={item.internal_description || "Sin descripción."}
           />
           <TextBlock label="Notas" value={item.internal_notes || "Sin notas."} />
         </div>
@@ -289,7 +289,7 @@ function MovementHistory({ movements }: { movements: InventoryMovement[] }) {
         </ol>
       ) : (
         <p className="inventory-history__empty">
-          Todavia no hay movimientos registrados.
+          Todavía no hay movimientos registrados.
         </p>
       )}
     </section>

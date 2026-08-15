@@ -22,6 +22,7 @@ import {
   type ProductFieldName,
 } from "@/features/products/form-validation";
 import type { Product } from "@/features/products/types";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FocusEvent, FormEvent } from "react";
 import { useRef, useState, useTransition } from "react";
@@ -48,6 +49,7 @@ export function EditProductFormContainer({
   product,
 }: EditProductFormContainerProps) {
   const router = useRouter();
+  const unsavedChangesGuard = useUnsavedChangesGuard();
   const initialCategoryId = getInitialCategoryId(product, options);
   const formRef = useRef<HTMLFormElement>(null);
   const [state, setState] = useState<ProductFormState>(initialState);
@@ -108,6 +110,7 @@ export function EditProductFormContainer({
       setState(actionResult);
 
       if (actionResult.success) {
+        unsavedChangesGuard.clearDirty();
         setResult({
           description:
             "Los cambios se guardaron correctamente. Vas a volver al listado de productos.",
@@ -147,6 +150,8 @@ export function EditProductFormContainer({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) {
+    unsavedChangesGuard.markDirty();
+
     if (event.currentTarget.name === "description") {
       setDescriptionLength(event.currentTarget.value.length);
     }
@@ -214,12 +219,14 @@ export function EditProductFormContainer({
     setResult(null);
 
     if (shouldRedirect) {
+      unsavedChangesGuard.clearDirty();
       router.push("/retro-campus-admin/productos");
     }
   }
 
   return (
     <>
+      {unsavedChangesGuard.dialog}
       <EditProductForm
         descriptionLength={descriptionLength}
         fieldErrors={fieldErrors}
@@ -242,7 +249,7 @@ export function EditProductFormContainer({
       />
       <ConfirmDialog
         confirmLabel="Guardar cambios"
-        description="Se actualizaran los datos del producto en el catalogo."
+        description="Se actualizarán los datos del producto en el catálogo."
         isOpen={isConfirmOpen}
         isPending={isPending}
         onCancel={() => setIsConfirmOpen(false)}

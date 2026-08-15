@@ -19,7 +19,7 @@ export async function CatalogOptionsManagerContainer() {
   if (!options) {
     return (
       <EmptyProductList
-        title="No se pudo cargar la configuracion"
+        title="No se pudo cargar la configuración"
         message={errorMessage}
       />
     );

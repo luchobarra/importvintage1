@@ -26,8 +26,8 @@ const INSTAGRAM_URL = `https://www.instagram.com/${CONTACT_INSTAGRAM}/`;
 const CURRENT_YEAR = new Date().getFullYear();
 
 const FOOTER_PILLARS = [
-  "Prendas unicas",
-  "Seleccion cuidadosa",
+  "Prendas únicas",
+  "Selección cuidadosa",
   "Reserva simple",
 ] as const;
 
@@ -48,7 +48,7 @@ export function PublicFooter() {
     <footer className="public-footer" id="contacto">
       <div className="public-footer__marquee" aria-hidden="true">
         <span>Vintage seleccionado</span>
-        <span>Prendas unicas</span>
+        <span>Prendas únicas</span>
       </div>
 
       <div className="public-footer__inner ui-page-container">
@@ -64,13 +64,13 @@ export function PublicFooter() {
           </div>
 
           <div className="public-footer__content">
-            <p className="public-footer__eyebrow">Seleccion vintage</p>
+            <p className="public-footer__eyebrow">Selección vintage</p>
             <p className="public-footer__lead">
-              Hay epocas que no vuelven, pero su estilo si.
+              Hay épocas que no vuelven, pero su estilo sí.
             </p>
             <p>
               Ropa vintage seleccionada por calidad, estado y presencia. Un
-              catalogo claro, con prendas disponibles y atencion directa para
+              catálogo claro, con prendas disponibles y atención directa para
               confirmar medidas, detalles y entrega.
             </p>
           </div>
@@ -85,7 +85,7 @@ export function PublicFooter() {
             <div className="public-footer__contact-head">
               <span className="public-footer__contact-badge">
                 <ShieldCheck aria-hidden="true" size={15} strokeWidth={1.9} />
-                Atencion directa
+                Atención directa
               </span>
               <h2>Viste una prenda?</h2>
               <p>

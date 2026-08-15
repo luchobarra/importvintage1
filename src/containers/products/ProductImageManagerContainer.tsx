@@ -185,7 +185,7 @@ export function ProductImageManagerContainer({
     setResult(null);
 
     if (images.length >= MAX_PRODUCT_IMAGES) {
-      setErrorMessage("El producto ya tiene el maximo de 5 imagenes.");
+      setErrorMessage("El producto ya tiene el máximo de 5 imágenes.");
       return;
     }
 
@@ -200,12 +200,12 @@ export function ProductImageManagerContainer({
     );
 
     if (acceptedFiles.length !== files.length) {
-      setErrorMessage("Solo se aceptan imagenes JPG, PNG o WebP.");
+      setErrorMessage("Solo se aceptan imágenes JPG, PNG o WebP.");
     }
 
     if (oversizedFiles.length > 0) {
       setErrorMessage(
-        `Cada imagen debe pesar como maximo ${MAX_FILE_SIZE_MB} MB antes de optimizar.`,
+        `Cada imagen debe pesar como máximo ${MAX_FILE_SIZE_MB} MB antes de optimizar.`,
       );
     }
 
@@ -218,7 +218,7 @@ export function ProductImageManagerContainer({
         MAX_PRODUCT_IMAGES - images.length - currentImages.length;
 
       if (availableSlots <= 0) {
-        setErrorMessage("El producto puede tener como maximo 5 imagenes.");
+        setErrorMessage("El producto puede tener como máximo 5 imágenes.");
         return currentImages;
       }
 
@@ -226,7 +226,7 @@ export function ProductImageManagerContainer({
 
       if (imageFiles.length > availableSlots) {
         setErrorMessage(
-          "Se agregaron solo las imagenes que entran en el maximo de 5.",
+          "Se agregaron solo las imágenes que entran en el máximo de 5.",
         );
       }
 
@@ -262,7 +262,7 @@ export function ProductImageManagerContainer({
     }
 
     if (images.length + selectedImages.length > MAX_PRODUCT_IMAGES) {
-      setErrorMessage("El producto puede tener como maximo 5 imagenes.");
+      setErrorMessage("El producto puede tener como máximo 5 imágenes.");
       return;
     }
 
@@ -290,7 +290,7 @@ export function ProductImageManagerContainer({
           const optimizedImage = await withTimeout(
             optimizeImage(selectedImage.file, position),
             IMAGE_STEP_TIMEOUT_MS,
-            `La optimizacion de la imagen ${index + 1} tardo demasiado.`,
+            `La optimización de la imagen ${index + 1} tardo demasiado.`,
           );
           const imagePath = `products/${productId}/image-${position}-${Date.now()}-${crypto.randomUUID()}.webp`;
 
@@ -343,7 +343,7 @@ export function ProductImageManagerContainer({
         setResult({
           description: actionResult.message,
           shouldRefresh: true,
-          title: "Imagenes subidas",
+          title: "Imágenes subidas",
           variant: "success",
         });
       } catch (error) {
@@ -354,12 +354,12 @@ export function ProductImageManagerContainer({
         const message =
           error instanceof Error
             ? error.message
-            : "No se pudieron subir las imagenes.";
+            : "No se pudieron subir las imágenes.";
 
         setResult({
           description: message,
           shouldRefresh: false,
-          title: "No se pudieron subir las imagenes",
+          title: "No se pudieron subir las imágenes",
           variant: "error",
         });
         setUploadMessage("");
@@ -468,22 +468,22 @@ function getImageConfirmTitle(action: ImageConfirmAction | null) {
   }
 
   if (action?.type === "save-order") {
-    return "Guardar orden de imagenes";
+    return "Guardar orden de imágenes";
   }
 
-  return "Subir imagenes";
+  return "Subir imágenes";
 }
 
 function getImageConfirmDescription(action: ImageConfirmAction | null) {
   if (action?.type === "delete") {
-    return "Se eliminara esta imagen del producto. Esta accion no se puede deshacer.";
+    return "Se eliminará esta imagen del producto. Esta acción no se puede deshacer.";
   }
 
   if (action?.type === "save-order") {
-    return "Se guardara el nuevo orden de las imagenes del producto.";
+    return "Se guardará el nuevo orden de las imágenes del producto.";
   }
 
-  return "Se optimizaran y subiran las nuevas imagenes seleccionadas.";
+  return "Se optimizaran y subirán las nuevas imágenes seleccionadas.";
 }
 
 function getImageConfirmLabel(action: ImageConfirmAction | null) {
@@ -495,7 +495,7 @@ function getImageConfirmLabel(action: ImageConfirmAction | null) {
     return "Guardar orden";
   }
 
-  return "Subir imagenes";
+  return "Subir imágenes";
 }
 
 function getImageLoadingMessage({
@@ -518,7 +518,7 @@ function getImageLoadingMessage({
   }
 
   if (isUploadPending) {
-    return uploadMessage || "Subiendo imagenes...";
+    return uploadMessage || "Subiendo imágenes...";
   }
 
   return "Procesando...";

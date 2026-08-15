@@ -15,7 +15,7 @@ const publicSans = Public_Sans({
 });
 
 const brandDescription =
-  "Retro Campus es una marca de ropa vintage seleccionada, enfocada en prendas unicas con identidad, calidad y presencia. Cada pieza se elige por su estado, estilo y valor estetico, y se publica a traves del catalogo online, Instagram y grupo de WhatsApp.";
+  "Retro Campus es una marca de ropa vintage seleccionada, enfocada en prendas únicas con identidad, calidad y presencia. Cada pieza se elige por su estado, estilo y valor estético, y se publica a través del catálogo online, Instagram y grupo de WhatsApp.";
 const siteUrl = getSiteUrl();
 const brandLogoUrl = new URL("/brand/retro-campus-logo.png", siteUrl).toString();
 const instagramUrl = `https://www.instagram.com/${CONTACT_INSTAGRAM}/`;
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     "marca de ropa vintage",
     "ropa vintage",
     "ropa vintage seleccionada",
-    "prendas unicas",
+    "prendas únicas",
     "buzos vintage",
     "camperas vintage",
     "pantalones vintage",
@@ -96,7 +96,7 @@ const brandJsonLd = {
   },
   knowsAbout: [
     "ropa vintage seleccionada",
-    "prendas unicas",
+    "prendas únicas",
     "moda vintage",
     "buzos vintage",
     "camperas vintage",

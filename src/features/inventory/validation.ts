@@ -45,11 +45,11 @@ export function validateInventoryFormFields(formData: FormData) {
   const internalNotes = String(formData.get("internal_notes") ?? "").trim();
 
   if (!title) {
-    errors.title = "Ingresa un titulo.";
+    errors.title = "Ingresa un título.";
   }
 
   if (!categoryId) {
-    errors.category_id = "Selecciona una categoria.";
+    errors.category_id = "Selecciona una categoría.";
   }
 
   if (!conditionId) {
@@ -57,33 +57,33 @@ export function validateInventoryFormFields(formData: FormData) {
   }
 
   if (!purchaseDate || !DATE_PATTERN.test(purchaseDate)) {
-    errors.purchase_date = "Selecciona una fecha valida.";
+    errors.purchase_date = "Selecciona una fecha válida.";
   }
 
   if (!isValidMoneyInput(purchasePrice, true)) {
-    errors.purchase_price = "Ingresa un precio de compra valido.";
+    errors.purchase_price = "Ingresa un precio de compra válido.";
   }
 
   if (!isValidMoneyInput(estimatedSalePrice, false)) {
-    errors.estimated_sale_price = "Ingresa un precio estimado valido.";
+    errors.estimated_sale_price = "Ingresa un precio estimado válido.";
   }
 
   if (!isValidMeasurementInput(heightCm, false)) {
-    errors.height_cm = "Usa un numero mayor a 0 con coma decimal.";
+    errors.height_cm = "Usa un número mayor a 0 con coma decimal.";
   }
 
   if (!isValidMeasurementInput(widthCm, false)) {
-    errors.width_cm = "Usa un numero mayor a 0 con coma decimal.";
+    errors.width_cm = "Usa un número mayor a 0 con coma decimal.";
   }
 
   if (!internalDescription) {
-    errors.internal_description = "Agrega una descripcion.";
+    errors.internal_description = "Agrega una descripción.";
   } else if (internalDescription.length > INVENTORY_TEXT_MAX_LENGTH) {
-    errors.internal_description = `Maximo ${INVENTORY_TEXT_MAX_LENGTH} caracteres.`;
+    errors.internal_description = `Máximo ${INVENTORY_TEXT_MAX_LENGTH} caracteres.`;
   }
 
   if (internalNotes.length > INVENTORY_NOTES_MAX_LENGTH) {
-    errors.internal_notes = `Maximo ${INVENTORY_NOTES_MAX_LENGTH} caracteres.`;
+    errors.internal_notes = `Máximo ${INVENTORY_NOTES_MAX_LENGTH} caracteres.`;
   }
 
   const firstInvalidField = getFirstInventoryInvalidField(errors);
@@ -105,7 +105,7 @@ export function validateInventorySaleFormFields(formData: FormData) {
   const saleNotes = String(formData.get("sale_notes") ?? "").trim();
 
   if (!soldAt || !DATE_PATTERN.test(soldAt)) {
-    errors.sold_at = "Selecciona una fecha valida.";
+    errors.sold_at = "Selecciona una fecha válida.";
   }
 
   if (!isValidMoneyInput(salePrice, true)) {
@@ -117,7 +117,7 @@ export function validateInventorySaleFormFields(formData: FormData) {
   }
 
   if (saleNotes.length > INVENTORY_NOTES_MAX_LENGTH) {
-    errors.sale_notes = `Maximo ${INVENTORY_NOTES_MAX_LENGTH} caracteres.`;
+    errors.sale_notes = `Máximo ${INVENTORY_NOTES_MAX_LENGTH} caracteres.`;
   }
 
   const firstInvalidField = getFirstSaleInvalidField(errors);

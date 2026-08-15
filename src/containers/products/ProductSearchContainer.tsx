@@ -146,7 +146,7 @@ export function ProductSearchContainer({
       ) : (
         <EmptyProductList
           title="No se encontraron productos"
-          message="Proba buscar por ID, titulo, marca, categoria o talle."
+          message="Probá buscar por ID, título, marca, categoría o talle."
         />
       )}
     </>

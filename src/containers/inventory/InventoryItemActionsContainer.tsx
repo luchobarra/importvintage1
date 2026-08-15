@@ -221,7 +221,7 @@ export function InventoryItemActionsContainer({
             href={`/retro-campus-admin/productos/${catalogProductId}`}
           >
             <ExternalLink aria-hidden="true" size={15} />
-            Ver catalogo
+            Ver catálogo
           </Link>
         ) : (
           <Link
@@ -267,7 +267,7 @@ export function InventoryItemActionsContainer({
           onClick={() => setIsDeleteConfirmOpen(true)}
           title={
             isPublished
-              ? "Primero elimina o actualiza la publicacion vinculada."
+              ? "Primero elimina o actualiza la publicación vinculada."
               : "Eliminar ingreso"
           }
           type="button"
@@ -290,7 +290,7 @@ export function InventoryItemActionsContainer({
               <h2 className="text-h2">Registrar venta</h2>
               <p className="text-body">
                 Se guardan los datos comerciales para metricas futuras y se
-                retira el producto del catalogo si estaba publicado.
+                retira el producto del catálogo si estaba publicado.
               </p>
             </div>
 
@@ -398,7 +398,7 @@ export function InventoryItemActionsContainer({
 
       <ConfirmDialog
         confirmLabel="Eliminar ingreso"
-        description="Se eliminara este ingreso de stock y sus fotos. Si tenia una publicacion en catalogo, la publicacion no se elimina, pero queda desvinculada."
+        description="Se eliminará este ingreso de stock y sus fotos. Si tenía una publicación en catálogo, la publicación no se elimina, pero queda desvinculada."
         isOpen={isDeleteConfirmOpen}
         isPending={isPending}
         onCancel={() => setIsDeleteConfirmOpen(false)}
@@ -424,7 +424,7 @@ export function InventoryItemActionsContainer({
               <p className="text-body">
                 {reservationConfirmValue
                   ? "Guarda los datos de reserva para mantener trazabilidad."
-                  : "La reserva se eliminara y el producto volvera a estar disponible."}
+                  : "La reserva se eliminará y el producto volvera a estar disponible."}
               </p>
             </div>
 

@@ -26,8 +26,8 @@ export async function ProductListContainer() {
   if (products.length === 0) {
     return (
       <EmptyProductList
-        title="Todavia no hay productos"
-        message="Cuando cargues prendas desde el admin, van a aparecer aca."
+        title="Todavía no hay productos"
+        message="Cuando cargues prendas desde el admin, van a aparecer acá."
       />
     );
   }

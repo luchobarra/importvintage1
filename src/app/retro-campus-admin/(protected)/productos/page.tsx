@@ -9,7 +9,7 @@ export default function ProductsPage() {
       <AdminHeader
         eyebrow="Productos"
         title="Productos"
-        description="Busca y revisa las prendas cargadas en el catalogo."
+        description="Busca y revisa las prendas cargadas en el catálogo."
         actions={
           <Link className="button button--ghost" href="/retro-campus-admin">
             Volver

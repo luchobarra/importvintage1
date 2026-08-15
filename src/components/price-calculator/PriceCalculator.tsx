@@ -51,7 +51,7 @@ export function PriceCalculator({ initialSettings }: PriceCalculatorProps) {
     acquisitionCost > 0;
   const calculationError =
     acquisitionValue.trim().length > 0 && acquisitionCost <= 0
-      ? "La adquisicion debe ser mayor a cero."
+      ? "La adquisición debe ser mayor a cero."
       : "";
   const calculation = useMemo(
     () =>
@@ -105,7 +105,7 @@ export function PriceCalculator({ initialSettings }: PriceCalculatorProps) {
       setIsEditingSettings(false);
       setResultMessage({
         description: result.message,
-        title: "Configuracion guardada",
+        title: "Configuración guardada",
         variant: "success",
       });
     });
@@ -118,7 +118,7 @@ export function PriceCalculator({ initialSettings }: PriceCalculatorProps) {
           <div>
             <h2 className="text-h2">Tabla de calculo</h2>
             <p className="text-body">
-              Ingresa el costo de adquisicion y revisa los valores calculados.
+              Ingresa el costo de adquisición y revisa los valores calculados.
             </p>
           </div>
           <button
@@ -158,7 +158,7 @@ export function PriceCalculator({ initialSettings }: PriceCalculatorProps) {
           <SettingsRow
             inputMode="decimal"
             isEditing={isEditingSettings}
-            label="Envio"
+            label="Envío"
             onChange={(event) => handleDraftChange("shippingCost", event)}
             value={formatCurrency(settings.shippingCost)}
             draftValue={draftSettings.shippingCost}
@@ -166,7 +166,7 @@ export function PriceCalculator({ initialSettings }: PriceCalculatorProps) {
           <SettingsRow
             inputMode="decimal"
             isEditing={isEditingSettings}
-            label="Margen marcacion"
+            label="Margen marcación"
             onChange={(event) => handleDraftChange("markupRate", event)}
             suffix="%"
             value={formatPercent(settings.markupRate)}

@@ -11,7 +11,7 @@ export function InventoryList({ items }: InventoryListProps) {
       <div className="inventory-list__columns" aria-hidden="true">
         <span />
         <span>Producto</span>
-        <span>Categoria</span>
+        <span>Categoría</span>
         <span>Marca</span>
         <span>Estado</span>
         <span>Compra</span>

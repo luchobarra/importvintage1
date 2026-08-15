@@ -37,6 +37,7 @@ import {
 } from "@/features/price-calculator/formatters";
 import type { PriceCalculatorSettings } from "@/features/price-calculator/types";
 import { formatProductPriceInput } from "@/features/products/form-validation";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, DragEvent, FormEvent } from "react";
@@ -83,6 +84,7 @@ export function InventoryFormContainer({
 }: InventoryFormContainerProps) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
+  const unsavedChangesGuard = useUnsavedChangesGuard();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imagesRef = useRef<SelectedImage[]>([]);
@@ -172,6 +174,11 @@ export function InventoryFormContainer({
         const updateResult = await updateInventoryItem(item.id, formData);
 
         setState(updateResult);
+
+        if (updateResult.success) {
+          unsavedChangesGuard.clearDirty();
+        }
+
         setResult({
           description: updateResult.message,
           title: updateResult.success
@@ -206,7 +213,7 @@ export function InventoryFormContainer({
           await withTimeout(
             optimizeImage(image.file, index + 1),
             IMAGE_STEP_TIMEOUT_MS,
-            `La optimizacion de la foto ${index + 1} tardo demasiado.`,
+            `La optimización de la foto ${index + 1} tardo demasiado.`,
           ),
         );
       }
@@ -286,6 +293,7 @@ export function InventoryFormContainer({
       images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
       setImages([]);
       formRef.current?.reset();
+      unsavedChangesGuard.clearDirty();
       setFieldErrors({});
       setProgress(null);
       setState({
@@ -294,7 +302,7 @@ export function InventoryFormContainer({
       });
       setResult({
         description:
-          "El producto quedo guardado en stock y listo para seguimiento.",
+          "El producto quedó guardado en stock y listo para seguimiento.",
         title: "Ingreso cargado",
         variant: "success",
       });
@@ -333,6 +341,7 @@ export function InventoryFormContainer({
   }
 
   function handlePriceChange(event: ChangeEvent<HTMLInputElement>) {
+    unsavedChangesGuard.markDirty();
     const nextValue = formatProductPriceInput(event.target.value);
 
     if (event.currentTarget.name === "purchase_price") {
@@ -354,6 +363,7 @@ export function InventoryFormContainer({
   }
 
   function handleMeasurementChange(event: ChangeEvent<HTMLInputElement>) {
+    unsavedChangesGuard.markDirty();
     event.target.value = sanitizeMeasurementInput(event.target.value);
     clearFieldError(event.currentTarget.name);
   }
@@ -361,7 +371,13 @@ export function InventoryFormContainer({
   function handleFieldChange(
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) {
+    unsavedChangesGuard.markDirty();
     clearFieldError(event.currentTarget.name);
+  }
+
+  function handleDateChange(fieldName: string) {
+    unsavedChangesGuard.markDirty();
+    clearFieldError(fieldName);
   }
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {
@@ -386,12 +402,12 @@ export function InventoryFormContainer({
     );
 
     if (acceptedFiles.length !== files.length) {
-      setImageErrorMessage("Solo se aceptan imagenes JPG, PNG o WebP.");
+      setImageErrorMessage("Solo se aceptan imágenes JPG, PNG o WebP.");
     }
 
     if (oversizedFiles.length > 0) {
       setImageErrorMessage(
-        `Cada foto debe pesar como maximo ${MAX_FILE_SIZE_MB} MB antes de optimizar.`,
+        `Cada foto debe pesar como máximo ${MAX_FILE_SIZE_MB} MB antes de optimizar.`,
       );
     }
 
@@ -399,12 +415,14 @@ export function InventoryFormContainer({
       return;
     }
 
+    unsavedChangesGuard.markDirty();
+
     setImages((currentImages) => {
       const availableSlots = MAX_INVENTORY_IMAGES - currentImages.length;
 
       if (availableSlots <= 0) {
         setImageErrorMessage(
-          `Ya cargaste el maximo permitido de ${MAX_INVENTORY_IMAGES} fotos.`,
+          `Ya cargaste el máximo permitido de ${MAX_INVENTORY_IMAGES} fotos.`,
         );
         return currentImages;
       }
@@ -413,7 +431,7 @@ export function InventoryFormContainer({
 
       if (imageFiles.length > availableSlots) {
         setImageErrorMessage(
-          `Se agregaron solo las fotos que entran en el maximo de ${MAX_INVENTORY_IMAGES}.`,
+          `Se agregaron solo las fotos que entran en el máximo de ${MAX_INVENTORY_IMAGES}.`,
         );
       }
 
@@ -430,6 +448,7 @@ export function InventoryFormContainer({
   function removeImage(imageId: string) {
     setResult(null);
     setImageErrorMessage("");
+    unsavedChangesGuard.markDirty();
     setImages((currentImages) => {
       const imageToRemove = currentImages.find((image) => image.id === imageId);
 
@@ -493,6 +512,7 @@ export function InventoryFormContainer({
 
   return (
     <>
+      {unsavedChangesGuard.dialog}
       <InventoryForm
         allowImageUpload={allowImageUpload}
         brands={brands}
@@ -509,7 +529,7 @@ export function InventoryFormContainer({
         isPriceCalculationPending={isCalculatingPrice}
         isPending={isPending}
         onDragChange={setIsDragging}
-        onDateChange={clearFieldError}
+        onDateChange={handleDateChange}
         onDrop={handleDrop}
         onFieldChange={handleFieldChange}
         onFileChange={handleFileChange}

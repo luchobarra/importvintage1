@@ -6,6 +6,8 @@ import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
 import type { CatalogOptions } from "@/features/catalog-options/types";
 import { getInventoryItemById } from "@/features/inventory/queries";
 import type { InventoryItem } from "@/features/inventory/types";
+import { getAdminPriceCalculatorSettings } from "@/features/price-calculator/queries";
+import type { PriceCalculatorSettings } from "@/features/price-calculator/types";
 import Link from "next/link";
 
 type NewProductPageProps = {
@@ -21,18 +23,20 @@ export default async function NewProductPage({
   const inventoryItemId = String(resolvedSearchParams?.inventoryItemId ?? "");
   let options: CatalogOptions | null = null;
   let inventoryItem: InventoryItem | null = null;
+  let priceCalculatorSettings: PriceCalculatorSettings | null = null;
   let errorMessage = "";
 
   try {
-    [options, inventoryItem] = await Promise.all([
+    [options, inventoryItem, priceCalculatorSettings] = await Promise.all([
       getPublicCatalogOptions(),
       inventoryItemId ? getInventoryItemById(inventoryItemId) : null,
+      getAdminPriceCalculatorSettings(),
     ]);
   } catch (error) {
     errorMessage =
       error instanceof Error
         ? error.message
-        : "No se pudieron cargar las opciones del catalogo.";
+        : "No se pudieron cargar las opciones del catálogo.";
   }
 
   return (
@@ -42,8 +46,8 @@ export default async function NewProductPage({
         title="Nuevo producto"
         description={
           inventoryItem
-            ? "Publica este ingreso de stock en el catalogo con fotos y datos comerciales cuidados."
-            : "Carga la informacion de la prenda y entre 1 y 5 fotos. La primera imagen se usa como foto principal."
+            ? "Publica este ingreso de stock en el catálogo con fotos y datos comerciales cuidados."
+            : "Carga la información de la prenda y entre 1 y 5 fotos. La primera imagen se usa como foto principal."
         }
         actions={
           <Link className="button" href="/retro-campus-admin">
@@ -53,7 +57,7 @@ export default async function NewProductPage({
       />
 
       <section className="admin-form-panel">
-        {options ? (
+        {options && priceCalculatorSettings ? (
           <ProductFormContainer
             initialValues={
               inventoryItem
@@ -72,6 +76,7 @@ export default async function NewProductPage({
                 : undefined
             }
             options={options}
+            priceCalculatorSettings={priceCalculatorSettings}
           />
         ) : (
           <EmptyProductList

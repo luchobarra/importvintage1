@@ -38,7 +38,7 @@ export default async function EditProductPage({
       <AdminHeader
         eyebrow="Productos"
         title="Editar producto"
-        description="Modifica los datos basicos de la prenda. Las imagenes se editaran mas adelante."
+        description="Modifica los datos básicos de la prenda. Las imágenes se editarán más adelante."
         actions={
           <Link className="button button--ghost" href="/retro-campus-admin/productos">
             Volver

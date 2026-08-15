@@ -22,7 +22,7 @@ export function LoginForm({ action, pending, state }: LoginFormProps) {
       </label>
 
       <label className="form-field" htmlFor="password">
-        <span className="text-label">Contrasena</span>
+        <span className="text-label">Contraseña</span>
         <input
           autoComplete="current-password"
           id="password"

@@ -62,7 +62,7 @@ export async function getAdminCatalogOptions(): Promise<CatalogOptions> {
   } = await supabase.auth.getUser();
 
   if (!isAdminUser(user)) {
-    throw new Error("No tenes permisos para administrar filtros.");
+    throw new Error("No tenés permisos para administrar filtros.");
   }
 
   const [categoriesResult, brandsResult, sizesResult, conditionsResult] = await Promise.all([

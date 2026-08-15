@@ -308,7 +308,7 @@ async function createAdminSupabaseClient() {
   } = await supabase.auth.getUser();
 
   if (!isAdminUser(user)) {
-    throw new Error("No tenes permisos para administrar stock.");
+    throw new Error("No tenés permisos para administrar stock.");
   }
 
   return supabase;

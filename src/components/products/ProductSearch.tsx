@@ -50,12 +50,12 @@ export function ProductSearch({
         </label>
 
         <label className="form-field" htmlFor="product-search-title">
-          <span className="text-label">Titulo</span>
+          <span className="text-label">Título</span>
           <input
             id="product-search-title"
             name="product-search-title"
             onChange={(event) => onFilterChange("title", event.target.value)}
-            placeholder="Minimo 3 letras"
+            placeholder="Mínimo 3 letras"
             type="search"
             value={filters.title}
           />
@@ -67,19 +67,19 @@ export function ProductSearch({
             id="product-search-brand"
             name="product-search-brand"
             onChange={(event) => onFilterChange("brand", event.target.value)}
-            placeholder="Minimo 3 letras"
+            placeholder="Mínimo 3 letras"
             type="search"
             value={filters.brand}
           />
         </label>
 
         <label className="form-field" htmlFor="product-search-category">
-          <span className="text-label">Categoria</span>
+          <span className="text-label">Categoría</span>
           <input
             id="product-search-category"
             name="product-search-category"
             onChange={(event) => onFilterChange("category", event.target.value)}
-            placeholder="Escribir categoria"
+            placeholder="Escribir categoría"
             type="search"
             value={filters.category}
           />

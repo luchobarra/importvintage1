@@ -193,7 +193,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
         <button
           aria-controls={menuId}
           aria-expanded={isMenuOpen}
-          aria-label={isMenuOpen ? "Cerrar menu" : "Abrir menu"}
+          aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
           className="public-header__menu-button"
           onClick={toggleMenu}
           type="button"
@@ -277,7 +277,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
       {isMenuOpen ? (
         <>
           <button
-            aria-label="Cerrar menu"
+            aria-label="Cerrar menú"
             className="public-header__mobile-overlay"
             data-state={isMenuClosing ? "closing" : "open"}
             onClick={closeMenu}
@@ -304,7 +304,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
                 />
               </Link>
               <button
-                aria-label="Cerrar menu"
+                aria-label="Cerrar menú"
                 className="public-header__close-button"
                 onClick={closeMenu}
                 type="button"

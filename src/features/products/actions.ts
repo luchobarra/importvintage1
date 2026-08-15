@@ -35,7 +35,7 @@ export async function createProductDraft(
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para cargar productos.",
+      message: "No tenés permisos para cargar productos.",
       success: false,
     };
   }
@@ -78,28 +78,28 @@ export async function createProductDraft(
     !isValidMeasurementInput(widthValue, true)
   ) {
     return {
-      message: "Las medidas deben ser numeros mayores a cero y usar coma para decimales.",
+      message: "Las medidas deben ser números mayores a cero y usar coma para decimales.",
       success: false,
     };
   }
 
   if (rawPriceValue !== priceValue) {
     return {
-      message: "El precio solo permite numeros.",
+      message: "El precio solo permite números.",
       success: false,
     };
   }
 
   if (!Number.isFinite(price) || price <= 0) {
     return {
-      message: "El precio debe ser un numero mayor a cero.",
+      message: "El precio debe ser un número mayor a cero.",
       success: false,
     };
   }
 
   if (description.length > PRODUCT_DESCRIPTION_MAX_LENGTH) {
     return {
-      message: `La descripcion puede tener como maximo ${PRODUCT_DESCRIPTION_MAX_LENGTH} caracteres.`,
+      message: `La descripción puede tener como máximo ${PRODUCT_DESCRIPTION_MAX_LENGTH} caracteres.`,
       success: false,
     };
   }
@@ -162,14 +162,14 @@ export async function saveProductImages(
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para guardar imagenes.",
+      message: "No tenés permisos para guardar imágenes.",
       success: false,
     };
   }
 
   if (!productId || images.length < 1 || images.length > 5) {
     return {
-      message: "La cantidad de imagenes debe ser entre 1 y 5.",
+      message: "La cantidad de imágenes debe ser entre 1 y 5.",
       success: false,
     };
   }
@@ -187,7 +187,7 @@ export async function saveProductImages(
 
   if (imagesError) {
     return {
-      message: `No se pudieron guardar las imagenes: ${imagesError.message}`,
+      message: `No se pudieron guardar las imágenes: ${imagesError.message}`,
       success: false,
     };
   }
@@ -222,7 +222,7 @@ export async function updateProduct(
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para editar productos.",
+      message: "No tenés permisos para editar productos.",
       success: false,
     };
   }
@@ -265,28 +265,28 @@ export async function updateProduct(
     !isValidMeasurementInput(widthValue, true)
   ) {
     return {
-      message: "Las medidas deben ser numeros mayores a cero y usar coma para decimales.",
+      message: "Las medidas deben ser números mayores a cero y usar coma para decimales.",
       success: false,
     };
   }
 
   if (rawPriceValue !== priceValue) {
     return {
-      message: "El precio solo permite numeros.",
+      message: "El precio solo permite números.",
       success: false,
     };
   }
 
   if (!Number.isFinite(price) || price <= 0) {
     return {
-      message: "El precio debe ser un numero mayor a cero.",
+      message: "El precio debe ser un número mayor a cero.",
       success: false,
     };
   }
 
   if (description.length > PRODUCT_DESCRIPTION_MAX_LENGTH) {
     return {
-      message: `La descripcion puede tener como maximo ${PRODUCT_DESCRIPTION_MAX_LENGTH} caracteres.`,
+      message: `La descripción puede tener como máximo ${PRODUCT_DESCRIPTION_MAX_LENGTH} caracteres.`,
       success: false,
     };
   }
@@ -395,19 +395,19 @@ async function getCatalogSelection({
     ]);
 
   if (brandResult.error || !brandResult.data) {
-    return { message: "Selecciona una marca valida.", success: false };
+    return { message: "Selecciona una marca válida.", success: false };
   }
 
   if (categoryResult.error || !categoryResult.data) {
-    return { message: "Selecciona una categoria valida.", success: false };
+    return { message: "Selecciona una categoría válida.", success: false };
   }
 
   if (conditionResult.error || !conditionResult.data) {
-    return { message: "Selecciona un estado valido.", success: false };
+    return { message: "Selecciona un estado válido.", success: false };
   }
 
   if (sizeResult.error || !sizeResult.data) {
-    return { message: "Selecciona un talle valido.", success: false };
+    return { message: "Selecciona un talle válido.", success: false };
   }
 
   if (
@@ -415,7 +415,7 @@ async function getCatalogSelection({
     !categoryResult.data.sizes_numeric_enabled
   ) {
     return {
-      message: "La categoria no tiene talles habilitados.",
+      message: "La categoría no tiene talles habilitados.",
       success: false,
     };
   }
@@ -427,7 +427,7 @@ async function getCatalogSelection({
 
   if (!categoryAllowsSize) {
     return {
-      message: "El talle seleccionado no corresponde a esa categoria.",
+      message: "El talle seleccionado no corresponde a esa categoría.",
       success: false,
     };
   }
@@ -451,7 +451,7 @@ export async function deleteProduct(
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para eliminar productos.",
+      message: "No tenés permisos para eliminar productos.",
       success: false,
     };
   }
@@ -470,7 +470,7 @@ export async function deleteProduct(
 
   if (imagesQueryError) {
     return {
-      message: `No se pudieron buscar las imagenes: ${imagesQueryError.message}`,
+      message: `No se pudieron buscar las imágenes: ${imagesQueryError.message}`,
       success: false,
     };
   }
@@ -486,7 +486,7 @@ export async function deleteProduct(
 
     if (storageError) {
       return {
-        message: `No se pudieron eliminar las imagenes: ${storageError.message}`,
+        message: `No se pudieron eliminar las imágenes: ${storageError.message}`,
         success: false,
       };
     }
@@ -499,7 +499,7 @@ export async function deleteProduct(
 
   if (imageRowsError) {
     return {
-      message: `No se pudieron eliminar los registros de imagenes: ${imageRowsError.message}`,
+      message: `No se pudieron eliminar los registros de imágenes: ${imageRowsError.message}`,
       success: false,
     };
   }
@@ -533,7 +533,7 @@ export async function deleteProductImage(
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para eliminar imagenes.",
+      message: "No tenés permisos para eliminar imágenes.",
       success: false,
     };
   }
@@ -553,7 +553,7 @@ export async function deleteProductImage(
 
   if (imagesError) {
     return {
-      message: `No se pudieron buscar las imagenes: ${imagesError.message}`,
+      message: `No se pudieron buscar las imágenes: ${imagesError.message}`,
       success: false,
     };
   }
@@ -609,7 +609,7 @@ export async function deleteProductImage(
 
     if (error) {
       return {
-        message: `La imagen se elimino, pero no se pudieron reordenar las posiciones: ${error.message}`,
+        message: `La imagen se eliminó, pero no se pudieron reordenar las posiciones: ${error.message}`,
         success: false,
       };
     }
@@ -632,7 +632,7 @@ export async function appendProductImages(
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para agregar imagenes.",
+      message: "No tenés permisos para agregar imágenes.",
       success: false,
     };
   }
@@ -652,7 +652,7 @@ export async function appendProductImages(
 
   if (currentImagesError) {
     return {
-      message: `No se pudieron validar las imagenes actuales: ${currentImagesError.message}`,
+      message: `No se pudieron validar las imágenes actuales: ${currentImagesError.message}`,
       success: false,
     };
   }
@@ -661,7 +661,7 @@ export async function appendProductImages(
 
   if (currentImageCount + images.length > 5) {
     return {
-      message: "El producto puede tener como maximo 5 imagenes.",
+      message: "El producto puede tener como máximo 5 imágenes.",
       success: false,
     };
   }
@@ -677,13 +677,13 @@ export async function appendProductImages(
 
   if (error) {
     return {
-      message: `No se pudieron guardar las nuevas imagenes: ${error.message}`,
+      message: `No se pudieron guardar las nuevas imágenes: ${error.message}`,
       success: false,
     };
   }
 
   return {
-    message: "Imagenes agregadas correctamente.",
+    message: "Imágenes agregadas correctamente.",
     success: true,
   };
 }
@@ -699,7 +699,7 @@ export async function updateProductImagePositions(
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para reordenar imagenes.",
+      message: "No tenés permisos para reordenar imágenes.",
       success: false,
     };
   }
@@ -719,7 +719,7 @@ export async function updateProductImagePositions(
 
   if (currentImagesError) {
     return {
-      message: `No se pudieron validar las imagenes: ${currentImagesError.message}`,
+      message: `No se pudieron validar las imágenes: ${currentImagesError.message}`,
       success: false,
     };
   }
@@ -731,7 +731,7 @@ export async function updateProductImagePositions(
 
   if (hasInvalidImage || currentImageIds.size !== imagePositions.length) {
     return {
-      message: "El orden enviado no coincide con las imagenes del producto.",
+      message: "El orden enviado no coincide con las imágenes del producto.",
       success: false,
     };
   }
@@ -800,7 +800,7 @@ export async function updateProductImagePositions(
   }
 
   return {
-    message: "Orden de imagenes guardado correctamente.",
+    message: "Orden de imágenes guardado correctamente.",
     success: true,
   };
 }

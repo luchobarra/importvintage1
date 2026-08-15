@@ -19,7 +19,7 @@ type HomeProps = {
 export const metadata: Metadata = {
   title: "Retro Campus - Ropa vintage seleccionada",
   description:
-    "Retro Campus es una marca de ropa vintage seleccionada, enfocada en prendas unicas con identidad, calidad y presencia. Nuevos ingresos disponibles en catalogo online, Instagram y grupo de WhatsApp.",
+    "Retro Campus es una marca de ropa vintage seleccionada, enfocada en prendas únicas con identidad, calidad y presencia. Nuevos ingresos disponibles en catálogo online, Instagram y grupo de WhatsApp.",
   alternates: {
     canonical: createSiteUrl("/"),
   },
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "marca de ropa vintage",
     "ropa vintage seleccionada",
     "prendas vintage seleccionadas",
-    "prendas unicas",
+    "prendas únicas",
     "buzos vintage",
     "camperas vintage",
     "pantalones vintage",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Retro Campus - Ropa vintage seleccionada",
     description:
-      "Marca de ropa vintage seleccionada: prendas unicas con identidad, calidad y presencia, disponibles en catalogo online, Instagram y grupo de WhatsApp.",
+      "Marca de ropa vintage seleccionada: prendas únicas con identidad, calidad y presencia, disponibles en catálogo online, Instagram y grupo de WhatsApp.",
     images: [
       {
         url: "/brand/retro-campus-logo.png",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     description:
-      "Marca de ropa vintage seleccionada: prendas unicas con identidad, calidad y presencia.",
+      "Marca de ropa vintage seleccionada: prendas únicas con identidad, calidad y presencia.",
     images: ["/brand/retro-campus-logo.png"],
     title: "Retro Campus - Ropa vintage seleccionada",
   },
@@ -69,11 +69,12 @@ export default async function Home({ searchParams }: HomeProps) {
   const heading = catalogState.exclusive
     ? {
         description:
-          "Una seleccion premium de piezas especiales, elegidas por calidad, rareza y presencia.",
+          "Una selección premium de piezas especiales, elegidas por calidad, rareza y presencia.",
         title: "Exclusivos",
       }
     : {
-        description: "",
+        description:
+          "Nuestra selección disponible de prendas vintage, para quienes buscan un estilo único que solo Retro Campus puede ofrecer.",
         title: "Prendas disponibles",
       };
 

@@ -15,15 +15,15 @@ export type ProductFieldName =
 export type ProductFieldErrors = Partial<Record<ProductFieldName, string>>;
 
 const PRODUCT_FIELD_LABELS: Record<ProductFieldName, string> = {
-  title: "titulo",
+  title: "título",
   brand: "marca",
-  category: "categoria",
+  category: "categoría",
   condition: "estado",
   size: "talle",
   height_cm: "alto",
   width_cm: "ancho",
   price: "precio",
-  description: "descripcion",
+  description: "descripción",
 };
 
 const PRODUCT_FIELD_ORDER: ProductFieldName[] = [
@@ -78,17 +78,17 @@ export function validateProductField(
     const numericValue = Number(priceDigits);
 
     if (!priceDigits) {
-      return "El precio solo permite numeros.";
+      return "El precio solo permite números.";
     }
 
     if (!Number.isFinite(numericValue) || numericValue <= 0) {
-      return "El precio debe ser un numero entero mayor a 0.";
+      return "El precio debe ser un número entero mayor a 0.";
     }
   }
 
   if (fieldName === "height_cm" || fieldName === "width_cm") {
     if (!isValidMeasurementInput(normalizedValue, true)) {
-      return "La medida debe ser un numero mayor a 0 y usar coma para decimales.";
+      return "La medida debe ser un número mayor a 0 y usar coma para decimales.";
     }
   }
 
@@ -96,7 +96,7 @@ export function validateProductField(
     fieldName === "description" &&
     normalizedValue.length > PRODUCT_DESCRIPTION_MAX_LENGTH
   ) {
-    return `La descripcion puede tener como maximo ${PRODUCT_DESCRIPTION_MAX_LENGTH} caracteres.`;
+    return `La descripción puede tener como máximo ${PRODUCT_DESCRIPTION_MAX_LENGTH} caracteres.`;
   }
 
   return "";

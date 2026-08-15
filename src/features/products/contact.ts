@@ -27,7 +27,7 @@ export function createProductWhatsappUrl({
   const normalizedPhoneNumber = normalizeWhatsappPhoneNumber(sellerPhoneNumber);
 
   if (!normalizedPhoneNumber) {
-    throw new Error("El numero de WhatsApp no esta configurado.");
+    throw new Error("El número de WhatsApp no está configurado.");
   }
 
   const detailUrl = createProductDetailUrl(product.id);

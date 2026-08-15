@@ -58,7 +58,7 @@ export function ProductGrid({
       ]);
 
       if (!response.ok) {
-        throw new Error("No se pudieron cargar mas productos.");
+        throw new Error("No se pudieron cargar más productos.");
       }
 
       const data = (await response.json()) as ProductsPageResponse;
@@ -78,7 +78,7 @@ export function ProductGrid({
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "No se pudieron cargar mas productos.",
+          : "No se pudieron cargar más productos.",
       );
     } finally {
       setIsLoadingMore(false);
@@ -107,7 +107,7 @@ export function ProductGrid({
           ) : null}
           <button
             aria-busy={isLoadingMore}
-            aria-label={isLoadingMore ? "Cargando mas productos" : undefined}
+            aria-label={isLoadingMore ? "Cargando más productos" : undefined}
             className="button button--primary catalog-load-more__button"
             data-state={
               isLoadingMore
@@ -126,9 +126,9 @@ export function ProductGrid({
                 className="catalog-load-more__spinner"
               />
             ) : hasLoadedAllProducts ? (
-              "No hay mas productos"
+              "No hay más productos"
             ) : (
-              "Ver mas productos"
+              "Ver más productos"
             )}
           </button>
         </div>

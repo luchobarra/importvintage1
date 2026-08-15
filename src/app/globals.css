@@ -1917,7 +1917,7 @@ a {
 
 .home__title {
   margin: 8px 0 0;
-  color: var(--vintage-text-strong);
+  color: var(--color-text-strong);
   font-size: clamp(26px, 3.6vw, 34px);
   line-height: 1.1;
   text-shadow: 0 1px 0 var(--tone-paper-18);
@@ -1926,7 +1926,7 @@ a {
 .home__description {
   max-width: 36rem;
   margin: var(--space-2) 0 0;
-  color: var(--tone-ink-76);
+  color: var(--tone-ink-88);
   line-height: 1.55;
 }
 
@@ -7330,7 +7330,19 @@ dd.product-detail__measurements-value strong {
   gap: 18px;
 }
 
-.product-form__toggle {
+.product-form__options-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 18px;
+}
+
+.product-form__option {
+  display: grid;
+  gap: 10px;
+}
+
+.product-form__option-toggle {
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -7339,29 +7351,36 @@ dd.product-detail__measurements-value strong {
   background: var(--color-surface-alt);
   color: var(--color-text);
   cursor: pointer;
-  padding: 14px 16px;
+  padding: 12px 14px;
 }
 
-.product-form__toggle input {
-  width: 18px;
-  height: 18px;
+.product-form__option-toggle input {
+  width: 17px;
+  height: 17px;
   margin-top: 2px;
   accent-color: var(--color-accent);
 }
 
-.product-form__toggle span {
+.product-form__option-toggle span {
   display: grid;
+  min-width: 0;
   gap: 4px;
 }
 
-.product-form__toggle strong {
-  font-size: 0.92rem;
+.product-form__option-toggle strong {
+  color: var(--color-text-strong);
+  font-size: 0.9rem;
+  line-height: 1.25;
 }
 
-.product-form__toggle small {
+.product-form__option-toggle small {
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   line-height: 1.35;
+}
+
+.product-form__purchase-field {
+  padding-inline: 1px;
 }
 
 .product-form__actions {
@@ -8007,6 +8026,19 @@ dd.product-detail__measurements-value strong {
   .admin-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .home__header {
+    align-items: center;
+    text-align: center;
+  }
+
+  .home__header > div {
+    width: 100%;
+  }
+
+  .home__description {
+    margin-inline: auto;
   }
 
   .catalog-filters {
@@ -8790,6 +8822,10 @@ dd.product-detail__measurements-value strong {
   }
 
   .product-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-form__options-row {
     grid-template-columns: 1fr;
   }
 

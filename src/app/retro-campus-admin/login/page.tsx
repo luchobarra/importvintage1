@@ -47,7 +47,7 @@ export default async function AdminLoginPage({
             <span />
           </div>
           <p className="auth-panel__copy">
-            Acceso administrador para gestionar el catalogo.
+            Acceso administrador para gestionar el catálogo.
           </p>
         </div>
         {hasExpiredSession ? (

@@ -42,7 +42,7 @@ export async function createInventoryItemDraft(
   formData: FormData,
 ): Promise<CreateInventoryDraftResult> {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para cargar stock.",
+    "No tenés permisos para cargar stock.",
   );
 
   const parsed = parseInventoryPayload(formData);
@@ -108,7 +108,7 @@ export async function updateInventoryItem(
   formData: FormData,
 ): Promise<InventoryFormState> {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para editar stock.",
+    "No tenés permisos para editar stock.",
   );
 
   if (!inventoryItemId) {
@@ -180,12 +180,12 @@ export async function saveInventoryItemImages(
   images: InventoryImageInput[],
 ): Promise<InventoryFormState> {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para guardar imagenes de stock.",
+    "No tenés permisos para guardar imágenes de stock.",
   );
 
   if (!inventoryItemId || images.length < 1 || images.length > MAX_INVENTORY_IMAGES) {
     return {
-      message: `La cantidad de imagenes debe ser entre 1 y ${MAX_INVENTORY_IMAGES}.`,
+      message: `La cantidad de imágenes debe ser entre 1 y ${MAX_INVENTORY_IMAGES}.`,
       success: false,
     };
   }
@@ -203,7 +203,7 @@ export async function saveInventoryItemImages(
 
   if (error) {
     return {
-      message: `No se pudieron guardar las imagenes: ${error.message}`,
+      message: `No se pudieron guardar las imágenes: ${error.message}`,
       success: false,
     };
   }
@@ -218,7 +218,7 @@ export async function saveInventoryItemImages(
 
 export async function deleteInventoryItemDraft(inventoryItemId: string) {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para descartar el ingreso.",
+    "No tenés permisos para descartar el ingreso.",
   );
 
   if (!inventoryItemId) {
@@ -233,7 +233,7 @@ export async function deleteInventoryItem(
   inventoryItemId: string,
 ): Promise<InventoryFormState> {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para eliminar ingresos.",
+    "No tenés permisos para eliminar ingresos.",
   );
 
   if (!inventoryItemId) {
@@ -252,7 +252,7 @@ export async function deleteInventoryItem(
 
   if (publishedProductError) {
     return {
-      message: `No se pudo validar la publicacion del ingreso: ${publishedProductError.message}`,
+      message: `No se pudo validar la publicación del ingreso: ${publishedProductError.message}`,
       success: false,
     };
   }
@@ -260,7 +260,7 @@ export async function deleteInventoryItem(
   if (publishedProduct) {
     return {
       message:
-        "Este ingreso esta publicado en el catalogo. Primero elimina o actualiza la publicacion vinculada.",
+        "Este ingreso está publicado en el catálogo. Primero elimina o actualiza la publicación vinculada.",
       success: false,
     };
   }
@@ -272,7 +272,7 @@ export async function deleteInventoryItem(
 
   if (imagesQueryError) {
     return {
-      message: `No se pudieron buscar las imagenes: ${imagesQueryError.message}`,
+      message: `No se pudieron buscar las imágenes: ${imagesQueryError.message}`,
       success: false,
     };
   }
@@ -288,7 +288,7 @@ export async function deleteInventoryItem(
 
     if (storageError) {
       return {
-        message: `No se pudieron eliminar las imagenes: ${storageError.message}`,
+        message: `No se pudieron eliminar las imágenes: ${storageError.message}`,
         success: false,
       };
     }
@@ -319,7 +319,7 @@ export async function markInventoryItemAsSold(
   formData: FormData,
 ): Promise<InventoryFormState> {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para marcar ventas.",
+    "No tenés permisos para marcar ventas.",
   );
 
   const soldAt = String(formData.get("sold_at") ?? "").trim();
@@ -337,21 +337,21 @@ export async function markInventoryItemAsSold(
 
   if (!isDateInput(soldAt)) {
     return {
-      message: "Selecciona una fecha de venta valida.",
+      message: "Selecciona una fecha de venta válida.",
       success: false,
     };
   }
 
   if (!Number.isFinite(salePrice) || salePrice < 0) {
     return {
-      message: "El precio de venta debe ser un numero valido.",
+      message: "El precio de venta debe ser un número válido.",
       success: false,
     };
   }
 
   if (saleNotes.length > INVENTORY_NOTES_MAX_LENGTH) {
     return {
-      message: `Las notas pueden tener como maximo ${INVENTORY_NOTES_MAX_LENGTH} caracteres.`,
+      message: `Las notas pueden tener como máximo ${INVENTORY_NOTES_MAX_LENGTH} caracteres.`,
       success: false,
     };
   }
@@ -365,7 +365,7 @@ export async function markInventoryItemAsSold(
 
   if (channelError || !channel) {
     return {
-      message: "Selecciona un medio de venta valido.",
+      message: "Selecciona un medio de venta válido.",
       success: false,
     };
   }
@@ -419,7 +419,7 @@ export async function setInventoryItemReserved(
   formData: FormData,
 ): Promise<InventoryFormState> {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para administrar reservas.",
+    "No tenés permisos para administrar reservas.",
   );
 
   if (!inventoryItemId) {
@@ -433,7 +433,7 @@ export async function setInventoryItemReserved(
 
   if (reserveMode !== "reserved" && reserveMode !== "available") {
     return {
-      message: "Selecciona una accion de reserva valida.",
+      message: "Selecciona una acción de reserva válida.",
       success: false,
     };
   }
@@ -455,14 +455,14 @@ export async function setInventoryItemReserved(
 
   if (isReserved && (!reservedAt || !isDateInput(reservedAt))) {
     return {
-      message: "Selecciona una fecha de reserva valida.",
+      message: "Selecciona una fecha de reserva válida.",
       success: false,
     };
   }
 
   if (reservationExpiresAt && !isDateInput(reservationExpiresAt)) {
     return {
-      message: "Selecciona un vencimiento de reserva valido.",
+      message: "Selecciona un vencimiento de reserva válido.",
       success: false,
     };
   }
@@ -472,7 +472,7 @@ export async function setInventoryItemReserved(
     reservationNotes.length > INVENTORY_NOTES_MAX_LENGTH
   ) {
     return {
-      message: "Los datos de reserva superan el maximo permitido.",
+      message: "Los datos de reserva superan el máximo permitido.",
       success: false,
     };
   }
@@ -507,7 +507,7 @@ export async function setInventoryItemReserved(
 
     if (channelError || !channel) {
       return {
-        message: "Selecciona un canal de reserva valido.",
+        message: "Selecciona un canal de reserva válido.",
         success: false,
       };
     }
@@ -560,7 +560,7 @@ export async function createSalesChannel(
   formData: FormData,
 ): Promise<InventoryFormState> {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para administrar medios de venta.",
+    "No tenés permisos para administrar medios de venta.",
   );
 
   const name = String(formData.get("name") ?? "").trim();
@@ -580,7 +580,7 @@ export async function createSalesChannel(
 
   if (countError) {
     return {
-      message: `No se pudo calcular la posicion: ${countError.message}`,
+      message: `No se pudo calcular la posición: ${countError.message}`,
       success: false,
     };
   }
@@ -611,7 +611,7 @@ export async function toggleSalesChannel(
   isActive: boolean,
 ): Promise<InventoryFormState> {
   const supabase = await createAuthorizedSupabaseClient(
-    "No tenes permisos para administrar medios de venta.",
+    "No tenés permisos para administrar medios de venta.",
   );
 
   const { error } = await supabase
@@ -694,14 +694,14 @@ function parseInventoryPayload(formData: FormData):
 
   if (!isDateInput(purchaseDate)) {
     return {
-      message: "Selecciona una fecha de compra valida.",
+      message: "Selecciona una fecha de compra válida.",
       success: false,
     };
   }
 
   if (!Number.isFinite(purchasePrice) || purchasePrice < 0) {
     return {
-      message: "El precio de compra debe ser un numero valido.",
+      message: "El precio de compra debe ser un número válido.",
       success: false,
     };
   }
@@ -711,7 +711,7 @@ function parseInventoryPayload(formData: FormData):
     (!Number.isFinite(estimatedSalePrice) || estimatedSalePrice < 0)
   ) {
     return {
-      message: "El precio estimado debe ser un numero valido.",
+      message: "El precio estimado debe ser un número válido.",
       success: false,
     };
   }
@@ -721,7 +721,7 @@ function parseInventoryPayload(formData: FormData):
     !isValidMeasurementInput(widthValue, false)
   ) {
     return {
-      message: "Las medidas deben ser numeros mayores a cero y usar coma para decimales.",
+      message: "Las medidas deben ser números mayores a cero y usar coma para decimales.",
       success: false,
     };
   }
@@ -731,7 +731,7 @@ function parseInventoryPayload(formData: FormData):
     internalNotes.length > INVENTORY_NOTES_MAX_LENGTH
   ) {
     return {
-      message: "Hay textos internos que superan el maximo permitido.",
+      message: "Hay textos internos que superan el máximo permitido.",
       success: false,
     };
   }
@@ -808,7 +808,7 @@ async function validateInventoryCategory(
 ): Promise<{ success: true } | InventoryActionError> {
   if (!categoryId) {
     return {
-      message: "Selecciona una categoria valida.",
+      message: "Selecciona una categoría válida.",
       success: false,
     };
   }
@@ -822,7 +822,7 @@ async function validateInventoryCategory(
 
   if (error || !data) {
     return {
-      message: "Selecciona una categoria activa.",
+      message: "Selecciona una categoría activa.",
       success: false,
     };
   }
@@ -836,7 +836,7 @@ async function validateInventoryCondition(
 ): Promise<{ success: true } | InventoryActionError> {
   if (!conditionId) {
     return {
-      message: "Selecciona un estado valido.",
+      message: "Selecciona un estado válido.",
       success: false,
     };
   }

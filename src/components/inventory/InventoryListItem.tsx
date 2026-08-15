@@ -51,7 +51,7 @@ export function InventoryListItem({ item }: InventoryListItemProps) {
 
         <dl className="inventory-item__data">
           <div>
-            <dt>Categoria</dt>
+            <dt>Categoría</dt>
             <dd>{item.catalog_categories?.name ?? "-"}</dd>
           </div>
           <div>

@@ -38,11 +38,11 @@ export async function ProductGridContainer({
       <EmptyCatalog
         isError
         title={
-          state.exclusive ? "No pudimos cargar exclusivos" : "Error de conexion"
+          state.exclusive ? "No pudimos cargar exclusivos" : "Error de conexión"
         }
         message={
           state.exclusive
-            ? "Volve a intentar en unos minutos o consultanos por WhatsApp."
+            ? "Volvé a intentar en unos minutos o consultanos por WhatsApp."
             : errorMessage
         }
       />
@@ -53,11 +53,11 @@ export async function ProductGridContainer({
     if (state.exclusive) {
       return (
         <EmptyCatalog
-          title="Todavia no hay exclusivos disponibles"
-          message="Esta seleccion se actualiza cuando ingresan piezas especiales. Mientras tanto, podes ver el catalogo completo o consultarnos por WhatsApp."
+          title="Todavía no hay exclusivos disponibles"
+          message="Esta selección se actualiza cuando ingresan piezas especiales. Mientras tanto, podés ver el catálogo completo o consultarnos por WhatsApp."
         >
           <Link className="button button--primary" href="/">
-            Ver catalogo completo
+            Ver catálogo completo
           </Link>
         </EmptyCatalog>
       );
@@ -68,7 +68,7 @@ export async function ProductGridContainer({
         <>
           <EmptyCatalog
             title="No encontramos productos"
-            message="Proba cambiar o limpiar los filtros."
+            message="Probá cambiar o limpiar los filtros."
           >
             <Link className="button button--primary" href="/">
               Limpiar filtros
@@ -81,7 +81,7 @@ export async function ProductGridContainer({
     return (
       <EmptyCatalog
         title="No hay prendas cargadas"
-        message="La conexion con Supabase esta lista. Cuando carguemos productos desde el admin, van a aparecer en este catalogo."
+        message="La conexión con Supabase está lista. Cuando carguemos productos desde el admin, van a aparecer en este catálogo."
       />
     );
   }

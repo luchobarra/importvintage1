@@ -363,7 +363,7 @@ export function InventoryFilters({ filters, options }: InventoryFiltersProps) {
                   label="Buscar"
                   name="q"
                   onChange={handleTextChange}
-                  placeholder="Titulo, ID o descripcion"
+                  placeholder="Título, ID o descripción"
                   value={pendingState.query}
                 />
 
@@ -381,19 +381,19 @@ export function InventoryFilters({ filters, options }: InventoryFiltersProps) {
                 />
 
                 <FilterRadioSection
-                  label="Catalogo"
+                  label="Catálogo"
                   name="published"
                   onChange={handleOptionChange}
                   options={[
                     { label: "Todos", value: "all" },
-                    { label: "Publicado en catalogo", value: "published" },
+                    { label: "Publicado en catálogo", value: "published" },
                     { label: "Sin publicar", value: "unpublished" },
                   ]}
                   value={pendingState.published}
                 />
 
                 <FilterRadioSection
-                  label="Categoria"
+                  label="Categoría"
                   name="category"
                   onChange={handleOptionChange}
                   options={[
@@ -732,7 +732,7 @@ function getActiveItems(
       key: "published",
       label:
         state.published === "published"
-          ? "Publicado en catalogo"
+          ? "Publicado en catálogo"
           : "Sin publicar",
     });
   }
@@ -869,8 +869,8 @@ function resetInventoryFilterValue(
 
 function getSortOptions(): Array<{ label: string; value: InventorySortOrder }> {
   return [
-    { label: "Mas recientes", value: "newest" },
-    { label: "Mas antiguos", value: "oldest" },
+    { label: "Más recientes", value: "newest" },
+    { label: "Más antiguos", value: "oldest" },
     { label: "Mayor costo", value: "cost_desc" },
     { label: "Menor costo", value: "cost_asc" },
     { label: "Mayor estimado", value: "estimated_desc" },

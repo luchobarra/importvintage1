@@ -72,7 +72,7 @@ export function CurrentProductImages({
   return (
     <section className="product-image-manager__section ui-card">
       <div className="product-image-manager__section-header ui-section-header">
-        <h3 className="text-h3">Imagenes actuales</h3>
+        <h3 className="text-h3">Imágenes actuales</h3>
         {isEditing ? (
           <div className="product-image-manager__section-actions">
             <button
@@ -94,7 +94,7 @@ export function CurrentProductImages({
           </div>
         ) : (
           <button className="button" onClick={onStartEdit} type="button">
-            Editar imagenes
+            Editar imágenes
           </button>
         )}
       </div>
@@ -127,7 +127,7 @@ export function CurrentProductImages({
         <div className="product-image-manager__grid">
           {images.map((image, index) => {
             const positionLabel =
-              index === 0 ? "Principal" : `Posicion ${index + 1}`;
+              index === 0 ? "Principal" : `Posición ${index + 1}`;
 
             return (
               <article className="product-image-manager__item" key={image.id}>

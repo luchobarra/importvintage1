@@ -78,7 +78,7 @@ function getActiveFilterLabels(
   }
 
   if (category) {
-    labels.push(`Categoria: ${category.name}`);
+    labels.push(`Categoría: ${category.name}`);
   }
 
   if (condition) {
@@ -86,7 +86,7 @@ function getActiveFilterLabels(
   }
 
   if (filters.published === "published") {
-    labels.push("Publicado en catalogo");
+    labels.push("Publicado en catálogo");
   }
 
   if (filters.published === "unpublished") {
@@ -112,7 +112,7 @@ function getActiveFilterLabels(
 
 function getSortLabel(sort: InventoryListFilters["sort"]) {
   if (sort === "oldest") {
-    return "Mas antiguos";
+    return "Más antiguos";
   }
 
   if (sort === "cost_desc") {
@@ -139,7 +139,7 @@ function getSortLabel(sort: InventoryListFilters["sort"]) {
     return "Menor venta real";
   }
 
-  return "Mas recientes";
+  return "Más recientes";
 }
 
 function normalizeCost(value: string) {

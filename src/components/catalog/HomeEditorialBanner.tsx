@@ -3,7 +3,7 @@ import Link from "next/link";
 const editorialBanner = {
   cta: "Ver prendas",
   description:
-    "Una seleccion de ropa vintage con identidad, calidad y presencia. Piezas elegidas para quienes buscan vestir algo propio.",
+    "Una selección de ropa vintage con identidad, calidad y presencia. Piezas elegidas para quienes buscan vestir algo único.",
   href: "/#productos",
   title: "Retro Campus",
 };

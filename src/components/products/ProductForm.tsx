@@ -40,9 +40,16 @@ type ProductFormProps = {
   };
   isDragging: boolean;
   isPending: boolean;
+  isMeasurementTemplateEnabled: boolean;
+  isPriceCalculatorEnabled: boolean;
+  isPriceCalculationPending: boolean;
   options: CatalogOptions;
+  priceValue: string;
+  purchasePriceValue: string;
   selectedCategoryId: string;
   state: ProductFormState;
+  suggestedPriceLabel: string;
+  totalImageCount: number;
   onCategoryChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   onDragChange: (isDragging: boolean) => void;
   onDrop: (event: DragEvent<HTMLDivElement>) => void;
@@ -58,7 +65,12 @@ type ProductFormProps = {
   ) => void;
   onFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onMeasurementChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onMeasurementTemplateEnabledChange: (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => void;
   onPriceChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onPriceCalculatorEnabledChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onPurchasePriceChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onRemoveImage: (imageId: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
@@ -74,9 +86,16 @@ export function ProductForm({
   initialValues,
   isDragging,
   isPending,
+  isMeasurementTemplateEnabled,
+  isPriceCalculatorEnabled,
+  isPriceCalculationPending,
   options,
+  priceValue,
+  purchasePriceValue,
   selectedCategoryId,
   state,
+  suggestedPriceLabel,
+  totalImageCount,
   onCategoryChange,
   onDragChange,
   onDrop,
@@ -84,7 +103,10 @@ export function ProductForm({
   onFieldChange,
   onFileChange,
   onMeasurementChange,
+  onMeasurementTemplateEnabledChange,
   onPriceChange,
+  onPriceCalculatorEnabledChange,
+  onPurchasePriceChange,
   onRemoveImage,
   onSubmit,
 }: ProductFormProps) {
@@ -101,7 +123,7 @@ export function ProductForm({
       ) : null}
       <div className="product-form__grid">
         <label className={getFieldClassName(fieldErrors.title)} htmlFor="title">
-          <FieldLabel errors={fieldErrors} fieldName="title" label="Titulo *" />
+          <FieldLabel errors={fieldErrors} fieldName="title" label="Título *" />
           <input
             aria-describedby={getErrorId("title", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.title)}
@@ -144,7 +166,7 @@ export function ProductForm({
           <FieldLabel
             errors={fieldErrors}
             fieldName="category"
-            label="Categoria *"
+            label="Categoría *"
           />
           <select
             aria-describedby={getErrorId("category", fieldErrors)}
@@ -182,7 +204,7 @@ export function ProductForm({
             <option value="">
               {selectedCategoryId
                 ? "Seleccionar"
-                : "Selecciona una categoria primero"}
+                : "Selecciona una categoría primero"}
             </option>
             {availableSizes.map((size) => (
               <option key={size.id} value={size.id}>
@@ -278,9 +300,6 @@ export function ProductForm({
           <input
             aria-describedby={getErrorId("price", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.price)}
-            defaultValue={
-              initialValues?.price ? String(Math.round(initialValues.price)) : ""
-            }
             id="price"
             inputMode="numeric"
             name="price"
@@ -289,17 +308,75 @@ export function ProductForm({
             placeholder="$0"
             required
             type="text"
+            value={priceValue}
           />
         </label>
       </div>
 
-      <label className="product-form__toggle">
-        <input name="is_exclusive" type="checkbox" />
-        <span>
-          <strong>Producto exclusivo</strong>
-          <small>Marcalo para destacarlo como seleccion premium.</small>
-        </span>
-      </label>
+      <div className="product-form__options-row">
+        <div className="product-form__option">
+          <label className="product-form__option-toggle">
+            <input
+              checked={isPriceCalculatorEnabled}
+              onChange={onPriceCalculatorEnabledChange}
+              type="checkbox"
+            />
+            <span>
+              <strong>Calcular desde precio de compra</strong>
+              <small>
+                Usa los parámetros actuales de la calculadora para sugerir el
+                precio de venta.
+              </small>
+            </span>
+          </label>
+
+          {isPriceCalculatorEnabled ? (
+            <label
+              className="form-field product-form__purchase-field"
+              htmlFor="purchase_price_helper"
+            >
+              <span className="form-field__label-row">
+                <span>Precio de compra</span>
+                {isPriceCalculationPending ? <small>Calculando...</small> : null}
+              </span>
+              <input
+                id="purchase_price_helper"
+                inputMode="numeric"
+                onChange={onPurchasePriceChange}
+                placeholder="$0"
+                type="text"
+                value={purchasePriceValue}
+              />
+              <p className="form-field__hint" aria-live="polite">
+                {suggestedPriceLabel ||
+                  "El precio sugerido se aplicará arriba y después podés editarlo."}
+              </p>
+            </label>
+          ) : null}
+        </div>
+
+        <label className="product-form__option product-form__option-toggle">
+          <input name="is_exclusive" type="checkbox" />
+          <span>
+            <strong>Producto exclusivo</strong>
+            <small>Marcalo para destacarlo como selección premium.</small>
+          </span>
+        </label>
+
+        <label className="product-form__option product-form__option-toggle">
+          <input
+            checked={isMeasurementTemplateEnabled}
+            onChange={onMeasurementTemplateEnabledChange}
+            type="checkbox"
+          />
+          <span>
+            <strong>Agregar plantilla de medidas</strong>
+            <small>
+              Se genera con alto y ancho, y se sube como última imagen.
+            </small>
+          </span>
+        </label>
+      </div>
 
       <label
         className={getFieldClassName(fieldErrors.description)}
@@ -308,7 +385,7 @@ export function ProductForm({
         <FieldLabel
           errors={fieldErrors}
           fieldName="description"
-          label="Descripcion / estado *"
+          label="Descripción / estado *"
         />
         <textarea
           aria-describedby={getDescriptionAriaDescribedBy(fieldErrors)}
@@ -333,7 +410,8 @@ export function ProductForm({
         feedbackMessage={imageFeedbackMessage}
         feedbackVariant={imageFeedbackVariant}
         images={images}
-        isAddDisabled={images.length >= MAX_PRODUCT_IMAGES}
+        countLabel={`${totalImageCount}/${MAX_PRODUCT_IMAGES}`}
+        isAddDisabled={totalImageCount >= MAX_PRODUCT_IMAGES}
         isDragging={isDragging}
         onDragChange={onDragChange}
         onDrop={onDrop}

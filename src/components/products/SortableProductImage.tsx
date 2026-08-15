@@ -31,7 +31,7 @@ export function SortableProductImage({
     id: image.id,
     disabled: isSavingOrder || isDeleting,
   });
-  const positionLabel = index === 0 ? "Principal" : `Posicion ${index + 1}`;
+  const positionLabel = index === 0 ? "Principal" : `Posición ${index + 1}`;
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,

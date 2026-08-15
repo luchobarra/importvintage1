@@ -45,7 +45,7 @@ export function ProductListItem({ product }: ProductListItemProps) {
 
         <dl className="admin-product-item__meta">
           <div>
-            <dt>Categoria</dt>
+            <dt>Categoría</dt>
             <dd>{getProductCategoryName(product)}</dd>
           </div>
           <div>

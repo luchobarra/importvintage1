@@ -57,7 +57,7 @@ export function ProductListItemActionsContainer({
 
       setResult({
         description:
-          "El producto y sus imagenes se eliminaron correctamente del catalogo.",
+          "El producto y sus imágenes se eliminaron correctamente del catálogo.",
         shouldRefresh: true,
         title: "Producto eliminado",
         variant: "success",
@@ -84,7 +84,7 @@ export function ProductListItemActionsContainer({
       />
       <ConfirmDialog
         confirmLabel="Eliminar producto"
-        description="Se eliminara este producto y tambien sus imagenes. Esta accion no se puede deshacer."
+        description="Se eliminará este producto y también sus imágenes. Esta acción no se puede deshacer."
         isOpen={isConfirmOpen}
         isPending={isPending}
         onCancel={() => setIsConfirmOpen(false)}

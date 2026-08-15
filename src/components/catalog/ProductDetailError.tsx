@@ -9,11 +9,11 @@ export function ProductDetailError() {
         </p>
         <h1 className="text-h1">Algo salio mal</h1>
         <p className="text-body">
-          No pudimos cargar este producto. Intenta de nuevo mas tarde o volve al
-          catalogo.
+          No pudimos cargar este producto. Intentá de nuevo más tarde o volvé al
+          catálogo.
         </p>
         <Link className="button button--ghost product-detail__back-link" href="/">
-          Volver al catalogo
+          Volver al catálogo
         </Link>
       </div>
     </div>

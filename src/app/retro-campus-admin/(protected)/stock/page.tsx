@@ -69,7 +69,7 @@ export default async function StockPage({ searchParams }: StockPageProps) {
             </Link>
           </div>
         }
-        description="Control de prendas compradas, disponibles, vendidas y publicadas en catalogo."
+        description="Control de prendas compradas, disponibles, vendidas y publicadas en catálogo."
         eyebrow="Inventario"
         className="admin-header--inventory"
         title="Stock"

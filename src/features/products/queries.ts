@@ -280,7 +280,7 @@ export async function getAdminProducts() {
   } = await supabase.auth.getUser();
 
   if (!isAdminUser(user)) {
-    throw new Error("No tenes permisos para ver productos.");
+    throw new Error("No tenés permisos para ver productos.");
   }
 
   const { data, error } = await supabase
@@ -306,7 +306,7 @@ export async function getAdminProductById(productId: string) {
   } = await supabase.auth.getUser();
 
   if (!isAdminUser(user)) {
-    throw new Error("No tenes permisos para ver este producto.");
+    throw new Error("No tenés permisos para ver este producto.");
   }
 
   const { data, error } = await supabase

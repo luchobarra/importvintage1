@@ -90,7 +90,7 @@ export function ProductCarousel({
           })}
         </div>
         <button
-          aria-label="Ver mas productos"
+          aria-label="Ver más productos"
           className="product-carousel__button product-carousel__button--next"
           disabled={products.length <= 1}
           onClick={() => selectRelativeProduct("forward")}

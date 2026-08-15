@@ -12,7 +12,11 @@ import type { CatalogOptions } from "@/features/catalog-options/types";
 import { optimizeImage } from "@/features/images/optimize-image";
 import type { SelectedImage, UploadProgress } from "@/features/images/types";
 import { withTimeout } from "@/features/images/with-timeout";
+import { normalizeMoneyInput } from "@/features/inventory/validation";
 import { sanitizeMeasurementInput } from "@/features/measurements/formatters";
+import { calculateProductPrice } from "@/features/price-calculator/calculations";
+import { formatCurrency } from "@/features/price-calculator/formatters";
+import type { PriceCalculatorSettings } from "@/features/price-calculator/types";
 import {
   createProductDraft,
   deleteProductDraft,
@@ -28,6 +32,8 @@ import {
   type ProductFieldErrors,
   type ProductFieldName,
 } from "@/features/products/form-validation";
+import { createProductMeasurementTemplateFile } from "@/features/products/measurement-template";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, DragEvent, FocusEvent, FormEvent } from "react";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -41,6 +47,7 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE_MB = 15;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const IMAGE_STEP_TIMEOUT_MS = 45000;
+const PRICE_CALCULATION_DELAY_MS = 1200;
 
 type ResultState = {
   description: string;
@@ -61,14 +68,17 @@ type ProductFormContainerProps = {
     widthCm?: number | null;
   };
   options: CatalogOptions;
+  priceCalculatorSettings: PriceCalculatorSettings;
 };
 
 export function ProductFormContainer({
   initialValues,
   options,
+  priceCalculatorSettings,
 }: ProductFormContainerProps) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
+  const unsavedChangesGuard = useUnsavedChangesGuard();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imagesRef = useRef<SelectedImage[]>([]);
@@ -87,6 +97,18 @@ export function ProductFormContainer({
   const [selectedCategoryId, setSelectedCategoryId] = useState(
     initialValues?.categoryId ?? "",
   );
+  const [priceValue, setPriceValue] = useState(
+    getInitialPriceInputValue(initialValues?.price),
+  );
+  const [isPriceCalculatorEnabled, setIsPriceCalculatorEnabled] =
+    useState(false);
+  const [purchasePriceValue, setPurchasePriceValue] = useState("");
+  const [suggestedPriceLabel, setSuggestedPriceLabel] = useState("");
+  const [isPriceCalculationPending, setIsPriceCalculationPending] =
+    useState(false);
+  const [isMeasurementTemplateEnabled, setIsMeasurementTemplateEnabled] =
+    useState(false);
+  const totalImageCount = images.length + (isMeasurementTemplateEnabled ? 1 : 0);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,7 +124,11 @@ export function ProductFormContainer({
 
     const validation = validateProductFormFields(new FormData(form));
     const imageValidationMessage =
-      images.length < 1 ? "Carga al menos 1 imagen." : "";
+      images.length < 1
+        ? "Carga al menos 1 imagen."
+        : totalImageCount > MAX_PRODUCT_IMAGES
+          ? "La plantilla de medidas ocupa el último lugar. Quitá una imagen o desactivala."
+          : "";
 
     setFieldErrors(validation.errors);
     setImageErrorMessage(imageValidationMessage);
@@ -142,21 +168,32 @@ export function ProductFormContainer({
       const uploadedPaths: string[] = [];
 
       try {
+        const sourceFiles = images.map((image) => image.file);
+
+        if (isMeasurementTemplateEnabled) {
+          sourceFiles.push(
+            await createProductMeasurementTemplateFile({
+              heightCm: String(formData.get("height_cm") ?? "").trim(),
+              widthCm: String(formData.get("width_cm") ?? "").trim(),
+            }),
+          );
+        }
+
         const optimizedImages: File[] = [];
 
-        for (const [index, image] of images.entries()) {
+        for (const [index, file] of sourceFiles.entries()) {
           setProgress({
-            label: "Optimizando imagenes",
-            detail: `${image.file.name} (${index + 1}/${images.length})`,
+            label: "Optimizando imágenes",
+            detail: `${file.name} (${index + 1}/${sourceFiles.length})`,
             current: index,
-            total: images.length,
+            total: sourceFiles.length,
           });
 
           optimizedImages.push(
             await withTimeout(
-              optimizeImage(image.file, index + 1),
+              optimizeImage(file, index + 1),
               IMAGE_STEP_TIMEOUT_MS,
-              `La optimizacion de la imagen ${index + 1} tardo demasiado.`,
+              `La optimización de la imagen ${index + 1} tardo demasiado.`,
             ),
           );
         }
@@ -165,7 +202,7 @@ export function ProductFormContainer({
           label: "Guardando producto",
           detail: "Creando el registro en la base de datos.",
           current: 0,
-          total: images.length,
+          total: sourceFiles.length,
         });
 
         const draftResult = await createProductDraft(formData);
@@ -190,7 +227,7 @@ export function ProductFormContainer({
           const imagePath = `products/${productId}/image-${position}.webp`;
 
           setProgress({
-            label: "Subiendo imagenes",
+            label: "Subiendo imágenes",
             detail: `Imagen ${position}/${optimizedImages.length}`,
             current: index,
             total: optimizedImages.length,
@@ -226,9 +263,9 @@ export function ProductFormContainer({
 
         setProgress({
           label: "Finalizando carga",
-          detail: "Guardando el orden de las imagenes.",
-          current: images.length,
-          total: images.length,
+          detail: "Guardando el orden de las imágenes.",
+          current: sourceFiles.length,
+          total: sourceFiles.length,
         });
 
         const imageResult = await saveProductImages(productId, uploadedImages);
@@ -239,15 +276,22 @@ export function ProductFormContainer({
 
         setProgress({
           label: "Producto cargado",
-          detail: "La carga finalizo correctamente.",
-          current: images.length,
-          total: images.length,
+          detail: "La carga finalizó correctamente.",
+          current: sourceFiles.length,
+          total: sourceFiles.length,
         });
 
         images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
         setImages([]);
         form.reset();
+        unsavedChangesGuard.clearDirty();
         setSelectedCategoryId("");
+        setPriceValue("");
+        setPurchasePriceValue("");
+        setSuggestedPriceLabel("");
+        setIsPriceCalculationPending(false);
+        setIsPriceCalculatorEnabled(false);
+        setIsMeasurementTemplateEnabled(false);
         setDescriptionLength(0);
         setFieldErrors({});
         setProgress(null);
@@ -257,7 +301,7 @@ export function ProductFormContainer({
         });
         setResult({
           description:
-            "El producto se creo correctamente y las imagenes quedaron guardadas.",
+            "El producto se creó correctamente y las imágenes quedaron guardadas.",
           title: "Producto cargado",
           variant: "success",
         });
@@ -296,8 +340,59 @@ export function ProductFormContainer({
   }
 
   function handlePriceChange(event: ChangeEvent<HTMLInputElement>) {
-    event.target.value = formatProductPriceInput(event.target.value);
+    const nextPriceValue = formatProductPriceInput(event.target.value);
+    event.target.value = nextPriceValue;
+    setPriceValue(nextPriceValue);
     handleFieldChange(event);
+  }
+
+  function handlePurchasePriceChange(event: ChangeEvent<HTMLInputElement>) {
+    const nextPurchasePriceValue = formatProductPriceInput(event.target.value);
+
+    setPurchasePriceValue(nextPurchasePriceValue);
+    setSuggestedPriceLabel("");
+    unsavedChangesGuard.markDirty();
+
+    const purchasePrice = Number(normalizeMoneyInput(nextPurchasePriceValue));
+
+    if (!Number.isFinite(purchasePrice) || purchasePrice <= 0) {
+      setIsPriceCalculationPending(false);
+      return;
+    }
+
+    setIsPriceCalculationPending(true);
+  }
+
+  function handlePriceCalculatorEnabledChange(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
+    const isEnabled = event.currentTarget.checked;
+
+    setIsPriceCalculatorEnabled(isEnabled);
+    unsavedChangesGuard.markDirty();
+
+    if (!isEnabled) {
+      setPurchasePriceValue("");
+      setSuggestedPriceLabel("");
+      setIsPriceCalculationPending(false);
+    }
+  }
+
+  function handleMeasurementTemplateEnabledChange(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
+    const isEnabled = event.currentTarget.checked;
+
+    if (isEnabled && images.length >= MAX_PRODUCT_IMAGES) {
+      setImageErrorMessage(
+        "Quitá una imagen para sumar la plantilla de medidas como última foto.",
+      );
+      return;
+    }
+
+    setIsMeasurementTemplateEnabled(isEnabled);
+    setImageErrorMessage("");
+    unsavedChangesGuard.markDirty();
   }
 
   function handleMeasurementChange(event: ChangeEvent<HTMLInputElement>) {
@@ -315,6 +410,8 @@ export function ProductFormContainer({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) {
+    unsavedChangesGuard.markDirty();
+
     if (event.currentTarget.name === "description") {
       setDescriptionLength(event.currentTarget.value.length);
     }
@@ -398,12 +495,12 @@ export function ProductFormContainer({
     );
 
     if (acceptedFiles.length !== files.length) {
-      const message = "Solo se aceptan imagenes JPG, PNG o WebP.";
+      const message = "Solo se aceptan imágenes JPG, PNG o WebP.";
       setImageErrorMessage(message);
     }
 
     if (oversizedFiles.length > 0) {
-      const message = `Cada imagen debe pesar como maximo ${MAX_FILE_SIZE_MB} MB antes de optimizar.`;
+      const message = `Cada imagen debe pesar como máximo ${MAX_FILE_SIZE_MB} MB antes de optimizar.`;
       setImageErrorMessage(message);
     }
 
@@ -411,11 +508,17 @@ export function ProductFormContainer({
       return;
     }
 
+    unsavedChangesGuard.markDirty();
+
     setImages((currentImages) => {
-      const availableSlots = MAX_PRODUCT_IMAGES - currentImages.length;
+      const reservedSlots = isMeasurementTemplateEnabled ? 1 : 0;
+      const availableSlots =
+        MAX_PRODUCT_IMAGES - reservedSlots - currentImages.length;
 
       if (availableSlots <= 0) {
-        const message = "Ya cargaste el maximo permitido de 5 imagenes.";
+        const message = isMeasurementTemplateEnabled
+          ? "La plantilla de medidas ocupa el último lugar. Podés subir hasta 4 fotos."
+          : "Ya cargaste el máximo permitido de 5 imágenes.";
         setImageErrorMessage(message);
         return currentImages;
       }
@@ -423,7 +526,7 @@ export function ProductFormContainer({
       const selectedFiles = imageFiles.slice(0, availableSlots);
 
       if (imageFiles.length > availableSlots) {
-        const message = "Se agregaron solo las imagenes que entran en el maximo de 5.";
+        const message = "Se agregaron solo las imágenes que entran en el máximo de 5.";
         setImageErrorMessage(message);
       }
 
@@ -440,6 +543,7 @@ export function ProductFormContainer({
   function removeImage(imageId: string) {
     setResult(null);
     setImageErrorMessage("");
+    unsavedChangesGuard.markDirty();
 
     setImages((currentImages) => {
       const imageToRemove = currentImages.find((image) => image.id === imageId);
@@ -462,6 +566,37 @@ export function ProductFormContainer({
   }, [images]);
 
   useEffect(() => {
+    if (!isPriceCalculatorEnabled) {
+      return;
+    }
+
+    const purchasePrice = Number(normalizeMoneyInput(purchasePriceValue));
+
+    if (!Number.isFinite(purchasePrice) || purchasePrice <= 0) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      const calculation = calculateProductPrice({
+        acquisitionCost: purchasePrice,
+        settings: priceCalculatorSettings,
+      });
+      const nextPriceValue = formatProductPriceInput(
+        String(calculation.finalRoundedPrice),
+      );
+
+      setPriceValue(nextPriceValue);
+      setSuggestedPriceLabel(
+        `Precio sugerido aplicado: ${formatCurrency(calculation.finalRoundedPrice)}.`,
+      );
+      setIsPriceCalculationPending(false);
+      clearFieldErrorWhenFilled("price", nextPriceValue);
+    }, PRICE_CALCULATION_DELAY_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isPriceCalculatorEnabled, priceCalculatorSettings, purchasePriceValue]);
+
+  useEffect(() => {
     return () => {
       imagesRef.current.forEach((image) => {
         URL.revokeObjectURL(image.previewUrl);
@@ -471,6 +606,7 @@ export function ProductFormContainer({
 
   return (
     <>
+      {unsavedChangesGuard.dialog}
       <ProductForm
         descriptionLength={descriptionLength}
         fieldErrors={fieldErrors}
@@ -479,12 +615,16 @@ export function ProductFormContainer({
         imageFeedbackMessage={getProductImageFeedbackMessage({
           imageErrorMessage,
           imageCount: images.length,
+          isMeasurementTemplateEnabled,
         })}
         imageFeedbackVariant={imageErrorMessage ? "error" : "info"}
         images={images}
         initialValues={initialValues}
         isDragging={isDragging}
+        isMeasurementTemplateEnabled={isMeasurementTemplateEnabled}
         isPending={isPending}
+        isPriceCalculatorEnabled={isPriceCalculatorEnabled}
+        isPriceCalculationPending={isPriceCalculationPending}
         onCategoryChange={handleCategoryChange}
         onDragChange={setIsDragging}
         onDrop={handleDrop}
@@ -492,16 +632,25 @@ export function ProductFormContainer({
         onFieldChange={handleFieldChange}
         onFileChange={handleFileChange}
         onMeasurementChange={handleMeasurementChange}
+        onMeasurementTemplateEnabledChange={
+          handleMeasurementTemplateEnabledChange
+        }
         onPriceChange={handlePriceChange}
+        onPriceCalculatorEnabledChange={handlePriceCalculatorEnabledChange}
+        onPurchasePriceChange={handlePurchasePriceChange}
         onRemoveImage={removeImage}
         onSubmit={handleSubmit}
         options={options}
+        priceValue={priceValue}
+        purchasePriceValue={purchasePriceValue}
         selectedCategoryId={selectedCategoryId}
         state={state}
+        suggestedPriceLabel={suggestedPriceLabel}
+        totalImageCount={totalImageCount}
       />
       <ConfirmDialog
         confirmLabel="Cargar producto"
-        description="Se creara el producto y se subiran sus imagenes al catalogo."
+        description="Se creará el producto y se subirán sus imágenes al catálogo."
         isOpen={isConfirmOpen}
         isPending={isPending}
         onCancel={() => setIsConfirmOpen(false)}
@@ -522,6 +671,12 @@ export function ProductFormContainer({
       />
     </>
   );
+}
+
+function getInitialPriceInputValue(value: number | null | undefined) {
+  return typeof value === "number"
+    ? formatProductPriceInput(String(Math.round(value)))
+    : "";
 }
 
 function getProductFormLoadingMessage(progress: UploadProgress | null) {
@@ -557,16 +712,22 @@ function focusProductField(form: HTMLFormElement, fieldName: ProductFieldName) {
 function getProductImageFeedbackMessage({
   imageCount,
   imageErrorMessage,
+  isMeasurementTemplateEnabled,
 }: {
   imageCount: number;
   imageErrorMessage: string;
+  isMeasurementTemplateEnabled: boolean;
 }) {
   if (imageErrorMessage) {
     return imageErrorMessage;
   }
 
+  if (isMeasurementTemplateEnabled) {
+    return "La plantilla de medidas se agregará automáticamente como última imagen.";
+  }
+
   if (imageCount >= MAX_PRODUCT_IMAGES) {
-    return "Ya cargaste las 5 imagenes permitidas para este producto.";
+    return "Ya cargaste las 5 imágenes permitidas para este producto.";
   }
 
   return "";

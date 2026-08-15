@@ -22,7 +22,7 @@ export default async function AdminPage() {
     <AdminShell>
       <AdminHeader
         eyebrow="Admin"
-        title="Panel del catalogo"
+        title="Panel del catálogo"
         description={`Sesion activa: ${user?.email ?? "administrador"}`}
         actions={
           <div className="admin-header__actions">
@@ -64,7 +64,7 @@ export default async function AdminPage() {
             <Plus size={20} />
           </span>
           <span className="admin-action__title text-h3">Nuevo producto</span>
-          <strong className="text-body">Cargar una prenda al catalogo</strong>
+          <strong className="text-body">Cargar una prenda al catálogo</strong>
         </Link>
         <Link className="admin-action ui-card ui-card--interactive" href="/retro-campus-admin/calculadora-precios">
           <span className="admin-action__icon" aria-hidden="true">
@@ -79,7 +79,7 @@ export default async function AdminPage() {
           <span className="admin-action__icon" aria-hidden="true">
             <SlidersHorizontal size={20} />
           </span>
-          <span className="admin-action__title text-h3">Configuracion</span>
+          <span className="admin-action__title text-h3">Configuración</span>
           <strong className="text-body">
             Administrar categorias, marcas y talles
           </strong>

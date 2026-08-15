@@ -25,7 +25,7 @@ export async function updatePriceCalculatorSettings(
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para actualizar la calculadora.",
+      message: "No tenés permisos para actualizar la calculadora.",
       success: false,
     };
   }
@@ -45,7 +45,7 @@ export async function updatePriceCalculatorSettings(
 
   if (Object.values(settings).some((value) => !Number.isFinite(value))) {
     return {
-      message: "Todos los valores de configuracion deben ser numeros validos.",
+      message: "Todos los valores de configuración deben ser números válidos.",
       success: false,
     };
   }

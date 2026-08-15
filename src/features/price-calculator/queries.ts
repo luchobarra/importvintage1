@@ -19,7 +19,7 @@ export async function getAdminPriceCalculatorSettings(): Promise<PriceCalculator
   } = await supabase.auth.getUser();
 
   if (!isAdminUser(user)) {
-    throw new Error("No tenes permisos para usar la calculadora.");
+    throw new Error("No tenés permisos para usar la calculadora.");
   }
 
   const { data, error } = await supabase
@@ -35,7 +35,7 @@ export async function getAdminPriceCalculatorSettings(): Promise<PriceCalculator
       return DEFAULT_PRICE_CALCULATOR_SETTINGS;
     }
 
-    throw new Error(`No se pudo cargar la configuracion: ${error.message}`);
+    throw new Error(`No se pudo cargar la configuración: ${error.message}`);
   }
 
   if (!data) {

@@ -70,11 +70,11 @@ export function validatePriceCalculatorSettings(
   settings: PriceCalculatorSettings,
 ) {
   if (settings.packagingCost < 0 || settings.shippingCost < 0) {
-    return "Packaging y envio no pueden ser negativos.";
+    return "Packaging y envío no pueden ser negativos.";
   }
 
   if (settings.markupRate < 0) {
-    return "El margen de marcacion no puede ser negativo.";
+    return "El margen de marcación no puede ser negativo.";
   }
 
   if (settings.commissionRate < 0 || settings.commissionRate >= 1) {
@@ -89,7 +89,7 @@ export function validatePriceCalculatorSettings(
     !Number.isInteger(settings.finalRoundingIncrement) ||
     settings.finalRoundingIncrement < 1
   ) {
-    return "El redondeo final debe ser un numero entero mayor a cero.";
+    return "El redondeo final debe ser un número entero mayor a cero.";
   }
 
   return "";

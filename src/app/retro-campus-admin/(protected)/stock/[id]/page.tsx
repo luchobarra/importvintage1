@@ -73,7 +73,7 @@ export default async function EditInventoryItemPage({
             Volver
           </Link>
         }
-        description="Edita la informacion del producto. Las fotos se conservan para mantener trazabilidad."
+        description="Edita la información del producto. Las fotos se conservan para mantener trazabilidad."
         eyebrow="Stock"
         className="admin-header--inventory"
         title="Editar ingreso"
@@ -86,7 +86,7 @@ export default async function EditInventoryItemPage({
           <div className="inventory-edit-heading">
             <h2>Editar datos</h2>
             <p>
-              Actualiza la informacion interna del ingreso sin perder su
+              Actualiza la información interna del ingreso sin perder su
               historial.
             </p>
           </div>

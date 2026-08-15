@@ -17,7 +17,7 @@ export async function login(
 
   if (!email || !password) {
     return {
-      message: "Completa email y contrasena.",
+      message: "Completa email y contraseña.",
     };
   }
 
@@ -43,7 +43,7 @@ export async function login(
     await supabase.auth.signOut();
 
     return {
-      message: "Este usuario no esta autorizado para acceder al panel.",
+      message: "Este usuario no está autorizado para acceder al panel.",
     };
   }
 

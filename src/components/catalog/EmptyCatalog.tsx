@@ -20,7 +20,7 @@ export function EmptyCatalog({
       }`}
     >
       <div className="home__empty-content ui-empty-state__content">
-        <p className="home__empty-kicker">Catalogo</p>
+        <p className="home__empty-kicker">Catálogo</p>
         <h2 className="text-h2">{title}</h2>
         <div className="home__empty-ornament" aria-hidden="true">
           <span />

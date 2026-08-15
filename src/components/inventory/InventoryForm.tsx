@@ -112,7 +112,7 @@ export function InventoryForm({
 
       <div className="inventory-form__row inventory-form__row--two inventory-form__row--align-end">
         <label className={getFieldClassName(fieldErrors.title)} htmlFor="title">
-          <FieldLabel error={fieldErrors.title} label="Titulo *" />
+          <FieldLabel error={fieldErrors.title} label="Título *" />
           <input
             defaultValue={values.title ?? ""}
             id="title"
@@ -146,7 +146,7 @@ export function InventoryForm({
           className={getFieldClassName(fieldErrors.category_id)}
           htmlFor="category_id"
         >
-          <FieldLabel error={fieldErrors.category_id} label="Categoria *" />
+          <FieldLabel error={fieldErrors.category_id} label="Categoría *" />
           <select
             defaultValue={values.category_id ?? ""}
             disabled={categories.length === 0}
@@ -315,7 +315,7 @@ export function InventoryForm({
       >
         <FieldLabel
           error={fieldErrors.internal_description}
-          label="Descripcion *"
+          label="Descripción *"
         />
         <textarea
           defaultValue={values.internal_description ?? ""}
@@ -348,7 +348,7 @@ export function InventoryForm({
           actionLabel="Buscar fotos"
           ariaLabel="Fotos del producto"
           countLabel={`${images.length}/${MAX_INVENTORY_IMAGES}`}
-          description={`Minimo 1, maximo ${MAX_INVENTORY_IMAGES}. Se optimizan antes de subir.`}
+          description={`Mínimo 1, máximo ${MAX_INVENTORY_IMAGES}. Se optimizan antes de subir.`}
           disabled={isPending}
           dropzoneText="Arrastra 1 o 2 fotos simples para identificar el producto."
           feedbackMessage={imageFeedbackMessage}

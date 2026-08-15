@@ -32,19 +32,19 @@ export function NewProductImagesUploader({
   return (
     <section className="product-image-manager__section ui-card">
       <div className="product-image-manager__section-header ui-section-header">
-        <h3 className="text-h3">Agregar imagenes</h3>
+        <h3 className="text-h3">Agregar imágenes</h3>
       </div>
 
       <ImageUploader
-        actionLabel="Buscar imagenes"
-        ariaLabel="Agregar imagenes al producto"
+        actionLabel="Buscar imágenes"
+        ariaLabel="Agregar imágenes al producto"
         countLabel={`${currentImageCount + selectedImages.length}/5`}
         description="Arrastra o selecciona nuevas fotos. Se agregan al final y se optimizan antes de subir."
         disabled={isBusy}
-        dropzoneText="Arrastra nuevas imagenes aca o buscalas en tu computadora."
+        dropzoneText="Arrastra nuevas imágenes acá o buscalas en tu computadora."
         feedbackMessage={
           hasReachedImageLimit
-            ? "Este producto ya tiene las 5 imagenes permitidas."
+            ? "Este producto ya tiene las 5 imágenes permitidas."
             : ""
         }
         feedbackVariant="info"
@@ -66,7 +66,7 @@ export function NewProductImagesUploader({
           onClick={onUploadImages}
           type="button"
         >
-          Subir imagenes
+          Subir imágenes
         </button>
       </div>
     </section>

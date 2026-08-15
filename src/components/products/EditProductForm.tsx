@@ -65,7 +65,7 @@ export function EditProductForm({
     <form className="product-form" noValidate onSubmit={onSubmit} ref={formRef}>
       <div className="product-form__grid">
         <label className={getFieldClassName(fieldErrors.title)} htmlFor="title">
-          <FieldLabel errors={fieldErrors} fieldName="title" label="Titulo *" />
+          <FieldLabel errors={fieldErrors} fieldName="title" label="Título *" />
           <input
             aria-describedby={getErrorId("title", fieldErrors)}
             aria-invalid={Boolean(fieldErrors.title)}
@@ -108,7 +108,7 @@ export function EditProductForm({
           <FieldLabel
             errors={fieldErrors}
             fieldName="category"
-            label="Categoria *"
+            label="Categoría *"
           />
           <select
             aria-describedby={getErrorId("category", fieldErrors)}
@@ -147,7 +147,7 @@ export function EditProductForm({
             <option value="">
               {selectedCategoryId
                 ? "Seleccionar"
-                : "Selecciona una categoria primero"}
+                : "Selecciona una categoría primero"}
             </option>
             {availableSizes.map((size) => (
               <option key={size.id} value={size.id}>
@@ -264,7 +264,7 @@ export function EditProductForm({
         />
         <span>
           <strong>Producto exclusivo</strong>
-          <small>Marcalo para destacarlo como seleccion premium.</small>
+          <small>Marcalo para destacarlo como selección premium.</small>
         </span>
       </label>
 
@@ -275,7 +275,7 @@ export function EditProductForm({
         <FieldLabel
           errors={fieldErrors}
           fieldName="description"
-          label="Descripcion / estado *"
+          label="Descripción / estado *"
         />
         <textarea
           aria-describedby={getDescriptionAriaDescribedBy(fieldErrors)}

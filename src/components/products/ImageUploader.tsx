@@ -22,12 +22,12 @@ type ImageUploaderProps = {
 };
 
 export function ImageUploader({
-  actionLabel = "Buscar imagenes",
-  ariaLabel = "Imagenes del producto",
+  actionLabel = "Buscar imágenes",
+  ariaLabel = "Imágenes del producto",
   countLabel,
-  description = "Minimo 1, maximo 5. La primera foto sera la principal.",
+  description = "Mínimo 1, máximo 5. La primera foto será la principal.",
   disabled,
-  dropzoneText = "Arrastra imagenes aca o buscalas en tu computadora.",
+  dropzoneText = "Arrastra imágenes acá o buscalas en tu computadora.",
   feedbackMessage,
   feedbackVariant = "info",
   fileInputRef,

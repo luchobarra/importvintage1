@@ -51,7 +51,7 @@ export async function createCatalogOption(
 
   if (kind === "category" && !categorySizeFlags?.hasAnyEnabled) {
     return {
-      message: "Selecciona Letras, Numericos o ambos.",
+      message: "Selecciona Letras, Numéricos o ambos.",
       success: false,
     };
   }
@@ -115,7 +115,7 @@ export async function updateCatalogOption(
   const nameError = validateCatalogOptionName(kind, rawName);
 
   if (!optionId) {
-    return { message: "Falta el ID de la opcion.", success: false };
+    return { message: "Falta el ID de la opción.", success: false };
   }
 
   if (nameError) {
@@ -189,7 +189,7 @@ export async function moveCatalogSizePosition(formData: FormData) {
   }
 
   if (!currentSize) {
-    return { message: "No se encontro el talle.", success: false };
+    return { message: "No se encontró el talle.", success: false };
   }
 
   const { data: sizesInGroup, error: groupError } = await supabase
@@ -343,7 +343,7 @@ export async function updateCatalogOptionPositions(
 
   if (hasMismatch) {
     return {
-      message: "El orden enviado no coincide con las opciones del catalogo.",
+      message: "El orden enviado no coincide con las opciones del catálogo.",
       success: false,
     };
   }
@@ -381,7 +381,7 @@ export async function setCatalogOptionStatus(
   const isActive = String(formData.get("isActive") ?? "") === "true";
 
   if (!optionId) {
-    return { message: "Falta el ID de la opcion.", success: false };
+    return { message: "Falta el ID de la opción.", success: false };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -415,7 +415,7 @@ export async function deleteCatalogOption(
   const optionId = String(formData.get("id") ?? "");
 
   if (!optionId) {
-    return { message: "Falta el ID de la opcion.", success: false };
+    return { message: "Falta el ID de la opción.", success: false };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -434,7 +434,7 @@ export async function deleteCatalogOption(
   revalidateCatalogOptionPaths();
 
   return {
-    message: "Opcion eliminada correctamente.",
+    message: "Opción eliminada correctamente.",
     success: true,
   };
 }
@@ -447,7 +447,7 @@ async function validateAdminAccess(): Promise<CatalogOptionActionState | null> {
 
   if (!isAdminUser(user)) {
     return {
-      message: "No tenes permisos para administrar el catalogo.",
+      message: "No tenés permisos para administrar el catálogo.",
       success: false,
     };
   }
@@ -507,7 +507,7 @@ async function updateCatalogCategory(
 ) {
   if (!sizeFlags.hasAnyEnabled) {
     return {
-      error: { message: "Selecciona Letras, Numericos o ambos." },
+      error: { message: "Selecciona Letras, Numéricos o ambos." },
     };
   }
 
@@ -641,10 +641,10 @@ function getCatalogOptionErrorMessage(
   errorMessage: string,
 ) {
   if (errorMessage.toLowerCase().includes("duplicate")) {
-    return `Ya existe esa ${kind === "size" ? "opcion" : "opcion"}.`;
+    return `Ya existe esa ${kind === "size" ? "opción" : "opción"}.`;
   }
 
-  return `No se pudo guardar la opcion: ${errorMessage}`;
+  return `No se pudo guardar la opción: ${errorMessage}`;
 }
 
 function getCatalogOptionDeleteErrorMessage(
@@ -658,10 +658,10 @@ function getCatalogOptionDeleteErrorMessage(
     normalizedMessage.includes("violates") ||
     normalizedMessage.includes("referenced")
   ) {
-    return `No se puede eliminar esta ${getCatalogOptionKindDeleteLabel(kind)} porque esta siendo usada. Desactivala si queres ocultarla.`;
+    return `No se puede eliminar esta ${getCatalogOptionKindDeleteLabel(kind)} porque está siendo usada. Desactivala si querés ocultarla.`;
   }
 
-  return `No se pudo eliminar la opcion: ${errorMessage}`;
+  return `No se pudo eliminar la opción: ${errorMessage}`;
 }
 
 function getCatalogOptionKindDeleteLabel(kind: CatalogOptionKind) {
@@ -674,10 +674,10 @@ function getCatalogOptionKindDeleteLabel(kind: CatalogOptionKind) {
   }
 
   if (kind === "category") {
-    return "categoria";
+    return "categoría";
   }
 
-  return "opcion";
+  return "opción";
 }
 
 function revalidateCatalogOptionPaths() {

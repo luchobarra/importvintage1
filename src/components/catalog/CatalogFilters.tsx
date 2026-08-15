@@ -362,7 +362,7 @@ export function CatalogFilters({
   }
 
   return (
-    <section className="catalog-filters" aria-label="Controles del catalogo">
+    <section className="catalog-filters" aria-label="Controles del catálogo">
       <div className="catalog-filters__toolbar">
         <button
           aria-expanded={isOpen}
@@ -423,7 +423,7 @@ export function CatalogFilters({
             type="button"
           />
           <aside
-            aria-label="Filtros del catalogo"
+            aria-label="Filtros del catálogo"
             aria-modal="true"
             className="catalog-filters__drawer"
             data-state={isClosing ? "closing" : "open"}
@@ -521,11 +521,11 @@ export function CatalogFilters({
 
                 <fieldset className="catalog-filters__group">
                   <legend className="catalog-filters__legend catalog-filters__legend--hidden">
-                    Categoria
+                    Categoría
                   </legend>
                   <details className="catalog-filters__details">
                     <summary className="catalog-filters__summary">
-                      <span>Categoria</span>
+                      <span>Categoría</span>
                     </summary>
                     <div className="catalog-filters__option-list catalog-filters__option-list--scroll">
                       <FilterOption

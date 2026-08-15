@@ -173,7 +173,7 @@ export function CatalogOptionsManager({ options }: CatalogOptionsManagerProps) {
         title="Categorias"
       />
       <CatalogCollapsibleSection
-        description="Marcas disponibles para cargar productos y filtrar el catalogo."
+        description="Marcas disponibles para cargar productos y filtrar el catálogo."
         isOpen={openSections.brands}
         onToggle={() =>
           setOpenSections((currentValue) => ({
@@ -344,9 +344,9 @@ function CatalogCategorySection({
     const formData = new FormData(form);
 
     requestMutation({
-      confirmLabel: "Crear categoria",
+      confirmLabel: "Crear categoría",
       description:
-        "Se guardara la nueva categoria con sus talles permitidos.",
+        "Se guardará la nueva categoría con sus talles permitidos.",
       execute: async () => {
         const actionResult = await createCatalogOption("category", formData);
         if (actionResult.success) {
@@ -354,18 +354,18 @@ function CatalogCategorySection({
         }
         return actionResult;
       },
-      successTitle: "Categoria creada",
-      title: "Crear categoria",
+      successTitle: "Categoría creada",
+      title: "Crear categoría",
     });
   }
 
   function handleUpdateCategoryMutation(formData: FormData) {
     requestMutation({
-      confirmLabel: "Guardar categoria",
-      description: "Se actualizaran los datos de la categoria.",
+      confirmLabel: "Guardar categoría",
+      description: "Se actualizarán los datos de la categoría.",
       execute: () => updateCatalogOption("category", formData),
-      successTitle: "Categoria guardada",
-      title: "Guardar categoria",
+      successTitle: "Categoría guardada",
+      title: "Guardar categoría",
     });
   }
 
@@ -375,13 +375,13 @@ function CatalogCategorySection({
     formData.set("isActive", String(!category.is_active));
 
     requestMutation({
-      confirmLabel: category.is_active ? "Desactivar categoria" : "Activar categoria",
+      confirmLabel: category.is_active ? "Desactivar categoría" : "Activar categoría",
       description: category.is_active
-        ? "La categoria dejara de estar disponible para productos y filtros."
-        : "La categoria volvera a estar disponible para productos y filtros.",
+        ? "La categoría dejara de estar disponible para productos y filtros."
+        : "La categoría volvera a estar disponible para productos y filtros.",
       execute: () => setCatalogOptionStatus("category", formData),
-      successTitle: category.is_active ? "Categoria desactivada" : "Categoria activada",
-      title: category.is_active ? "Desactivar categoria" : "Activar categoria",
+      successTitle: category.is_active ? "Categoría desactivada" : "Categoría activada",
+      title: category.is_active ? "Desactivar categoría" : "Activar categoría",
       variant: category.is_active ? "danger" : "default",
     });
   }
@@ -391,12 +391,12 @@ function CatalogCategorySection({
     formData.set("id", category.id);
 
     requestMutation({
-      confirmLabel: "Eliminar categoria",
+      confirmLabel: "Eliminar categoría",
       description:
-        "Se eliminara la categoria si no esta siendo usada por productos.",
+        "Se eliminará la categoría si no está siendo usada por productos.",
       execute: () => deleteCatalogOption("category", formData),
-      successTitle: "Categoria eliminada",
-      title: "Eliminar categoria",
+      successTitle: "Categoría eliminada",
+      title: "Eliminar categoría",
       variant: "danger",
     });
   }
@@ -420,7 +420,7 @@ function CatalogCategorySection({
     requestMutation({
       confirmLabel: "Guardar orden",
       description:
-        "Se guardara el nuevo orden de las categorias del catalogo.",
+        "Se guardará el nuevo orden de las categorias del catálogo.",
       execute: () =>
         updateCatalogOptionPositions(
           "category",
@@ -545,7 +545,7 @@ function CatalogCategoryCreateForm({
   return (
     <form className="catalog-category-form" onSubmit={handleSubmit}>
       <label className="form-field">
-        <span>Nueva categoria</span>
+        <span>Nueva categoría</span>
         <input name="name" placeholder="Ej: Camperas" />
       </label>
 
@@ -554,7 +554,7 @@ function CatalogCategoryCreateForm({
           Talles permitidos
         </span>
         <p className="catalog-category-form__hint">
-          Selecciona uno o los dos grupos que aplican a esta categoria.
+          Selecciona uno o los dos grupos que aplican a esta categoría.
         </p>
         <div className="catalog-category-form__checks">
           <label>
@@ -563,7 +563,7 @@ function CatalogCategoryCreateForm({
           </label>
           <label>
             <input name="sizesNumericEnabled" type="checkbox" />
-            <span>Numericos</span>
+            <span>Numéricos</span>
           </label>
         </div>
       </div>
@@ -621,7 +621,7 @@ function CatalogCategoryRow({
       <div className="catalog-category-card__summary">
         <div>
           <p className="catalog-config-pair">
-            <span>Categoria:</span>
+            <span>Categoría:</span>
             <strong>{category.name}</strong>
           </p>
           <p className="catalog-config-pair catalog-config-pair--muted">
@@ -639,7 +639,7 @@ function CatalogCategoryRow({
             {isEditing ? "Cerrar" : "Editar"}
           </button>
           <button
-            aria-label={`Mover categoria ${category.name}`}
+            aria-label={`Mover categoría ${category.name}`}
             className="catalog-config-action catalog-config-action--drag catalog-category-card__drag"
             type="button"
             {...attributes}
@@ -678,7 +678,7 @@ function CatalogCategoryRow({
         <form className="catalog-category-card__form" onSubmit={handleUpdate}>
           <input name="id" type="hidden" value={category.id} />
           <label className="form-field">
-            <span>Categoria</span>
+            <span>Categoría</span>
             <input defaultValue={category.name} name="name" />
           </label>
 
@@ -687,7 +687,7 @@ function CatalogCategoryRow({
               Talles permitidos
             </span>
             <p className="catalog-category-form__hint">
-              Selecciona uno o los dos grupos que aplican a esta categoria.
+              Selecciona uno o los dos grupos que aplican a esta categoría.
             </p>
             <div className="catalog-category-form__checks">
               <label>
@@ -704,7 +704,7 @@ function CatalogCategoryRow({
                   name="sizesNumericEnabled"
                   type="checkbox"
                 />
-                <span>Numericos</span>
+                <span>Numéricos</span>
               </label>
             </div>
           </div>
@@ -745,7 +745,7 @@ function CatalogBrandSection({ brands }: { brands: CatalogBrand[] }) {
 
     requestMutation({
       confirmLabel: "Crear marca",
-      description: "Se guardara la nueva marca en el catalogo.",
+      description: "Se guardará la nueva marca en el catálogo.",
       execute: async () => {
         const result = await createCatalogOption("brand", formData);
         if (result.success) {
@@ -761,7 +761,7 @@ function CatalogBrandSection({ brands }: { brands: CatalogBrand[] }) {
   function handleUpdateBrandMutation(formData: FormData) {
     requestMutation({
       confirmLabel: "Guardar marca",
-      description: "Se actualizaran los datos de la marca.",
+      description: "Se actualizarán los datos de la marca.",
       execute: () => updateCatalogOption("brand", formData),
       successTitle: "Marca guardada",
       title: "Guardar marca",
@@ -791,7 +791,7 @@ function CatalogBrandSection({ brands }: { brands: CatalogBrand[] }) {
 
     requestMutation({
       confirmLabel: "Eliminar marca",
-      description: "Se eliminara la marca si no esta siendo usada por productos.",
+      description: "Se eliminará la marca si no está siendo usada por productos.",
       execute: () => deleteCatalogOption("brand", formData),
       successTitle: "Marca eliminada",
       title: "Eliminar marca",
@@ -817,7 +817,7 @@ function CatalogBrandSection({ brands }: { brands: CatalogBrand[] }) {
 
     requestMutation({
       confirmLabel: "Guardar orden",
-      description: "Se guardara el nuevo orden de las marcas del catalogo.",
+      description: "Se guardará el nuevo orden de las marcas del catálogo.",
       execute: () =>
         updateCatalogOptionPositions(
           "brand",
@@ -954,7 +954,7 @@ function CatalogConditionSection({
 
     requestMutation({
       confirmLabel: "Crear estado",
-      description: "Se guardara el nuevo estado en el catalogo.",
+      description: "Se guardará el nuevo estado en el catálogo.",
       execute: async () => {
         const result = await createCatalogOption("condition", formData);
         if (result.success) {
@@ -970,7 +970,7 @@ function CatalogConditionSection({
   function handleUpdateConditionMutation(formData: FormData) {
     requestMutation({
       confirmLabel: "Guardar estado",
-      description: "Se actualizaran los datos del estado.",
+      description: "Se actualizarán los datos del estado.",
       execute: () => updateCatalogOption("condition", formData),
       successTitle: "Estado guardado",
       title: "Guardar estado",
@@ -1000,7 +1000,7 @@ function CatalogConditionSection({
 
     requestMutation({
       confirmLabel: "Eliminar estado",
-      description: "Se eliminara el estado si no esta siendo usado por productos.",
+      description: "Se eliminará el estado si no está siendo usado por productos.",
       execute: () => deleteCatalogOption("condition", formData),
       successTitle: "Estado eliminado",
       title: "Eliminar estado",
@@ -1026,7 +1026,7 @@ function CatalogConditionSection({
 
     requestMutation({
       confirmLabel: "Guardar orden",
-      description: "Se guardara el nuevo orden de los estados del catalogo.",
+      description: "Se guardará el nuevo orden de los estados del catálogo.",
       execute: () =>
         updateCatalogOptionPositions(
           "condition",
@@ -1189,7 +1189,7 @@ function CatalogSizeManager({ sizes }: { sizes: CatalogSize[] }) {
           onClick={() => setSelectedGroup("numeric")}
           type="button"
         >
-          Numericos
+          Numéricos
         </button>
       </div>
 
@@ -1208,7 +1208,7 @@ function CatalogSizeManager({ sizes }: { sizes: CatalogSize[] }) {
         </div>
       ) : (
         <p className="catalog-options-empty">
-          Selecciona Letras o Numericos para trabajar con talles.
+          Selecciona Letras o Numéricos para trabajar con talles.
         </p>
       )}
     </div>
@@ -1270,7 +1270,7 @@ function CatalogSizeGroupPanel({
     requestMutation({
       confirmLabel: "Guardar orden",
       description:
-        "Se guardara el nuevo orden de los talles de este grupo.",
+        "Se guardará el nuevo orden de los talles de este grupo.",
       execute: () =>
         updateCatalogSizePositions(
           group,
@@ -1286,7 +1286,7 @@ function CatalogSizeGroupPanel({
     <section className="catalog-size-group ui-panel">
       <div className="catalog-size-group__header ui-section-header">
         <h3 className="text-h3">
-          {group === "letter" ? "Talles letra" : "Talles numericos"}
+          {group === "letter" ? "Talles letra" : "Talles numéricos"}
         </h3>
         <span className="text-caption">{sizes.length} opciones</span>
       </div>
@@ -1319,7 +1319,7 @@ function CatalogSizeGroupPanel({
         </DndContext>
       ) : (
         <p className="catalog-options-empty">
-          No hay talles {group === "letter" ? "de letras" : "numericos"} cargados.
+          No hay talles {group === "letter" ? "de letras" : "numéricos"} cargados.
         </p>
       )}
 
@@ -1445,7 +1445,7 @@ function CatalogSizeCard({
 
     onRequestMutation({
       confirmLabel: "Eliminar talle",
-      description: "Se eliminara el talle si no esta siendo usado por productos.",
+      description: "Se eliminará el talle si no está siendo usado por productos.",
       execute: () => deleteCatalogOption("size", formData),
       successTitle: "Talle eliminado",
       title: "Eliminar talle",
@@ -1459,7 +1459,7 @@ function CatalogSizeCard({
 
     onRequestMutation({
       confirmLabel: "Guardar talle",
-      description: "Se actualizaran los datos del talle.",
+      description: "Se actualizarán los datos del talle.",
       execute: () => updateCatalogOption("size", formData),
       successTitle: "Talle guardado",
       title: "Guardar talle",
@@ -1482,7 +1482,7 @@ function CatalogSizeCard({
           </p>
           <p className="catalog-config-pair catalog-config-pair--muted">
             <span>Grupo:</span>
-            <strong>{group === "letter" ? "Letras" : "Numericos"}</strong>
+            <strong>{group === "letter" ? "Letras" : "Numéricos"}</strong>
           </p>
         </div>
         <div className="catalog-size-card__top-actions">
@@ -1537,7 +1537,7 @@ function CatalogSizeCard({
             <span className="text-label">Grupo</span>
             <select defaultValue={group} name="sizeGroup">
               <option value="letter">Letras</option>
-              <option value="numeric">Numericos</option>
+              <option value="numeric">Numéricos</option>
             </select>
           </label>
           <button className="button button--primary" type="submit">
@@ -1565,7 +1565,7 @@ function CatalogOptionCreateForm({
   return (
     <form className="catalog-option-create" onSubmit={handleSubmit}>
       <label className="form-field">
-        <span>Nueva opcion</span>
+        <span>Nueva opción</span>
         <input name="name" placeholder={getCatalogOptionPlaceholder(kind)} />
       </label>
 
@@ -1733,7 +1733,7 @@ function getCatalogOptionKindLabel(kind: CatalogOptionKind) {
   }
 
   if (kind === "category") {
-    return "Categoria";
+    return "Categoría";
   }
 
   return "Talle";
@@ -1741,7 +1741,7 @@ function getCatalogOptionKindLabel(kind: CatalogOptionKind) {
 
 function getCategorySizeGroupsLabel(category: CatalogCategory) {
   if (category.sizes_letter_enabled && category.sizes_numeric_enabled) {
-    return "Letras y numericos";
+    return "Letras y numéricos";
   }
 
   if (category.sizes_letter_enabled) {
@@ -1749,7 +1749,7 @@ function getCategorySizeGroupsLabel(category: CatalogCategory) {
   }
 
   if (category.sizes_numeric_enabled) {
-    return "Numericos";
+    return "Numéricos";
   }
 
   return "Sin grupo activo";
