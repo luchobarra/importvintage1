@@ -1,3 +1,4 @@
+import { ProductContactButton } from "@/components/catalog/ProductContactButton";
 import {
   formatProductPrice,
   getProductConditionName,
@@ -83,14 +84,7 @@ export function ProductDetailInfo({
       ) : null}
 
       <div className="product-detail__actions">
-        <a
-          className="button button--primary product-detail__contact-button"
-          href={createProductContactHref(product.id)}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          Contactar con el vendedor
-        </a>
+        <ProductContactButton href={createProductContactHref(product.id)} />
         <Link
           className="button button--ghost product-detail__back-link"
           href={catalogHref}

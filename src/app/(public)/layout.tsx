@@ -1,5 +1,6 @@
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicFooter } from "@/components/layout/PublicFooter";
+import { PublicScrollRestoration } from "@/components/layout/PublicScrollRestoration";
 import { getPublicCatalogOptions } from "@/features/catalog-options/queries";
 import { Suspense, ViewTransition } from "react";
 
@@ -10,6 +11,7 @@ type PublicLayoutProps = {
 export default function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <>
+      <PublicScrollRestoration />
       <Suspense fallback={<PublicHeader categories={[]} />}>
         <PublicHeaderContainer />
       </Suspense>

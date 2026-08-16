@@ -292,17 +292,15 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
             role="dialog"
           >
             <div className="public-header__mobile-head">
-              <Link
-                aria-label="Ir al inicio de Retro Campus"
+              <div
+                aria-label="Retro Campus"
                 className="public-header__mobile-brand"
-                href="/"
-                onClick={handleHomeLogoClick}
               >
                 <BrandLogo
                   className="public-header__mobile-brand-logo"
                   sizes="96px"
                 />
-              </Link>
+              </div>
               <button
                 aria-label="Cerrar menú"
                 className="public-header__close-button"

@@ -1,3 +1,4 @@
+import { ProductCarouselSkeleton } from "@/components/catalog/ProductCarouselSkeleton";
 import { ProductDetailSkeleton } from "@/components/catalog/ProductDetailSkeleton";
 
 export default function Loading() {
@@ -5,6 +6,7 @@ export default function Loading() {
     <main className="product-detail-page product-detail-page--loading">
       <section className="product-detail-page__container ui-page-container">
         <ProductDetailSkeleton />
+        <ProductCarouselSkeleton />
       </section>
     </main>
   );
