@@ -33,6 +33,8 @@ type ViewerTransform = {
 const VIEWER_DOUBLE_TAP_SCALE = 2.15;
 const VIEWER_MAX_SCALE = 2.8;
 const VIEWER_PINCH_SENSITIVITY = 0.86;
+const MAIN_IMAGE_TAP_MAX_DURATION_MS = 420;
+const MAIN_IMAGE_TAP_MOVE_TOLERANCE_PX = 10;
 
 export function ProductDetailImages({
   images,
@@ -56,6 +58,13 @@ export function ProductDetailImages({
     scale: 1,
   });
   const viewerAnimationFrameRef = useRef<number | null>(null);
+  const mainImageTapRef = useRef<{
+    hasMoved: boolean;
+    pointerId: number;
+    startTime: number;
+    startX: number;
+    startY: number;
+  } | null>(null);
   const lastViewerTapRef = useRef<{
     time: number;
     x: number;
@@ -242,6 +251,23 @@ export function ProductDetailImages({
   }
 
   function handlePointerMove(event: PointerEvent<HTMLButtonElement>) {
+    if (event.pointerType !== "mouse") {
+      const tapState = mainImageTapRef.current;
+
+      if (!tapState || tapState.pointerId !== event.pointerId) {
+        return;
+      }
+
+      const deltaX = event.clientX - tapState.startX;
+      const deltaY = event.clientY - tapState.startY;
+
+      if (Math.hypot(deltaX, deltaY) > MAIN_IMAGE_TAP_MOVE_TOLERANCE_PX) {
+        tapState.hasMoved = true;
+      }
+
+      return;
+    }
+
     if (!isZoomActive) {
       return;
     }
@@ -250,28 +276,53 @@ export function ProductDetailImages({
   }
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
-    updateZoomPosition(event);
-
     if (event.pointerType !== "mouse") {
-      openViewer(selectedImageIndex);
+      mainImageTapRef.current = {
+        hasMoved: false,
+        pointerId: event.pointerId,
+        startTime: window.performance.now(),
+        startX: event.clientX,
+        startY: event.clientY,
+      };
       return;
     }
 
+    updateZoomPosition(event);
     setIsZoomActive(true);
   }
 
   function handlePointerUp(event: PointerEvent<HTMLButtonElement>) {
     if (event.pointerType !== "mouse") {
+      const tapState = mainImageTapRef.current;
+      mainImageTapRef.current = null;
+
+      if (!tapState || tapState.pointerId !== event.pointerId) {
+        return;
+      }
+
+      const elapsedTime = window.performance.now() - tapState.startTime;
+      const deltaX = event.clientX - tapState.startX;
+      const deltaY = event.clientY - tapState.startY;
+      const hasMoved =
+        tapState.hasMoved ||
+        Math.hypot(deltaX, deltaY) > MAIN_IMAGE_TAP_MOVE_TOLERANCE_PX;
+
+      if (!hasMoved && elapsedTime <= MAIN_IMAGE_TAP_MAX_DURATION_MS) {
+        openViewer(selectedImageIndex);
+      }
+
       return;
     }
   }
 
   function handlePointerCancel() {
+    mainImageTapRef.current = null;
     setIsZoomActive(false);
   }
 
   function handlePointerLeave(event: PointerEvent<HTMLButtonElement>) {
     if (event.pointerType !== "mouse") {
+      mainImageTapRef.current = null;
       return;
     }
 

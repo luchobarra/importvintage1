@@ -3738,6 +3738,7 @@ a {
 }
 
 .product-detail-page__container.ui-page-container {
+  min-height: 100dvh;
   padding-bottom: 0;
 }
 

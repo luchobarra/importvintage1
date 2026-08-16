@@ -1,3 +1,4 @@
+import { ProductDetailPageSkeleton } from "@/components/catalog/ProductDetailPageSkeleton";
 import { ProductDetailContainer } from "@/containers/catalog/ProductDetailContainer";
 import {
   getCatalogReturnHref,
@@ -11,6 +12,7 @@ import {
 import { getAvailableProductById } from "@/features/products/queries";
 import { createSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 type ProductDetailPageProps = {
   params: Promise<{
@@ -79,7 +81,9 @@ export default async function ProductDetailPage({
   return (
     <main className="product-detail-page">
       <section className="product-detail-page__container ui-page-container">
-        <ProductDetailContainer catalogHref={catalogHref} productId={id} />
+        <Suspense fallback={<ProductDetailPageSkeleton />}>
+          <ProductDetailContainer catalogHref={catalogHref} productId={id} />
+        </Suspense>
       </section>
     </main>
   );
