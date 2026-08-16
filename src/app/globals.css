@@ -3196,7 +3196,8 @@ a {
 }
 
 .product-carousel-card:hover,
-.product-carousel-card:focus-visible {
+.product-carousel-card:focus-visible,
+.product-carousel-card[data-loading="true"] {
   border-color: var(--tone-ink-52);
   transform: translateY(-0.08rem);
 }
@@ -3238,6 +3239,16 @@ a {
 }
 
 .product-carousel-card:focus-visible .product-carousel-card__media {
+  outline: 2px solid var(--vintage-text-strong);
+  outline-offset: -4px;
+}
+
+.product-carousel-card[data-loading="true"] {
+  box-shadow: 0 0.62rem 1.3rem var(--tone-ink-14);
+  cursor: wait;
+}
+
+.product-carousel-card[data-loading="true"] .product-carousel-card__media {
   outline: 2px solid var(--vintage-text-strong);
   outline-offset: -4px;
 }
@@ -3364,6 +3375,13 @@ a {
 .product-card:not(.product-card--skeleton) {
   animation: product-card-enter 0.24s cubic-bezier(0.22, 0.72, 0.2, 1) both;
   animation-delay: var(--product-card-enter-delay, 0ms);
+}
+
+.product-card[data-loading="true"] {
+  border-color: var(--tone-ink-52);
+  box-shadow: 0 0.48rem 1rem var(--tone-ink-14);
+  cursor: wait;
+  transform: translateY(-0.08rem);
 }
 
 .product-detail-link-status {
@@ -3748,7 +3766,7 @@ a {
   grid-template-columns: minmax(0, 1fr) minmax(320px, 0.72fr);
   gap: clamp(2.4rem, 5vw, 4.7rem);
   align-items: start;
-  animation: product-detail-enter 0.26s cubic-bezier(0.22, 0.72, 0.2, 1) both;
+  animation: product-detail-enter 0.42s cubic-bezier(0.18, 0.74, 0.16, 1) both;
 }
 
 .product-detail__media-column,
@@ -3756,6 +3774,39 @@ a {
 .product-detail__gallery,
 .product-detail__info {
   min-width: 0;
+}
+
+.product-detail:not(.product-detail--loading) .product-detail__media-column,
+.product-detail:not(.product-detail--loading) .product-detail__heading,
+.product-detail:not(.product-detail--loading) .product-detail__price,
+.product-detail:not(.product-detail--loading) .product-detail__meta,
+.product-detail:not(.product-detail--loading) .product-detail__description,
+.product-detail:not(.product-detail--loading) .product-detail__actions {
+  animation: product-detail-layer-enter 0.58s cubic-bezier(0.16, 0.78, 0.18, 1) both;
+}
+
+.product-detail:not(.product-detail--loading) .product-detail__media-column {
+  animation-name: product-detail-media-settle;
+}
+
+.product-detail:not(.product-detail--loading) .product-detail__heading {
+  animation-delay: 0.04s;
+}
+
+.product-detail:not(.product-detail--loading) .product-detail__price {
+  animation-delay: 0.12s;
+}
+
+.product-detail:not(.product-detail--loading) .product-detail__meta {
+  animation-delay: 0.18s;
+}
+
+.product-detail:not(.product-detail--loading) .product-detail__description {
+  animation-delay: 0.24s;
+}
+
+.product-detail:not(.product-detail--loading) .product-detail__actions {
+  animation-delay: 0.3s;
 }
 
 .product-detail__content-column {
@@ -3958,6 +4009,10 @@ a {
 .product-detail__thumbs {
   display: grid;
   gap: var(--space-3);
+}
+
+.product-detail:not(.product-detail--loading) .product-detail__thumbs {
+  animation: product-detail-layer-enter 0.5s 0.12s cubic-bezier(0.16, 0.78, 0.18, 1) both;
 }
 
 .product-detail__thumb {
@@ -4746,8 +4801,36 @@ dd.product-detail__measurements-value strong {
 
 @keyframes product-detail-enter {
   from {
-    opacity: 0.94;
-    translate: 0 0.18rem;
+    opacity: 0.92;
+    filter: saturate(0.94);
+    translate: 0 0.32rem;
+  }
+
+  to {
+    opacity: 1;
+    filter: saturate(1);
+    translate: 0 0;
+  }
+}
+
+@keyframes product-detail-layer-enter {
+  from {
+    opacity: 0;
+    filter: blur(5px);
+    translate: 0 0.7rem;
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    translate: 0 0;
+  }
+}
+
+@keyframes product-detail-media-settle {
+  from {
+    opacity: 0.96;
+    translate: 0 0.22rem;
   }
 
   to {
@@ -4795,6 +4878,13 @@ dd.product-detail__measurements-value strong {
   }
 
   .product-detail,
+  .product-detail:not(.product-detail--loading) .product-detail__media-column,
+  .product-detail:not(.product-detail--loading) .product-detail__heading,
+  .product-detail:not(.product-detail--loading) .product-detail__price,
+  .product-detail:not(.product-detail--loading) .product-detail__meta,
+  .product-detail:not(.product-detail--loading) .product-detail__description,
+  .product-detail:not(.product-detail--loading) .product-detail__actions,
+  .product-detail:not(.product-detail--loading) .product-detail__thumbs,
   .product-detail-page--loading,
   .product-card:not(.product-card--skeleton),
   .product-card__image-asset,

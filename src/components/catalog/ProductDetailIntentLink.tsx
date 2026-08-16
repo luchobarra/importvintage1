@@ -2,8 +2,8 @@
 
 import Link, { useLinkStatus } from "next/link";
 import { useRouter } from "next/navigation";
-import type { CSSProperties, ReactNode } from "react";
-import { useRef } from "react";
+import type { CSSProperties, MouseEvent, ReactNode } from "react";
+import { useRef, useState } from "react";
 
 type ProductDetailIntentLinkProps = {
   ariaCurrent?: "true";
@@ -26,6 +26,7 @@ export function ProductDetailIntentLink({
 }: ProductDetailIntentLinkProps) {
   const router = useRouter();
   const didPrefetch = useRef(false);
+  const [isIntentLoading, setIsIntentLoading] = useState(false);
 
   function prefetchDetail() {
     if (didPrefetch.current) {
@@ -36,13 +37,29 @@ export function ProductDetailIntentLink({
     router.prefetch(href);
   }
 
+  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.shiftKey
+    ) {
+      return;
+    }
+
+    setIsIntentLoading(true);
+  }
+
   return (
     <Link
       aria-current={ariaCurrent}
       aria-label={ariaLabel}
       className={className}
+      data-loading={isIntentLoading ? "true" : undefined}
       href={href}
       onFocus={prefetchDetail}
+      onClick={handleClick}
       onMouseEnter={prefetchDetail}
       onPointerDown={prefetchDetail}
       onTouchStart={prefetchDetail}
@@ -51,18 +68,23 @@ export function ProductDetailIntentLink({
       transitionTypes={transitionTypes}
     >
       {children}
-      <ProductDetailLinkStatus />
+      <ProductDetailLinkStatus showImmediately={isIntentLoading} />
     </Link>
   );
 }
 
-function ProductDetailLinkStatus() {
+function ProductDetailLinkStatus({
+  showImmediately,
+}: {
+  showImmediately: boolean;
+}) {
   const { pending } = useLinkStatus();
+  const isVisible = pending || showImmediately;
 
   return (
     <span
       aria-hidden="true"
-      className={`product-detail-link-status${pending ? " is-pending" : ""}`}
+      className={`product-detail-link-status${isVisible ? " is-pending" : ""}`}
     />
   );
 }
