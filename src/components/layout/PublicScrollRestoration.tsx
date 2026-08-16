@@ -1,8 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 export function PublicScrollRestoration() {
+  const pathname = usePathname();
+  const previousPathnameRef = useRef(pathname);
+
+  useLayoutEffect(() => {
+    if (previousPathnameRef.current === pathname) {
+      return;
+    }
+
+    previousPathnameRef.current = pathname;
+
+    if (pathname.startsWith("/productos/")) {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]);
+
   useEffect(() => {
     if (!("scrollRestoration" in window.history)) {
       return;

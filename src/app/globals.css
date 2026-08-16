@@ -3743,6 +3743,7 @@ a {
 }
 
 .product-detail-page {
+  min-height: 100svh;
   background: var(--home-paper-background);
   background-position: center top;
   background-repeat: repeat;
@@ -3751,12 +3752,11 @@ a {
 }
 
 .product-detail-page--loading {
-  min-height: 100dvh;
   animation: product-detail-loading-enter 0.18s ease-out both;
 }
 
 .product-detail-page__container.ui-page-container {
-  min-height: 100dvh;
+  min-height: calc(100svh - 4.25rem);
   padding-bottom: 0;
 }
 
