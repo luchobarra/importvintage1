@@ -25,6 +25,15 @@ type ViewerPoint = {
   y: number;
 };
 
+type ViewerTransform = {
+  offset: ViewerPoint;
+  scale: number;
+};
+
+const VIEWER_DOUBLE_TAP_SCALE = 2.15;
+const VIEWER_MAX_SCALE = 2.8;
+const VIEWER_PINCH_SENSITIVITY = 0.86;
+
 export function ProductDetailImages({
   images,
   productId,
@@ -42,6 +51,11 @@ export function ProductDetailImages({
   const [viewerOffset, setViewerOffset] = useState({ x: 0, y: 0 });
   const [isViewerInteracting, setIsViewerInteracting] = useState(false);
   const viewerImageRef = useRef<HTMLDivElement>(null);
+  const viewerTransformRef = useRef<ViewerTransform>({
+    offset: { x: 0, y: 0 },
+    scale: 1,
+  });
+  const viewerAnimationFrameRef = useRef<number | null>(null);
   const lastViewerTapRef = useRef<{
     time: number;
     x: number;
@@ -69,6 +83,11 @@ export function ProductDetailImages({
   }
 
   const resetViewerZoom = useCallback(() => {
+    viewerTransformRef.current = {
+      offset: { x: 0, y: 0 },
+      scale: 1,
+    };
+    writeViewerTransform(viewerImageRef.current, viewerTransformRef.current);
     setViewerScale(1);
     setViewerOffset({ x: 0, y: 0 });
     setIsViewerInteracting(false);
@@ -105,13 +124,52 @@ export function ProductDetailImages({
   }, [selectViewerImage, viewerIndex]);
 
   const applyViewerTransform = useCallback((scale: number, offset: ViewerPoint) => {
-    const nextScale = clamp(scale, 1, 3);
+    const nextScale = clamp(scale, 1, VIEWER_MAX_SCALE);
+    const nextOffset = nextScale <= 1.01
+      ? { x: 0, y: 0 }
+      : clampViewerOffset(offset, nextScale, viewerImageRef.current);
+    const nextTransform = {
+      offset: nextOffset,
+      scale: nextScale,
+    };
+
+    viewerTransformRef.current = nextTransform;
+    setViewerScale(nextScale);
+    setViewerOffset(nextOffset);
+  }, []);
+
+  const previewViewerTransform = useCallback((scale: number, offset: ViewerPoint) => {
+    const nextScale = clamp(scale, 1, VIEWER_MAX_SCALE);
     const nextOffset = nextScale <= 1.01
       ? { x: 0, y: 0 }
       : clampViewerOffset(offset, nextScale, viewerImageRef.current);
 
-    setViewerScale(nextScale);
-    setViewerOffset(nextOffset);
+    viewerTransformRef.current = {
+      offset: nextOffset,
+      scale: nextScale,
+    };
+
+    if (viewerAnimationFrameRef.current !== null) {
+      return;
+    }
+
+    viewerAnimationFrameRef.current = window.requestAnimationFrame(() => {
+      viewerAnimationFrameRef.current = null;
+      writeViewerTransform(viewerImageRef.current, viewerTransformRef.current);
+    });
+  }, []);
+
+  const commitViewerTransform = useCallback(() => {
+    const { offset, scale } = viewerTransformRef.current;
+
+    if (viewerAnimationFrameRef.current !== null) {
+      window.cancelAnimationFrame(viewerAnimationFrameRef.current);
+      viewerAnimationFrameRef.current = null;
+    }
+
+    writeViewerTransform(viewerImageRef.current, viewerTransformRef.current);
+    setViewerScale(scale);
+    setViewerOffset(offset);
   }, []);
 
   const toggleViewerZoom = useCallback((point: ViewerPoint) => {
@@ -121,7 +179,7 @@ export function ProductDetailImages({
     }
 
     const framePoint = getPointFromElementCenter(viewerImageRef.current, point);
-    const nextScale = 2.2;
+    const nextScale = VIEWER_DOUBLE_TAP_SCALE;
     const nextOffset = {
       x: -framePoint.x * (nextScale - 1),
       y: -framePoint.y * (nextScale - 1),
@@ -155,6 +213,11 @@ export function ProductDetailImages({
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      if (viewerAnimationFrameRef.current !== null) {
+        window.cancelAnimationFrame(viewerAnimationFrameRef.current);
+        viewerAnimationFrameRef.current = null;
+      }
+
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
@@ -217,6 +280,7 @@ export function ProductDetailImages({
 
   function handleViewerTouchStart(event: TouchEvent<HTMLDivElement>) {
     setIsViewerInteracting(true);
+    const currentTransform = viewerTransformRef.current;
 
     if (event.touches.length === 1) {
       const touch = event.touches[0];
@@ -227,8 +291,8 @@ export function ProductDetailImages({
           x: touch.clientX,
           y: touch.clientY,
         }),
-        offset: viewerOffset,
-        scale: viewerScale,
+        offset: currentTransform.offset,
+        scale: currentTransform.scale,
         startX: touch.clientX,
         startY: touch.clientY,
       };
@@ -236,14 +300,13 @@ export function ProductDetailImages({
     }
 
     if (event.touches.length === 2) {
-      event.preventDefault();
       const center = getTouchCenter(event);
 
       touchStateRef.current = {
         distance: getTouchDistance(event),
         focal: getPointFromElementCenter(viewerImageRef.current, center),
-        offset: viewerOffset,
-        scale: viewerScale,
+        offset: currentTransform.offset,
+        scale: currentTransform.scale,
         startX: center.x,
         startY: center.y,
       };
@@ -258,12 +321,12 @@ export function ProductDetailImages({
     }
 
     if (event.touches.length === 2 && touchState.distance > 0) {
-      event.preventDefault();
       const center = getTouchCenter(event);
+      const distanceRatio = getTouchDistance(event) / touchState.distance;
       const nextScale = clamp(
-        touchState.scale * (getTouchDistance(event) / touchState.distance),
+        touchState.scale * Math.pow(distanceRatio, VIEWER_PINCH_SENSITIVITY),
         1,
-        3,
+        VIEWER_MAX_SCALE,
       );
       const ratio = nextScale / touchState.scale;
       const currentFocal = getPointFromElementCenter(viewerImageRef.current, center);
@@ -272,15 +335,14 @@ export function ProductDetailImages({
         y: currentFocal.y - (touchState.focal.y - touchState.offset.y) * ratio,
       };
 
-      applyViewerTransform(nextScale, nextOffset);
+      previewViewerTransform(nextScale, nextOffset);
       return;
     }
 
-    if (event.touches.length === 1 && viewerScale > 1) {
-      event.preventDefault();
+    if (event.touches.length === 1 && viewerTransformRef.current.scale > 1) {
       const touch = event.touches[0];
 
-      applyViewerTransform(viewerScale, {
+      previewViewerTransform(viewerTransformRef.current.scale, {
         x: touchState.offset.x + touch.clientX - touchState.startX,
         y: touchState.offset.y + touch.clientY - touchState.startY,
       });
@@ -296,14 +358,16 @@ export function ProductDetailImages({
 
     if (event.touches.length === 1) {
       const touch = event.touches[0];
+      const currentTransform = viewerTransformRef.current;
+
       touchStateRef.current = {
         distance: 0,
         focal: getPointFromElementCenter(viewerImageRef.current, {
           x: touch.clientX,
           y: touch.clientY,
         }),
-        offset: viewerOffset,
-        scale: viewerScale,
+        offset: currentTransform.offset,
+        scale: currentTransform.scale,
         startX: touch.clientX,
         startY: touch.clientY,
       };
@@ -340,14 +404,18 @@ export function ProductDetailImages({
       };
     }
 
-    if (viewerScale <= 1.02 && Math.abs(deltaX) > 58 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+    const currentViewerScale = viewerTransformRef.current.scale;
+
+    if (currentViewerScale <= 1.02 && Math.abs(deltaX) > 58 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
       setIsViewerInteracting(false);
       selectRelativeViewerImage(deltaX < 0 ? "forward" : "back");
       touchStateRef.current = null;
       return;
     }
 
-    if (viewerScale <= 1.02 && !isTap) {
+    commitViewerTransform();
+
+    if (currentViewerScale <= 1.02 && !isTap) {
       resetViewerZoom();
     }
 
@@ -533,11 +601,11 @@ function getPointFromElementCenter(element: HTMLElement | null, point: ViewerPoi
     return { x: 0, y: 0 };
   }
 
-  const rect = element.getBoundingClientRect();
+  const center = getElementBaseCenter(element);
 
   return {
-    x: point.x - (rect.left + rect.width / 2),
-    y: point.y - (rect.top + rect.height / 2),
+    x: point.x - center.x,
+    y: point.y - center.y,
   };
 }
 
@@ -546,12 +614,33 @@ function clampViewerOffset(offset: ViewerPoint, scale: number, element: HTMLElem
     return { x: 0, y: 0 };
   }
 
-  const rect = element.getBoundingClientRect();
-  const maxX = Math.max(0, (rect.width * scale - rect.width) / 2);
-  const maxY = Math.max(0, (rect.height * scale - rect.height) / 2);
+  const width = element.offsetWidth;
+  const height = element.offsetHeight;
+  const maxX = Math.max(0, (width * scale - width) / 2);
+  const maxY = Math.max(0, (height * scale - height) / 2);
 
   return {
     x: clamp(offset.x, -maxX, maxX),
     y: clamp(offset.y, -maxY, maxY),
   };
+}
+
+function getElementBaseCenter(element: HTMLElement) {
+  const surface = element.parentElement;
+  const rect = surface?.getBoundingClientRect() ?? element.getBoundingClientRect();
+
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+  };
+}
+
+function writeViewerTransform(element: HTMLElement | null, transform: ViewerTransform) {
+  if (!element) {
+    return;
+  }
+
+  element.style.setProperty("--viewer-offset-x", `${transform.offset.x}px`);
+  element.style.setProperty("--viewer-offset-y", `${transform.offset.y}px`);
+  element.style.setProperty("--viewer-scale", String(transform.scale));
 }
