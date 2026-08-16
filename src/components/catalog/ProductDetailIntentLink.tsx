@@ -3,7 +3,7 @@
 import Link, { useLinkStatus } from "next/link";
 import { useRouter } from "next/navigation";
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ProductDetailIntentLinkProps = {
   ariaCurrent?: "true";
@@ -14,6 +14,8 @@ type ProductDetailIntentLinkProps = {
   style?: CSSProperties;
   transitionTypes?: string[];
 };
+
+const PRODUCT_DETAIL_NAVIGATION_DELAY_MS = 620;
 
 export function ProductDetailIntentLink({
   ariaCurrent,
@@ -26,6 +28,7 @@ export function ProductDetailIntentLink({
 }: ProductDetailIntentLinkProps) {
   const router = useRouter();
   const didPrefetch = useRef(false);
+  const navigationTimeoutRef = useRef<number | null>(null);
   const [isIntentLoading, setIsIntentLoading] = useState(false);
 
   function prefetchDetail() {
@@ -38,6 +41,11 @@ export function ProductDetailIntentLink({
   }
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (isIntentLoading) {
+      event.preventDefault();
+      return;
+    }
+
     if (
       event.button !== 0 ||
       event.metaKey ||
@@ -48,13 +56,32 @@ export function ProductDetailIntentLink({
       return;
     }
 
+    event.preventDefault();
     setIsIntentLoading(true);
+    prefetchDetail();
+
+    navigationTimeoutRef.current = window.setTimeout(() => {
+      navigationTimeoutRef.current = null;
+      router.push(href, {
+        transitionTypes,
+      });
+    }, PRODUCT_DETAIL_NAVIGATION_DELAY_MS);
   }
+
+  useEffect(() => {
+    return () => {
+      if (navigationTimeoutRef.current !== null) {
+        window.clearTimeout(navigationTimeoutRef.current);
+        navigationTimeoutRef.current = null;
+      }
+    };
+  }, [href]);
 
   return (
     <Link
       aria-current={ariaCurrent}
       aria-label={ariaLabel}
+      aria-busy={isIntentLoading}
       className={className}
       data-loading={isIntentLoading ? "true" : undefined}
       href={href}
