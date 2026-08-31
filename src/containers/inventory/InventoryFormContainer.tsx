@@ -1,6 +1,7 @@
 "use client";
 
 import { InventoryForm } from "@/components/inventory/InventoryForm";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
 import {
   ResultModal,
@@ -17,20 +18,25 @@ import type {
   CatalogBrand,
   CatalogCategory,
   CatalogProductCondition,
+  CatalogSize,
 } from "@/features/catalog-options/types";
 import { MAX_INVENTORY_IMAGES } from "@/features/inventory/constants";
-import { getTodayDateInputValue } from "@/features/inventory/formatters";
 import type { InventoryItem } from "@/features/inventory/types";
 import {
   normalizeMoneyInput,
+  validateInventoryField,
   validateInventoryFormFields,
   type InventoryFieldErrors,
+  type InventoryFieldName,
 } from "@/features/inventory/validation";
 import { optimizeImage } from "@/features/images/optimize-image";
 import type { SelectedImage, UploadProgress } from "@/features/images/types";
 import { withTimeout } from "@/features/images/with-timeout";
 import { sanitizeMeasurementInput } from "@/features/measurements/formatters";
-import { calculateProductPrice } from "@/features/price-calculator/calculations";
+import {
+  calculateEstimatedSaleMetrics,
+  calculateProductPrice,
+} from "@/features/price-calculator/calculations";
 import {
   formatCurrency,
   formatPercent,
@@ -40,7 +46,7 @@ import { formatProductPriceInput } from "@/features/products/form-validation";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { useRouter } from "next/navigation";
-import type { ChangeEvent, DragEvent, FormEvent } from "react";
+import type { ChangeEvent, DragEvent, FocusEvent, FormEvent } from "react";
 import { useEffect, useRef, useState, useTransition } from "react";
 
 const initialState: InventoryFormState = {
@@ -61,6 +67,7 @@ type InventoryFormContainerProps = {
   priceCalculatorSettings: PriceCalculatorSettings;
   item?: InventoryItem;
   mode: "create" | "edit";
+  sizes: CatalogSize[];
 };
 
 type ResultState = {
@@ -81,6 +88,7 @@ export function InventoryFormContainer({
   item,
   mode,
   priceCalculatorSettings,
+  sizes,
 }: InventoryFormContainerProps) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -94,6 +102,7 @@ export function InventoryFormContainer({
   const [fieldErrors, setFieldErrors] = useState<InventoryFieldErrors>({});
   const [imageErrorMessage, setImageErrorMessage] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [progress, setProgress] = useState<UploadProgress | null>(null);
   const [result, setResult] = useState<ResultState | null>(null);
   const [purchasePriceValue, setPurchasePriceValue] = useState(
@@ -102,15 +111,22 @@ export function InventoryFormContainer({
   const [estimatedSalePriceValue, setEstimatedSalePriceValue] = useState(
     getInitialMoneyInputValue(item?.estimated_sale_price),
   );
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    item?.category_id ?? "",
+  );
   const [calculationSummary, setCalculationSummary] =
     useState<InventoryCalculationSummary | null>(() =>
       item?.purchase_price
-        ? createInventoryCalculationSummary(
-            calculateProductPrice({
-              acquisitionCost: item.purchase_price,
-              settings: priceCalculatorSettings,
-            }),
-          )
+        ? createInventoryCalculationSummaryFromEstimatedSalePrice({
+            estimatedSalePrice:
+              item.estimated_sale_price ??
+              calculateProductPrice({
+                acquisitionCost: item.purchase_price,
+                settings: priceCalculatorSettings,
+              }).finalRoundedPrice,
+            priceCalculatorSettings,
+            purchasePrice: item.purchase_price,
+          })
         : null,
     );
   const [isCalculatingPrice, setIsCalculatingPrice] = useState(false);
@@ -147,6 +163,18 @@ export function InventoryFormContainer({
 
       return;
     }
+
+    setIsConfirmOpen(true);
+  }
+
+  function handleConfirmSubmit() {
+    const form = formRef.current;
+
+    if (!form || isPending) {
+      return;
+    }
+
+    setIsConfirmOpen(false);
 
     startTransition(async () => {
       const formData = new FormData(form);
@@ -357,27 +385,53 @@ export function InventoryFormContainer({
       }
     } else if (event.currentTarget.name === "estimated_sale_price") {
       setEstimatedSalePriceValue(nextValue);
+      setIsCalculatingPrice(false);
+      setCalculationSummary(
+        createInventoryCalculationSummaryFromInputValues({
+          estimatedSalePriceValue: nextValue,
+          priceCalculatorSettings,
+          purchasePriceValue,
+        }),
+      );
     }
 
-    clearFieldError(event.currentTarget.name);
+    clearFieldErrorWhenValid(event.currentTarget.name, nextValue);
   }
 
   function handleMeasurementChange(event: ChangeEvent<HTMLInputElement>) {
     unsavedChangesGuard.markDirty();
     event.target.value = sanitizeMeasurementInput(event.target.value);
-    clearFieldError(event.currentTarget.name);
+    clearFieldErrorWhenValid(event.currentTarget.name, event.currentTarget.value);
   }
 
   function handleFieldChange(
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) {
     unsavedChangesGuard.markDirty();
-    clearFieldError(event.currentTarget.name);
+
+    if (event.currentTarget.name === "category_id") {
+      setSelectedCategoryId(event.currentTarget.value);
+    }
+
+    clearFieldErrorWhenValid(
+      event.currentTarget.name,
+      event.currentTarget.value,
+    );
   }
 
-  function handleDateChange(fieldName: string) {
+  function handleDateChange(fieldName: string, value: string) {
     unsavedChangesGuard.markDirty();
-    clearFieldError(fieldName);
+    clearFieldErrorWhenValid(fieldName, value);
+  }
+
+  function handleDateBlur(fieldName: string, value: string) {
+    validateFieldOnBlur(fieldName, value);
+  }
+
+  function handleFieldBlur(
+    event: FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) {
+    validateFieldOnBlur(event.currentTarget.name, event.currentTarget.value);
   }
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {
@@ -460,7 +514,40 @@ export function InventoryFormContainer({
     });
   }
 
-  function clearFieldError(fieldName: string) {
+  function validateFieldOnBlur(fieldName: string, value: string) {
+    if (!isInventoryFieldName(fieldName)) {
+      return;
+    }
+
+    const fieldError = validateInventoryField(fieldName, value);
+
+    if (!fieldError) {
+      setState(initialState);
+    }
+
+    setFieldErrors((currentErrors) => {
+      if (fieldError) {
+        return {
+          ...currentErrors,
+          [fieldName]: fieldError,
+        };
+      }
+
+      const nextErrors = { ...currentErrors };
+      delete nextErrors[fieldName];
+      return nextErrors;
+    });
+  }
+
+  function clearFieldErrorWhenValid(fieldName: string, value: string) {
+    if (!isInventoryFieldName(fieldName)) {
+      return;
+    }
+
+    if (validateInventoryField(fieldName, value)) {
+      return;
+    }
+
     setState(initialState);
     setFieldErrors((currentErrors) => {
       if (!Object.prototype.hasOwnProperty.call(currentErrors, fieldName)) {
@@ -478,6 +565,10 @@ export function InventoryFormContainer({
   }, [images]);
 
   useEffect(() => {
+    if (!isCalculatingPrice) {
+      return;
+    }
+
     const acquisitionCost = Number(normalizeMoneyInput(purchasePriceValue));
 
     if (!Number.isFinite(acquisitionCost) || acquisitionCost <= 0) {
@@ -494,13 +585,17 @@ export function InventoryFormContainer({
         formatProductPriceInput(String(calculation.finalRoundedPrice)),
       );
       setCalculationSummary(
-        createInventoryCalculationSummary(calculation),
+        createInventoryCalculationSummaryFromEstimatedSalePrice({
+          estimatedSalePrice: calculation.finalRoundedPrice,
+          priceCalculatorSettings,
+          purchasePrice: acquisitionCost,
+        }),
       );
       setIsCalculatingPrice(false);
     }, PRICE_CALCULATION_DELAY_MS);
 
     return () => window.clearTimeout(timeoutId);
-  }, [priceCalculatorSettings, purchasePriceValue]);
+  }, [isCalculatingPrice, priceCalculatorSettings, purchasePriceValue]);
 
   useEffect(() => {
     return () => {
@@ -530,13 +625,17 @@ export function InventoryFormContainer({
         isPending={isPending}
         onDragChange={setIsDragging}
         onDateChange={handleDateChange}
+        onDateBlur={handleDateBlur}
         onDrop={handleDrop}
+        onFieldBlur={handleFieldBlur}
         onFieldChange={handleFieldChange}
         onFileChange={handleFileChange}
         onMeasurementChange={handleMeasurementChange}
         onPriceChange={handlePriceChange}
         onRemoveImage={removeImage}
         onSubmit={handleSubmit}
+        selectedCategoryId={selectedCategoryId}
+        sizes={sizes}
         stateMessage={state.success ? "" : state.message}
         values={{
           brand_id: item?.brand_id ?? "",
@@ -547,21 +646,35 @@ export function InventoryFormContainer({
           height_cm: item?.height_cm ?? null,
           internal_description: item?.internal_description ?? "",
           internal_notes: item?.internal_notes ?? "",
-          purchase_date: item?.purchase_date ?? getTodayDateInputValue(),
+          purchase_date: item?.purchase_date ?? "",
           purchase_price: item?.purchase_price ?? null,
           purchase_price_input: purchasePriceValue,
           estimated_sale_price_input: estimatedSalePriceValue,
+          size_id: item?.size_id ?? "",
           title: item?.title ?? "",
           visible_id: item?.visible_id ?? "",
           width_cm: item?.width_cm ?? null,
         }}
+      />
+      <ConfirmDialog
+        confirmLabel={mode === "edit" ? "Guardar cambios" : "Guardar ingreso"}
+        description={
+          mode === "edit"
+            ? "Se actualizará la información del ingreso con los datos cargados."
+            : "Se creará el ingreso de stock y se subirán sus fotos."
+        }
+        isOpen={isConfirmOpen}
+        isPending={isPending}
+        onCancel={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmSubmit}
+        title={mode === "edit" ? "Confirmar cambios" : "Confirmar ingreso"}
       />
       <LoadingOverlay
         isVisible={isPending || progress !== null}
         message={getInventoryLoadingMessage(progress)}
       />
       <ResultModal
-        autoCloseMs={7000}
+        autoCloseMs={8000}
         description={result?.description ?? ""}
         isOpen={result !== null}
         onClose={() => setResult(null)}
@@ -579,7 +692,7 @@ function getInitialMoneyInputValue(value: number | null | undefined) {
 }
 
 function createInventoryCalculationSummary(
-  calculation: ReturnType<typeof calculateProductPrice>,
+  calculation: ReturnType<typeof calculateEstimatedSaleMetrics>,
 ): InventoryCalculationSummary {
   return {
     estimatedProfit: formatCurrency(
@@ -587,6 +700,52 @@ function createInventoryCalculationSummary(
     ),
     margin: formatPercent(calculation.contributionMarginWithCommissionRate),
   };
+}
+
+function createInventoryCalculationSummaryFromInputValues({
+  estimatedSalePriceValue,
+  priceCalculatorSettings,
+  purchasePriceValue,
+}: {
+  estimatedSalePriceValue: string;
+  priceCalculatorSettings: PriceCalculatorSettings;
+  purchasePriceValue: string;
+}) {
+  const purchasePrice = Number(normalizeMoneyInput(purchasePriceValue));
+  const estimatedSalePrice = Number(normalizeMoneyInput(estimatedSalePriceValue));
+
+  if (
+    !Number.isFinite(purchasePrice) ||
+    purchasePrice <= 0 ||
+    !Number.isFinite(estimatedSalePrice) ||
+    estimatedSalePrice <= 0
+  ) {
+    return null;
+  }
+
+  return createInventoryCalculationSummaryFromEstimatedSalePrice({
+    estimatedSalePrice,
+    priceCalculatorSettings,
+    purchasePrice,
+  });
+}
+
+function createInventoryCalculationSummaryFromEstimatedSalePrice({
+  estimatedSalePrice,
+  priceCalculatorSettings,
+  purchasePrice,
+}: {
+  estimatedSalePrice: number;
+  priceCalculatorSettings: PriceCalculatorSettings;
+  purchasePrice: number;
+}) {
+  return createInventoryCalculationSummary(
+    calculateEstimatedSaleMetrics({
+      acquisitionCost: purchasePrice,
+      estimatedSalePrice,
+      settings: priceCalculatorSettings,
+    }),
+  );
 }
 
 function getCalculatedEstimatedSalePriceInput(
@@ -615,4 +774,21 @@ function focusInventoryField(form: HTMLFormElement, fieldName: string) {
   if (field instanceof HTMLElement) {
     field.focus();
   }
+}
+
+function isInventoryFieldName(fieldName: string): fieldName is InventoryFieldName {
+  return [
+    "title",
+    "brand_id",
+    "category_id",
+    "size_id",
+    "condition_id",
+    "purchase_date",
+    "purchase_price",
+    "estimated_sale_price",
+    "height_cm",
+    "width_cm",
+    "internal_description",
+    "internal_notes",
+  ].includes(fieldName);
 }

@@ -1,7 +1,10 @@
 "use server";
 
 import { isAdminUser } from "@/features/auth/admin";
-import type { CatalogOptionActionState } from "@/features/catalog-options/types";
+import type {
+  CatalogOptionActionState,
+  CatalogOptionUsage,
+} from "@/features/catalog-options/types";
 import {
   createSizeValue,
   createSlug,
@@ -171,7 +174,7 @@ export async function moveCatalogSizePosition(formData: FormData) {
   }
 
   if (direction !== "up" && direction !== "down") {
-    return { message: "Falta la direccion del movimiento.", success: false };
+    return { message: "Falta la dirección del movimiento.", success: false };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -419,6 +422,28 @@ export async function deleteCatalogOption(
   }
 
   const supabase = await createSupabaseServerClient();
+  const usageResult = await getCatalogOptionUsageForDelete(
+    supabase,
+    kind,
+    optionId,
+  );
+
+  if (!usageResult.success) {
+    return {
+      message: usageResult.message,
+      success: false,
+    };
+  }
+
+  if (usageResult.usage.products + usageResult.usage.inventoryItems > 0) {
+    const grammar = getCatalogOptionKindGrammar(kind);
+
+    return {
+      message: `No se puede eliminar ${grammar.demonstrative} ${grammar.noun} porque está en uso: ${usageResult.usage.products} en catálogo y ${usageResult.usage.inventoryItems} en stock. Marcá esta opción como inactiva si querés ocultarla sin afectar registros existentes.`,
+      success: false,
+    };
+  }
+
   const { error } = await supabase
     .from(getCatalogOptionTableName(kind))
     .delete()
@@ -620,6 +645,51 @@ async function updateCatalogSize(
     .eq("id", optionId);
 }
 
+async function getCatalogOptionUsageForDelete(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  kind: CatalogOptionKind,
+  optionId: string,
+): Promise<
+  | {
+      success: true;
+      usage: CatalogOptionUsage;
+    }
+  | {
+      message: string;
+      success: false;
+    }
+> {
+  const columnName = getCatalogOptionUsageColumnName(kind);
+  const [productsResult, inventoryResult] = await Promise.all([
+    supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq(columnName, optionId),
+    supabase
+      .from("inventory_items")
+      .select("id", { count: "exact", head: true })
+      .eq(columnName, optionId),
+  ]);
+
+  if (productsResult.error || inventoryResult.error) {
+    return {
+      message:
+        productsResult.error?.message ??
+        inventoryResult.error?.message ??
+        "No se pudo validar el uso de la opción.",
+      success: false,
+    };
+  }
+
+  return {
+    success: true,
+    usage: {
+      inventoryItems: inventoryResult.count ?? 0,
+      products: productsResult.count ?? 0,
+    },
+  };
+}
+
 function getCatalogOptionTableName(kind: CatalogOptionKind) {
   if (kind === "brand") {
     return "catalog_brands";
@@ -636,12 +706,30 @@ function getCatalogOptionTableName(kind: CatalogOptionKind) {
   return "catalog_sizes";
 }
 
+function getCatalogOptionUsageColumnName(kind: CatalogOptionKind) {
+  if (kind === "brand") {
+    return "brand_id";
+  }
+
+  if (kind === "condition") {
+    return "condition_id";
+  }
+
+  if (kind === "category") {
+    return "category_id";
+  }
+
+  return "size_id";
+}
+
 function getCatalogOptionErrorMessage(
   kind: CatalogOptionKind,
   errorMessage: string,
 ) {
   if (errorMessage.toLowerCase().includes("duplicate")) {
-    return `Ya existe esa ${kind === "size" ? "opción" : "opción"}.`;
+    const grammar = getCatalogOptionKindGrammar(kind);
+
+    return `Ya existe ${grammar.indefinite} ${grammar.noun} con ese nombre.`;
   }
 
   return `No se pudo guardar la opción: ${errorMessage}`;
@@ -658,26 +746,44 @@ function getCatalogOptionDeleteErrorMessage(
     normalizedMessage.includes("violates") ||
     normalizedMessage.includes("referenced")
   ) {
-    return `No se puede eliminar esta ${getCatalogOptionKindDeleteLabel(kind)} porque está siendo usada. Desactivala si querés ocultarla.`;
+    const grammar = getCatalogOptionKindGrammar(kind);
+
+    return `No se puede eliminar ${grammar.demonstrative} ${grammar.noun} porque está en uso. Marcá esta opción como inactiva si querés ocultarla.`;
   }
 
   return `No se pudo eliminar la opción: ${errorMessage}`;
 }
 
-function getCatalogOptionKindDeleteLabel(kind: CatalogOptionKind) {
+function getCatalogOptionKindGrammar(kind: CatalogOptionKind) {
   if (kind === "brand") {
-    return "marca";
+    return {
+      demonstrative: "esta",
+      indefinite: "una",
+      noun: "marca",
+    };
   }
 
   if (kind === "condition") {
-    return "estado";
+    return {
+      demonstrative: "este",
+      indefinite: "un",
+      noun: "estado",
+    };
   }
 
   if (kind === "category") {
-    return "categoría";
+    return {
+      demonstrative: "esta",
+      indefinite: "una",
+      noun: "categoría",
+    };
   }
 
-  return "opción";
+  return {
+    demonstrative: "este",
+    indefinite: "un",
+    noun: "talle",
+  };
 }
 
 function revalidateCatalogOptionPaths() {
@@ -685,4 +791,6 @@ function revalidateCatalogOptionPaths() {
   revalidatePath("/retro-campus-admin/catalogo");
   revalidatePath("/retro-campus-admin/productos");
   revalidatePath("/retro-campus-admin/productos/nuevo");
+  revalidatePath("/retro-campus-admin/stock");
+  revalidatePath("/retro-campus-admin/stock/nuevo");
 }

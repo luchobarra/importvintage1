@@ -5,6 +5,10 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export type AuthFormState = {
+  fieldErrors?: {
+    email?: string;
+    password?: string;
+  };
   message: string;
 };
 
@@ -14,15 +18,30 @@ export async function login(
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const fieldErrors: AuthFormState["fieldErrors"] = {};
 
-  if (!email || !password) {
+  if (!email) {
+    fieldErrors.email = "Ingresá el email administrador.";
+  }
+
+  if (email && !email.includes("@")) {
+    fieldErrors.email = "Ingresá un email válido.";
+  }
+
+  if (!password) {
+    fieldErrors.password = "Ingresá la contraseña.";
+  }
+
+  if (fieldErrors.email || fieldErrors.password) {
     return {
-      message: "Completa email y contraseña.",
+      fieldErrors,
+      message: "Revisá los campos marcados.",
     };
   }
 
   if (!isAdminConfigured()) {
     return {
+      fieldErrors: {},
       message: "Falta configurar ADMIN_EMAIL en el entorno del proyecto.",
     };
   }
@@ -35,7 +54,8 @@ export async function login(
 
   if (error) {
     return {
-      message: "Credenciales invalidas. Revisa los datos e intenta de nuevo.",
+      fieldErrors: {},
+      message: "Credenciales inválidas. Revisá los datos e intentá de nuevo.",
     };
   }
 
@@ -43,6 +63,7 @@ export async function login(
     await supabase.auth.signOut();
 
     return {
+      fieldErrors: {},
       message: "Este usuario no está autorizado para acceder al panel.",
     };
   }

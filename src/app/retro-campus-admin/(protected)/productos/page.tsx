@@ -7,14 +7,9 @@ export default function ProductsPage() {
   return (
     <AdminShell>
       <AdminHeader
-        eyebrow="Productos"
+        eyebrow="Principal / Productos"
         title="Productos"
         description="Busca y revisa las prendas cargadas en el catálogo."
-        actions={
-          <Link className="button button--ghost" href="/retro-campus-admin">
-            Volver
-          </Link>
-        }
       />
 
       <section className="admin-products-panel">

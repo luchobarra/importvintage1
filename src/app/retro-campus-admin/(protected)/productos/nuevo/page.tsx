@@ -8,7 +8,6 @@ import { getInventoryItemById } from "@/features/inventory/queries";
 import type { InventoryItem } from "@/features/inventory/types";
 import { getAdminPriceCalculatorSettings } from "@/features/price-calculator/queries";
 import type { PriceCalculatorSettings } from "@/features/price-calculator/types";
-import Link from "next/link";
 
 type NewProductPageProps = {
   searchParams?: Promise<{
@@ -39,25 +38,25 @@ export default async function NewProductPage({
         : "No se pudieron cargar las opciones del catálogo.";
   }
 
+  const inventoryPublishError =
+    inventoryItem?.status === "sold"
+      ? "Este ingreso ya fue marcado como vendido y no puede publicarse en el catálogo."
+      : "";
+
   return (
     <AdminShell>
       <AdminHeader
-        eyebrow="Productos"
+        eyebrow="Operación / Nuevo producto"
         title="Nuevo producto"
         description={
           inventoryItem
             ? "Publica este ingreso de stock en el catálogo con fotos y datos comerciales cuidados."
             : "Carga la información de la prenda y entre 1 y 5 fotos. La primera imagen se usa como foto principal."
         }
-        actions={
-          <Link className="button" href="/retro-campus-admin">
-            Volver
-          </Link>
-        }
       />
 
       <section className="admin-form-panel">
-        {options && priceCalculatorSettings ? (
+        {options && priceCalculatorSettings && !inventoryPublishError ? (
           <ProductFormContainer
             initialValues={
               inventoryItem
@@ -70,6 +69,7 @@ export default async function NewProductPage({
                     heightCm: inventoryItem.height_cm,
                     inventoryItemId: inventoryItem.id,
                     price: inventoryItem.estimated_sale_price,
+                    sizeId: inventoryItem.size_id,
                     title: inventoryItem.title,
                     widthCm: inventoryItem.width_cm,
                   }
@@ -81,7 +81,7 @@ export default async function NewProductPage({
         ) : (
           <EmptyProductList
             title="No se pudo cargar el formulario"
-            message={errorMessage}
+            message={inventoryPublishError || errorMessage}
           />
         )}
       </section>

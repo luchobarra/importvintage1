@@ -104,6 +104,17 @@ export async function createProductDraft(
     };
   }
 
+  if (inventoryItemId) {
+    const inventoryValidation = await validatePublishableInventoryItem(
+      supabase,
+      inventoryItemId,
+    );
+
+    if (!inventoryValidation.success) {
+      return inventoryValidation;
+    }
+  }
+
   const catalogSelection = await getCatalogSelection({
     brandId,
     categoryId,
@@ -439,6 +450,33 @@ async function getCatalogSelection({
     size: sizeResult.data,
     success: true,
   };
+}
+
+async function validatePublishableInventoryItem(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  inventoryItemId: string,
+): Promise<{ success: true } | { message: string; success: false }> {
+  const { data, error } = await supabase
+    .from("inventory_items")
+    .select("id, status")
+    .eq("id", inventoryItemId)
+    .single();
+
+  if (error || !data) {
+    return {
+      message: "No se pudo validar el ingreso de stock vinculado.",
+      success: false,
+    };
+  }
+
+  if (data.status === "sold") {
+    return {
+      message: "Un producto vendido no puede publicarse en el catálogo.",
+      success: false,
+    };
+  }
+
+  return { success: true };
 }
 
 export async function deleteProduct(

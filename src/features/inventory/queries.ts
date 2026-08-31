@@ -19,6 +19,7 @@ const INVENTORY_SELECT = `
   title,
   brand_id,
   category_id,
+  size_id,
   condition_id,
   purchase_date,
   purchase_price,
@@ -55,6 +56,11 @@ const INVENTORY_SELECT = `
     is_active,
     sizes_letter_enabled,
     sizes_numeric_enabled
+  ),
+  catalog_sizes (
+    id,
+    label,
+    value
   ),
   catalog_product_conditions (
     id,

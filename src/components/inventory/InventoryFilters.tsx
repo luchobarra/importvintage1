@@ -14,10 +14,16 @@ import type {
   InventoryValueFilter,
 } from "@/features/inventory/types";
 import { formatProductPriceInput } from "@/features/products/form-validation";
-import { ArrowDownUp, SlidersHorizontal, X } from "lucide-react";
+import {
+  ChevronDown,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import Link from "next/link";
-import type { ChangeEvent, FormEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { ChangeEvent, FormEvent, MouseEvent, ToggleEvent } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 type InventoryFiltersProps = {
   filters: InventoryListFilters;
@@ -30,258 +36,418 @@ type InventoryFilterChip = {
   label: string;
 };
 
+const FILTER_ACTION_TIMEOUT_MS = 1400;
+const DEFAULT_INVENTORY_FILTERS: InventoryListFilters = {
+  brandId: "",
+  categoryId: "",
+  conditionId: "",
+  costMax: "",
+  costMin: "",
+  published: "all",
+  purchaseDate: "",
+  query: "",
+  sort: "newest",
+  status: "available",
+  valueType: "purchase",
+};
+
 export function InventoryFilters({ filters, options }: InventoryFiltersProps) {
-  const stateKey = getInventoryStateKey(filters);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-  const [isApplying, setIsApplying] = useState(false);
-  const [isSortSectionOpen, setIsSortSectionOpen] = useState(false);
-  const [pendingDraft, setPendingDraft] = useState(() => ({
-    state: filters,
-    stateKey,
-  }));
-  const applyTimeoutRef = useRef<number | null>(null);
-  const closeTimeoutRef = useRef<number | null>(null);
-  const filterFormRef = useRef<HTMLFormElement>(null);
-  const sortDetailsRef = useRef<HTMLDetailsElement>(null);
-  const pendingState = useMemo(
-    () => (pendingDraft.stateKey === stateKey ? pendingDraft.state : filters),
-    [filters, pendingDraft, stateKey],
-  );
-  const activeItems = useMemo(
-    () => getActiveItems(options, filters),
-    [filters, options],
-  );
-  const pendingItems = useMemo(
-    () => getActiveItems(options, pendingState),
-    [options, pendingState],
-  );
-  const hasPendingChanges = !areInventoryStatesEqual(filters, pendingState);
-  const isApplyPending = isApplying && pendingDraft.stateKey === stateKey;
-  const drawerItems = hasPendingChanges ? pendingItems : activeItems;
+  const router = useRouter();
+  const activeItems = getActiveItems(options, filters);
   const hasActiveControls = activeItems.length > 0;
-
-  const closeFilters = useCallback(() => {
-    if (!isOpen || isClosing) {
-      return;
-    }
-
-    setIsClosing(true);
-    closeTimeoutRef.current = window.setTimeout(() => {
-      setIsOpen(false);
-      setIsClosing(false);
-      closeTimeoutRef.current = null;
-    }, 340);
-  }, [isClosing, isOpen]);
+  const stateKey = getInventoryStateKey(filters);
+  const [visualOverride, setVisualOverride] = useState<{
+    filters: InventoryListFilters;
+    stateKey: string;
+  } | null>(null);
+  const [processingAction, setProcessingAction] = useState<{
+    stateKey: string;
+    type: "apply" | "clear";
+  } | null>(null);
+  const [formResetIndex, setFormResetIndex] = useState(0);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [, startNavigationTransition] = useTransition();
+  const actionTimeoutRef = useRef<number | null>(null);
+  const closeTimeoutRef = useRef<number | null>(null);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const navigationFrameRef = useRef<number | null>(null);
+  const isProcessing = processingAction?.stateKey === stateKey;
+  const isApplyPending = isProcessing && processingAction.type === "apply";
+  const isClearPending = isProcessing && processingAction.type === "clear";
+  const formFilters =
+    visualOverride?.stateKey === stateKey ? visualOverride.filters : filters;
+  const formKey = `${getInventoryStateKey(formFilters)}:${formResetIndex}`;
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        closeFilters();
+    return () => {
+      if (actionTimeoutRef.current !== null) {
+        window.clearTimeout(actionTimeoutRef.current);
       }
-    }
 
-    document.addEventListener("keydown", handleKeyDown);
-    document.body.classList.add("catalog-filters-open");
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.classList.remove("catalog-filters-open");
-    };
-  }, [closeFilters, isOpen]);
-
-  useEffect(() => {
-    return () => {
       if (closeTimeoutRef.current !== null) {
         window.clearTimeout(closeTimeoutRef.current);
       }
 
-      if (applyTimeoutRef.current !== null) {
-        window.clearTimeout(applyTimeoutRef.current);
+      if (navigationFrameRef.current !== null) {
+        window.cancelAnimationFrame(navigationFrameRef.current);
       }
     };
   }, []);
 
-  function openFilters(section: "sort" | null = null) {
-    if (closeTimeoutRef.current !== null) {
-      window.clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
+  useEffect(() => {
+    if (!isDropdownOpen) {
+      return;
     }
 
-    setPendingDraft({ state: filters, stateKey });
-    setIsSortSectionOpen(section === "sort");
-    setIsApplying(false);
-    setIsClosing(false);
-    setIsOpen(true);
-
-    if (section === "sort" && sortDetailsRef.current) {
-      sortDetailsRef.current.open = true;
+    function handlePointerDown(event: PointerEvent) {
+      if (
+        detailsRef.current &&
+        event.target instanceof Node &&
+        !detailsRef.current.contains(event.target)
+      ) {
+        closeDropdown();
+      }
     }
-  }
 
-  function handleFilterSubmit(event: FormEvent<HTMLFormElement>) {
-    if (isApplyPending) {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeDropdown();
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isDropdownOpen]);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (isProcessing) {
       event.preventDefault();
       return;
     }
 
     event.preventDefault();
-    setIsApplying(true);
-    closeTimeoutRef.current = window.setTimeout(() => {
-      setIsClosing(true);
-    }, 420);
-    applyTimeoutRef.current = window.setTimeout(() => {
-      filterFormRef.current?.submit();
-    }, 900);
-  }
-
-  function handleOptionChange(event: ChangeEvent<HTMLInputElement>) {
-    const { name, value } = event.currentTarget;
-
-    updatePendingState(name, value);
-    closeOptionSection(event.currentTarget);
-  }
-
-  function handleTextChange(
-    event: ChangeEvent<HTMLInputElement>,
-  ) {
-    const { name, value } = event.currentTarget;
-
-    updatePendingState(
-      name,
-      name === "cost_min" || name === "cost_max"
-        ? formatProductPriceInput(value)
-        : value,
+    setVisualOverride(null);
+    processFilterAction(
+      "apply",
+      createInventoryStockHref(getFiltersFromForm(event.currentTarget)),
     );
   }
 
-  function handleDateChange(_fieldName: string, value: string) {
-    updatePendingState("date", value);
-  }
-
-  function updatePendingState(fieldName: string, value: string) {
-    setPendingDraft((currentDraft) => {
-      const currentState =
-        currentDraft.stateKey === stateKey ? currentDraft.state : filters;
-      const nextState = { ...currentState };
-
-      if (fieldName === "q") {
-        nextState.query = value;
-      }
-
-      if (fieldName === "status") {
-        nextState.status = value as InventoryStatusFilter;
-      }
-
-      if (fieldName === "published") {
-        nextState.published = value as InventoryListFilters["published"];
-      }
-
-      if (fieldName === "category") {
-        nextState.categoryId = value;
-      }
-
-      if (fieldName === "brand") {
-        nextState.brandId = value;
-      }
-
-      if (fieldName === "condition") {
-        nextState.conditionId = value;
-      }
-
-      if (fieldName === "date") {
-        nextState.purchaseDate = value;
-      }
-
-      if (fieldName === "cost_min") {
-        nextState.costMin = formatProductPriceInput(value);
-      }
-
-      if (fieldName === "cost_max") {
-        nextState.costMax = formatProductPriceInput(value);
-      }
-
-      if (fieldName === "value_type") {
-        nextState.valueType = value as InventoryValueFilter;
-      }
-
-      if (fieldName === "sort") {
-        nextState.sort = value as InventorySortOrder;
-      }
-
-      return { state: nextState, stateKey };
-    });
-  }
-
-  function closeOptionSection(input: HTMLInputElement) {
-    const details = input.closest("details");
-
-    if (!details) {
+  function handleClearFilters() {
+    if (isProcessing || !hasActiveControls) {
       return;
     }
 
-    details.open = false;
+    setVisualOverride({
+      filters: DEFAULT_INVENTORY_FILTERS,
+      stateKey,
+    });
+    processFilterAction("clear", "/retro-campus-admin/stock");
+  }
 
-    if (details === sortDetailsRef.current) {
-      setIsSortSectionOpen(false);
+  function handleRemoveFilter(
+    event: MouseEvent<HTMLAnchorElement>,
+    item: InventoryFilterChip,
+  ) {
+    if (isProcessing) {
+      event.preventDefault();
+      return;
+    }
+
+    event.preventDefault();
+
+    const nextFilters = resetInventoryFilterValue(filters, item.key);
+
+    setVisualOverride({
+      filters: nextFilters,
+      stateKey,
+    });
+    processFilterAction("apply", item.href);
+  }
+
+  function handlePriceInputChange(event: ChangeEvent<HTMLInputElement>) {
+    event.currentTarget.value = formatProductPriceInput(event.currentTarget.value);
+  }
+
+  function handleDropdownToggle(event: ToggleEvent<HTMLDetailsElement>) {
+    const isOpen = event.currentTarget.open;
+
+    setIsDropdownOpen(isOpen);
+
+    if (!isOpen) {
+      setFormResetIndex((currentIndex) => currentIndex + 1);
     }
   }
 
-  function handlePendingChipRemove(itemKey: keyof InventoryListFilters) {
-    setPendingDraft((currentDraft) => {
-      const currentState =
-        currentDraft.stateKey === stateKey ? currentDraft.state : filters;
+  function closeDropdown() {
+    detailsRef.current?.removeAttribute("open");
+  }
 
-      return {
-        state: resetInventoryFilterValue(currentState, itemKey),
-        stateKey,
-      };
+  function processFilterAction(action: "apply" | "clear", href: string) {
+    setProcessingAction({ stateKey, type: action });
+
+    if (actionTimeoutRef.current !== null) {
+      window.clearTimeout(actionTimeoutRef.current);
+    }
+
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current);
+    }
+
+    closeTimeoutRef.current = window.setTimeout(() => {
+      closeDropdown();
+      closeTimeoutRef.current = null;
+    }, 520);
+
+    actionTimeoutRef.current = window.setTimeout(() => {
+      setProcessingAction(null);
+      actionTimeoutRef.current = null;
+    }, FILTER_ACTION_TIMEOUT_MS);
+
+    navigationFrameRef.current = window.requestAnimationFrame(() => {
+      startNavigationTransition(() => {
+        router.push(href, { scroll: false });
+      });
+      navigationFrameRef.current = null;
     });
   }
 
   return (
-    <section className="catalog-filters inventory-drawer-filters" aria-label="Controles del stock">
-      <div className="catalog-filters__toolbar">
-        <button
-          aria-expanded={isOpen}
-          className="catalog-filters__trigger"
-          onClick={() => openFilters()}
-          type="button"
+    <section className="inventory-control-panel" aria-label="Controles del stock">
+      <div className="inventory-filter-dropdown__bar">
+        <details
+          className="inventory-filter-dropdown"
+          onToggle={handleDropdownToggle}
+          ref={detailsRef}
         >
-          <SlidersHorizontal aria-hidden="true" size={12} strokeWidth={2} />
-          <span>Filtrar</span>
-        </button>
+          <summary className="inventory-filter-dropdown__trigger">
+            <span>
+              <SlidersHorizontal aria-hidden="true" size={14} />
+              Filtros
+            </span>
+            <ChevronDown aria-hidden="true" size={16} />
+          </summary>
 
-        <span className="catalog-filters__divider" aria-hidden="true">
-          |
-        </span>
+          <div className="inventory-filter-dropdown__panel">
+            <form
+              action="/retro-campus-admin/stock"
+              className="inventory-filter-dropdown__form"
+              key={formKey}
+              onSubmit={handleSubmit}
+            >
+            <div className="inventory-filter-dropdown__section">
+              <div className="inventory-filter-dropdown__section-head">
+                <p>Consulta rápida</p>
+              </div>
 
-        <button
-          aria-expanded={isOpen}
-          className="catalog-filters__sort-trigger"
-          onClick={() => openFilters("sort")}
-          type="button"
-        >
-          <ArrowDownUp aria-hidden="true" size={12} strokeWidth={2} />
-          <span>Ordenar</span>
-        </button>
-      </div>
+              <div className="inventory-filter-dropdown__grid inventory-filter-dropdown__grid--core">
+                <label className="inventory-filter-dropdown__search" htmlFor="inventory-search">
+                  <span>Buscar</span>
+                  <div>
+                    <Search aria-hidden="true" size={16} />
+                    <input
+                      defaultValue={formFilters.query}
+                      id="inventory-search"
+                      name="q"
+                      placeholder="Título, ID o descripción"
+                      type="search"
+                    />
+                  </div>
+                </label>
 
-      <div
-        className="catalog-filters__active-band"
-        data-empty={activeItems.length === 0}
-      >
-        {activeItems.length > 0 ? (
-          <div className="catalog-filters__chips" aria-label="Filtros activos">
+                <fieldset className="inventory-filter-dropdown__status">
+                  <legend>Estado comercial</legend>
+                  <div>
+                    {getStatusOptions().map((option) => (
+                      <label key={option.value}>
+                        <input
+                          defaultChecked={formFilters.status === option.value}
+                          name="status"
+                          type="radio"
+                          value={option.value}
+                        />
+                        <span>{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <FilterSelect
+                  defaultValue={formFilters.sort}
+                  label="Orden"
+                  name="sort"
+                  options={getSortOptions()}
+                />
+              </div>
+            </div>
+
+            <div className="inventory-filter-dropdown__section">
+              <div className="inventory-filter-dropdown__section-head">
+                <p>Clasificación</p>
+              </div>
+
+              <div className="inventory-filter-dropdown__grid">
+                <FilterSelect
+                  defaultValue={formFilters.published}
+                  label="Catálogo"
+                  name="published"
+                  options={[
+                    { label: "Todos", value: "all" },
+                    { label: "Publicado", value: "published" },
+                    { label: "Sin publicar", value: "unpublished" },
+                  ]}
+                />
+                <FilterSelect
+                  defaultValue={formFilters.categoryId}
+                  label="Categoría"
+                  name="category"
+                  options={[
+                    { label: "Todas", value: "" },
+                    ...options.categories.map((category) => ({
+                      label: category.name,
+                      value: category.id,
+                    })),
+                  ]}
+                />
+                <FilterSelect
+                  defaultValue={formFilters.brandId}
+                  label="Marca"
+                  name="brand"
+                  options={[
+                    { label: "Todas", value: "" },
+                    ...options.brands.map((brand) => ({
+                      label: brand.name,
+                      value: brand.id,
+                    })),
+                  ]}
+                />
+                <FilterSelect
+                  defaultValue={formFilters.conditionId}
+                  label="Estado de prenda"
+                  name="condition"
+                  options={[
+                    { label: "Todos", value: "" },
+                    ...options.conditions.map((condition) => ({
+                      label: condition.name,
+                      value: condition.id,
+                    })),
+                  ]}
+                />
+              </div>
+            </div>
+
+            <div className="inventory-filter-dropdown__section">
+              <div className="inventory-filter-dropdown__section-head">
+                <p>Compra y valores</p>
+              </div>
+
+              <div className="inventory-filter-dropdown__grid inventory-filter-dropdown__grid--values">
+                <label className="inventory-filter-dropdown__field" htmlFor="inventory-filter-date">
+                  <span>Fecha de compra</span>
+                  <DatePicker
+                    defaultValue={formFilters.purchaseDate}
+                    id="inventory-filter-date"
+                    name="date"
+                    placeholder="Cualquier fecha"
+                  />
+                </label>
+                <FilterSelect
+                  defaultValue={formFilters.valueType}
+                  label="Valor"
+                  name="value_type"
+                  options={[
+                    { label: "Costo", value: "purchase" },
+                    { label: "Venta estimada", value: "estimated" },
+                    { label: "Venta real", value: "sale" },
+                  ]}
+                />
+                <label className="inventory-filter-dropdown__field" htmlFor="inventory-cost-min">
+                  <span>Desde</span>
+                  <input
+                    defaultValue={formFilters.costMin}
+                    id="inventory-cost-min"
+                    inputMode="numeric"
+                    name="cost_min"
+                    onChange={handlePriceInputChange}
+                    placeholder="$0"
+                    type="text"
+                  />
+                </label>
+                <label className="inventory-filter-dropdown__field" htmlFor="inventory-cost-max">
+                  <span>Hasta</span>
+                  <input
+                    defaultValue={formFilters.costMax}
+                    id="inventory-cost-max"
+                    inputMode="numeric"
+                    name="cost_max"
+                    onChange={handlePriceInputChange}
+                    placeholder="$300.000"
+                    type="text"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="inventory-filter-dropdown__actions">
+              <button
+                aria-busy={isClearPending}
+                aria-label={isClearPending ? "Limpiando filtros" : undefined}
+                className="button button--ghost catalog-filters__clear inventory-filter-dropdown__clear"
+                disabled={isProcessing || !hasActiveControls}
+                onClick={handleClearFilters}
+                type="button"
+              >
+                {isClearPending ? (
+                  <span
+                    className="catalog-filters__action-spinner"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  "Limpiar"
+                )}
+              </button>
+              <button
+                aria-busy={isApplyPending}
+                aria-label={isApplyPending ? "Aplicando filtros" : undefined}
+                className="button button--primary catalog-filters__apply"
+                disabled={isProcessing}
+                type="submit"
+              >
+                {isApplyPending ? (
+                  <span
+                    className="catalog-filters__action-spinner"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  "Aplicar filtros"
+                )}
+              </button>
+            </div>
+            </form>
+          </div>
+        </details>
+
+        {hasActiveControls ? (
+          <span
+            className="inventory-filter-dropdown__count"
+            aria-label={`${activeItems.length} filtros activos`}
+          >
+            {activeItems.length}
+          </span>
+        ) : null}
+
+        {hasActiveControls ? (
+          <div className="inventory-filter-dropdown__chips" aria-label="Filtros activos">
             {activeItems.map((item) => (
               <Link
-                className="catalog-filters__chip"
                 href={item.href}
                 key={item.key}
+                onClick={(event) => handleRemoveFilter(event, item)}
               >
                 <span>{item.label}</span>
                 <X aria-hidden="true" size={12} strokeWidth={2} />
@@ -290,410 +456,66 @@ export function InventoryFilters({ filters, options }: InventoryFiltersProps) {
           </div>
         ) : null}
       </div>
-
-      {isOpen ? (
-        <div
-          className="catalog-filters__overlay"
-          data-state={isClosing ? "closing" : "open"}
-          role="presentation"
-        >
-          <button
-            aria-label="Cerrar filtros"
-            className="catalog-filters__backdrop"
-            onClick={closeFilters}
-            type="button"
-          />
-          <aside
-            aria-label="Filtros de stock"
-            aria-modal="true"
-            className="catalog-filters__drawer"
-            data-state={isClosing ? "closing" : "open"}
-            role="dialog"
-          >
-            <div className="catalog-filters__drawer-header">
-              <div className="catalog-filters__drawer-title-row">
-                <h2 className="catalog-filters__title">Filtros de stock</h2>
-                <button
-                  aria-label="Cerrar filtros"
-                  className="catalog-filters__close"
-                  onClick={closeFilters}
-                  type="button"
-                >
-                  <X aria-hidden="true" size={18} strokeWidth={1.8} />
-                </button>
-              </div>
-              <div
-                className="catalog-filters__drawer-chips"
-                data-empty={drawerItems.length === 0}
-              >
-                {drawerItems.map((item) =>
-                  hasPendingChanges ? (
-                    <button
-                      aria-label={`Quitar filtro pendiente ${item.label}`}
-                      className="catalog-filters__drawer-chip catalog-filters__drawer-chip--pending"
-                      key={item.key}
-                      onClick={() => handlePendingChipRemove(item.key)}
-                      type="button"
-                    >
-                      <span>{item.label}</span>
-                      <X aria-hidden="true" size={11} strokeWidth={2} />
-                    </button>
-                  ) : (
-                    <Link
-                      className="catalog-filters__drawer-chip"
-                      href={item.href}
-                      key={item.key}
-                    >
-                      <span>{item.label}</span>
-                      <X aria-hidden="true" size={12} strokeWidth={2} />
-                    </Link>
-                  ),
-                )}
-              </div>
-            </div>
-
-            <form
-              action="/retro-campus-admin/stock"
-              className="catalog-filters__form"
-              onSubmit={handleFilterSubmit}
-              ref={filterFormRef}
-            >
-              <div className="catalog-filters__fields">
-                <FilterTextSection
-                  label="Buscar"
-                  name="q"
-                  onChange={handleTextChange}
-                  placeholder="Título, ID o descripción"
-                  value={pendingState.query}
-                />
-
-                <FilterRadioSection
-                  label="Estado comercial"
-                  name="status"
-                  onChange={handleOptionChange}
-                  options={[
-                    { label: "Disponibles", value: "available" },
-                    { label: "Todos", value: "all" },
-                    { label: "Reservados", value: "reserved" },
-                    { label: "Vendidos", value: "sold" },
-                  ]}
-                  value={pendingState.status}
-                />
-
-                <FilterRadioSection
-                  label="Catálogo"
-                  name="published"
-                  onChange={handleOptionChange}
-                  options={[
-                    { label: "Todos", value: "all" },
-                    { label: "Publicado en catálogo", value: "published" },
-                    { label: "Sin publicar", value: "unpublished" },
-                  ]}
-                  value={pendingState.published}
-                />
-
-                <FilterRadioSection
-                  label="Categoría"
-                  name="category"
-                  onChange={handleOptionChange}
-                  options={[
-                    { label: "Todas", value: "" },
-                    ...options.categories.map((category) => ({
-                      label: category.name,
-                      value: category.id,
-                    })),
-                  ]}
-                  scroll
-                  value={pendingState.categoryId}
-                />
-
-                <FilterRadioSection
-                  label="Marca"
-                  name="brand"
-                  onChange={handleOptionChange}
-                  options={[
-                    { label: "Todas", value: "" },
-                    ...options.brands.map((brand) => ({
-                      label: brand.name,
-                      value: brand.id,
-                    })),
-                  ]}
-                  scroll
-                  value={pendingState.brandId}
-                />
-
-                <FilterRadioSection
-                  label="Estado de prenda"
-                  name="condition"
-                  onChange={handleOptionChange}
-                  options={[
-                    { label: "Todos", value: "" },
-                    ...options.conditions.map((condition) => ({
-                      label: condition.name,
-                      value: condition.id,
-                    })),
-                  ]}
-                  scroll
-                  value={pendingState.conditionId}
-                />
-
-                <fieldset className="catalog-filters__group">
-                  <legend className="catalog-filters__legend catalog-filters__legend--hidden">
-                    Fecha de compra
-                  </legend>
-                  <details className="catalog-filters__details">
-                    <summary className="catalog-filters__summary">
-                      <span>Fecha de compra</span>
-                    </summary>
-                    <div className="catalog-filters__details-body inventory-drawer-filters__body">
-                      <DatePicker
-                        defaultValue={pendingState.purchaseDate}
-                        id="inventory-filter-date"
-                        key={pendingState.purchaseDate}
-                        name="date"
-                        onChange={handleDateChange}
-                      />
-                    </div>
-                  </details>
-                </fieldset>
-
-                <fieldset className="catalog-filters__group">
-                  <legend className="catalog-filters__legend catalog-filters__legend--hidden">
-                    Costos
-                  </legend>
-                  <details className="catalog-filters__details">
-                    <summary className="catalog-filters__summary">
-                      <span>Costos</span>
-                    </summary>
-                    <div className="catalog-filters__details-body inventory-drawer-filters__price-grid">
-                      <label className="inventory-drawer-filters__price-type">
-                        <span>Aplicar a</span>
-                        <select
-                          name="value_type"
-                          onChange={(event) =>
-                            updatePendingState(
-                              event.currentTarget.name,
-                              event.currentTarget.value,
-                            )
-                          }
-                          value={pendingState.valueType}
-                        >
-                          <option value="purchase">Costo</option>
-                          <option value="estimated">Venta estimada</option>
-                          <option value="sale">Venta real</option>
-                        </select>
-                      </label>
-                      <label>
-                        <span>Desde</span>
-                        <input
-                          inputMode="numeric"
-                          name="cost_min"
-                          onChange={handleTextChange}
-                          placeholder="$0"
-                          type="text"
-                          value={pendingState.costMin}
-                        />
-                      </label>
-                      <label>
-                        <span>Hasta</span>
-                        <input
-                          inputMode="numeric"
-                          name="cost_max"
-                          onChange={handleTextChange}
-                          placeholder="$300.000"
-                          type="text"
-                          value={pendingState.costMax}
-                        />
-                      </label>
-                    </div>
-                  </details>
-                </fieldset>
-
-                <fieldset className="catalog-filters__group catalog-filters__group--sort">
-                  <legend className="catalog-filters__legend catalog-filters__legend--hidden">
-                    Ordenar
-                  </legend>
-                  <details
-                    className="catalog-filters__details"
-                    onToggle={(event) =>
-                      setIsSortSectionOpen(event.currentTarget.open)
-                    }
-                    open={isSortSectionOpen}
-                    ref={sortDetailsRef}
-                  >
-                    <summary className="catalog-filters__summary">
-                      <span>Ordenar</span>
-                    </summary>
-                    <div className="catalog-filters__option-list">
-                      {getSortOptions().map((option) => (
-                        <FilterOption
-                          checked={pendingState.sort === option.value}
-                          key={option.value}
-                          label={option.label}
-                          name="sort"
-                          onChange={handleOptionChange}
-                          value={option.value}
-                        />
-                      ))}
-                    </div>
-                  </details>
-                </fieldset>
-              </div>
-
-              <div className="catalog-filters__actions">
-                {hasActiveControls ? (
-                  <Link className="button button--ghost catalog-filters__clear" href="/retro-campus-admin/stock">
-                    Limpiar
-                  </Link>
-                ) : (
-                  <button
-                    className="button button--ghost catalog-filters__clear"
-                    disabled
-                    type="button"
-                  >
-                    Limpiar
-                  </button>
-                )}
-                <button
-                  aria-busy={isApplyPending}
-                  className="button button--primary catalog-filters__apply"
-                  disabled={isApplyPending}
-                  type="submit"
-                >
-                  {isApplyPending ? (
-                    <>
-                      <span
-                        className="catalog-filters__apply-spinner"
-                        aria-hidden="true"
-                      />
-                      Aplicando...
-                    </>
-                  ) : (
-                    "Aplicar filtros"
-                  )}
-                </button>
-              </div>
-            </form>
-          </aside>
-        </div>
-      ) : null}
     </section>
   );
 }
 
-type FilterRadioSectionProps = {
+type FilterSelectProps = {
+  className?: string;
+  defaultValue: string;
   label: string;
   name: string;
   options: Array<{ label: string; value: string }>;
-  scroll?: boolean;
-  value: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
-function FilterRadioSection({
+function FilterSelect({
+  className = "",
+  defaultValue,
   label,
   name,
-  onChange,
   options,
-  scroll = false,
-  value,
-}: FilterRadioSectionProps) {
+}: FilterSelectProps) {
   return (
-    <fieldset className="catalog-filters__group">
-      <legend className="catalog-filters__legend catalog-filters__legend--hidden">
-        {label}
-      </legend>
-      <details className="catalog-filters__details">
-        <summary className="catalog-filters__summary">
-          <span>{label}</span>
-        </summary>
-        <div
-          className={`catalog-filters__option-list${
-            scroll ? " catalog-filters__option-list--scroll" : ""
-          }`}
-        >
-          {options.map((option) => (
-            <FilterOption
-              checked={value === option.value}
-              key={option.value || `${name}-all`}
-              label={option.label}
-              name={name}
-              onChange={onChange}
-              value={option.value}
-            />
-          ))}
-        </div>
-      </details>
-    </fieldset>
-  );
-}
-
-type FilterTextSectionProps = {
-  label: string;
-  name: string;
-  placeholder: string;
-  value: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-};
-
-function FilterTextSection({
-  label,
-  name,
-  onChange,
-  placeholder,
-  value,
-}: FilterTextSectionProps) {
-  return (
-    <fieldset className="catalog-filters__group">
-      <legend className="catalog-filters__legend catalog-filters__legend--hidden">
-        {label}
-      </legend>
-      <details className="catalog-filters__details">
-        <summary className="catalog-filters__summary">
-          <span>{label}</span>
-        </summary>
-        <div className="catalog-filters__details-body inventory-drawer-filters__body">
-          <input
-            name={name}
-            onChange={onChange}
-            placeholder={placeholder}
-            type="search"
-            value={value}
-          />
-        </div>
-      </details>
-    </fieldset>
-  );
-}
-
-type FilterOptionProps = {
-  checked: boolean;
-  label: string;
-  name: string;
-  value: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-};
-
-function FilterOption({
-  checked,
-  label,
-  name,
-  onChange,
-  value,
-}: FilterOptionProps) {
-  return (
-    <label className="catalog-filters__option">
-      <input
-        checked={checked}
-        className="catalog-filters__option-input"
-        name={name}
-        onChange={onChange}
-        type="radio"
-        value={value}
-      />
-      <span className="catalog-filters__option-label">{label}</span>
+    <label className={`inventory-filter-dropdown__field ${className}`.trim()}>
+      <span>{label}</span>
+      <select defaultValue={defaultValue} name={name}>
+        {options.map((option) => (
+          <option key={option.value || `${name}-all`} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </label>
   );
+}
+
+function getStatusOptions(): Array<{ label: string; value: InventoryStatusFilter }> {
+  return [
+    { label: "Disponibles", value: "available" },
+    { label: "Todos", value: "all" },
+    { label: "Reservados", value: "reserved" },
+    { label: "Vendidos", value: "sold" },
+  ];
+}
+
+function getFiltersFromForm(form: HTMLFormElement): InventoryListFilters {
+  const formData = new FormData(form);
+
+  return {
+    brandId: String(formData.get("brand") ?? ""),
+    categoryId: String(formData.get("category") ?? ""),
+    conditionId: String(formData.get("condition") ?? ""),
+    costMax: String(formData.get("cost_max") ?? ""),
+    costMin: String(formData.get("cost_min") ?? ""),
+    published: String(
+      formData.get("published") ?? "all",
+    ) as InventoryListFilters["published"],
+    purchaseDate: String(formData.get("date") ?? ""),
+    query: String(formData.get("q") ?? "").trim(),
+    sort: String(formData.get("sort") ?? "newest") as InventorySortOrder,
+    status: String(formData.get("status") ?? "available") as InventoryStatusFilter,
+    valueType: String(formData.get("value_type") ?? "purchase") as InventoryValueFilter,
+  };
 }
 
 function getActiveItems(
@@ -713,7 +535,7 @@ function getActiveItems(
     items.push({
       href: createInventoryStockHref({ ...state, query: "" }),
       key: "query",
-      label: `Busqueda: ${state.query}`,
+      label: `Búsqueda: ${state.query}`,
     });
   }
 
@@ -730,10 +552,7 @@ function getActiveItems(
     items.push({
       href: createInventoryStockHref({ ...state, published: "all" }),
       key: "published",
-      label:
-        state.published === "published"
-          ? "Publicado en catálogo"
-          : "Sin publicar",
+      label: state.published === "published" ? "Publicado" : "Sin publicar",
     });
   }
 
@@ -770,16 +589,28 @@ function getActiveItems(
   }
 
   if (state.costMin) {
+    const hasRemainingCostFilter = Boolean(state.costMax);
+
     items.push({
-      href: createInventoryStockHref({ ...state, costMin: "" }),
+      href: createInventoryStockHref({
+        ...state,
+        costMin: "",
+        valueType: hasRemainingCostFilter ? state.valueType : "purchase",
+      }),
       key: "costMin",
       label: `${getValueTypeLabel(state.valueType)} desde ${formatInventoryCurrency(Number(normalizeCost(state.costMin)))}`,
     });
   }
 
   if (state.costMax) {
+    const hasRemainingCostFilter = Boolean(state.costMin);
+
     items.push({
-      href: createInventoryStockHref({ ...state, costMax: "" }),
+      href: createInventoryStockHref({
+        ...state,
+        costMax: "",
+        valueType: hasRemainingCostFilter ? state.valueType : "purchase",
+      }),
       key: "costMax",
       label: `${getValueTypeLabel(state.valueType)} hasta ${formatInventoryCurrency(Number(normalizeCost(state.costMax)))}`,
     });
@@ -848,25 +679,6 @@ function createInventoryStockHref(state: InventoryListFilters) {
   return queryString ? `/retro-campus-admin/stock?${queryString}` : "/retro-campus-admin/stock";
 }
 
-function resetInventoryFilterValue(
-  state: InventoryListFilters,
-  itemKey: keyof InventoryListFilters,
-) {
-  return {
-    ...state,
-    [itemKey]:
-      itemKey === "status"
-        ? "available"
-        : itemKey === "published"
-          ? "all"
-          : itemKey === "sort"
-            ? "newest"
-            : itemKey === "valueType"
-              ? "purchase"
-              : "",
-  };
-}
-
 function getSortOptions(): Array<{ label: string; value: InventorySortOrder }> {
   return [
     { label: "Más recientes", value: "newest" },
@@ -900,6 +712,34 @@ function getValueTypeLabel(valueType: InventoryValueFilter) {
   return "Costo";
 }
 
+function resetInventoryFilterValue(
+  state: InventoryListFilters,
+  itemKey: keyof InventoryListFilters,
+): InventoryListFilters {
+  const nextState = {
+    ...state,
+    [itemKey]:
+      itemKey === "status"
+        ? DEFAULT_INVENTORY_FILTERS.status
+        : itemKey === "published"
+          ? DEFAULT_INVENTORY_FILTERS.published
+          : itemKey === "sort"
+            ? DEFAULT_INVENTORY_FILTERS.sort
+            : itemKey === "valueType"
+              ? DEFAULT_INVENTORY_FILTERS.valueType
+              : "",
+  };
+
+  if (
+    (itemKey === "costMin" && !state.costMax) ||
+    (itemKey === "costMax" && !state.costMin)
+  ) {
+    nextState.valueType = DEFAULT_INVENTORY_FILTERS.valueType;
+  }
+
+  return nextState;
+}
+
 function getInventoryStateKey(state: InventoryListFilters) {
   return [
     state.brandId,
@@ -914,11 +754,4 @@ function getInventoryStateKey(state: InventoryListFilters) {
     state.status,
     state.valueType,
   ].join("|");
-}
-
-function areInventoryStatesEqual(
-  firstState: InventoryListFilters,
-  secondState: InventoryListFilters,
-) {
-  return getInventoryStateKey(firstState) === getInventoryStateKey(secondState);
 }

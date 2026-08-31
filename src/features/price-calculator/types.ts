@@ -12,6 +12,12 @@ export type PriceCalculationInput = {
   settings: PriceCalculatorSettings;
 };
 
+export type EstimatedSaleMetricsInput = {
+  acquisitionCost: number;
+  estimatedSalePrice: number;
+  settings: PriceCalculatorSettings;
+};
+
 export type PriceCalculationResult = {
   contributionMargin: number;
   contributionMarginRate: number | null;
@@ -23,6 +29,13 @@ export type PriceCalculationResult = {
   priceWithCommission: number;
   priceWithVat: number;
   salePrice: number;
+};
+
+export type EstimatedSaleMetricsResult = {
+  contributionMarginWithCommission: number;
+  contributionMarginWithCommissionRate: number | null;
+  costTotal: number;
+  netSalePrice: number;
 };
 
 export type PriceCalculatorActionState = {

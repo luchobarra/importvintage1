@@ -5,7 +5,6 @@ import { EmptyProductList } from "@/components/products/EmptyProductList";
 import { getSalesChannels } from "@/features/inventory/queries";
 import type { SalesChannel } from "@/features/inventory/types";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   robots: {
@@ -31,13 +30,8 @@ export default async function SalesChannelsPage() {
   return (
     <AdminShell>
       <AdminHeader
-        actions={
-          <Link className="button button--secondary" href="/retro-campus-admin/stock">
-            Volver
-          </Link>
-        }
         description="Administra los medios que se usan al registrar ventas y futuras metricas."
-        eyebrow="Stock"
+        eyebrow="Gestión / Canales de venta"
         title="Canales de venta"
       />
 

@@ -7,7 +7,9 @@ import { getPriceDigits } from "@/features/products/form-validation";
 
 export type InventoryFieldName =
   | "title"
+  | "brand_id"
   | "category_id"
+  | "size_id"
   | "condition_id"
   | "purchase_date"
   | "purchase_price"
@@ -30,71 +32,122 @@ export type InventorySaleFieldErrors = Partial<
 >;
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const INVENTORY_FIELD_LABELS: Record<InventoryFieldName, string> = {
+  brand_id: "marca",
+  category_id: "categoría",
+  condition_id: "estado",
+  estimated_sale_price: "precio estimado",
+  height_cm: "alto",
+  internal_description: "descripción",
+  internal_notes: "notas",
+  purchase_date: "fecha de compra",
+  purchase_price: "precio de compra",
+  size_id: "talle",
+  title: "título",
+  width_cm: "ancho",
+};
+
+const INVENTORY_FIELD_ORDER: InventoryFieldName[] = [
+  "title",
+  "category_id",
+  "brand_id",
+  "condition_id",
+  "purchase_date",
+  "purchase_price",
+  "estimated_sale_price",
+  "size_id",
+  "height_cm",
+  "width_cm",
+  "internal_description",
+  "internal_notes",
+];
 
 export function validateInventoryFormFields(formData: FormData) {
   const errors: InventoryFieldErrors = {};
-  const title = getRequiredText(formData, "title");
-  const categoryId = getRequiredText(formData, "category_id");
-  const conditionId = getRequiredText(formData, "condition_id");
-  const purchaseDate = getRequiredText(formData, "purchase_date");
-  const purchasePrice = getRequiredText(formData, "purchase_price");
-  const estimatedSalePrice = getRequiredText(formData, "estimated_sale_price");
-  const heightCm = String(formData.get("height_cm") ?? "").trim();
-  const widthCm = String(formData.get("width_cm") ?? "").trim();
-  const internalDescription = getRequiredText(formData, "internal_description");
-  const internalNotes = String(formData.get("internal_notes") ?? "").trim();
 
-  if (!title) {
-    errors.title = "Ingresa un título.";
+  for (const fieldName of INVENTORY_FIELD_ORDER) {
+    const fieldError = validateInventoryField(
+      fieldName,
+      String(formData.get(fieldName) ?? ""),
+    );
+
+    if (fieldError) {
+      errors[fieldName] = fieldError;
+    }
   }
 
-  if (!categoryId) {
-    errors.category_id = "Selecciona una categoría.";
-  }
-
-  if (!conditionId) {
-    errors.condition_id = "Selecciona un estado.";
-  }
-
-  if (!purchaseDate || !DATE_PATTERN.test(purchaseDate)) {
-    errors.purchase_date = "Selecciona una fecha válida.";
-  }
-
-  if (!isValidMoneyInput(purchasePrice, true)) {
-    errors.purchase_price = "Ingresa un precio de compra válido.";
-  }
-
-  if (!isValidMoneyInput(estimatedSalePrice, false)) {
-    errors.estimated_sale_price = "Ingresa un precio estimado válido.";
-  }
-
-  if (!isValidMeasurementInput(heightCm, false)) {
-    errors.height_cm = "Usa un número mayor a 0 con coma decimal.";
-  }
-
-  if (!isValidMeasurementInput(widthCm, false)) {
-    errors.width_cm = "Usa un número mayor a 0 con coma decimal.";
-  }
-
-  if (!internalDescription) {
-    errors.internal_description = "Agrega una descripción.";
-  } else if (internalDescription.length > INVENTORY_TEXT_MAX_LENGTH) {
-    errors.internal_description = `Máximo ${INVENTORY_TEXT_MAX_LENGTH} caracteres.`;
-  }
-
-  if (internalNotes.length > INVENTORY_NOTES_MAX_LENGTH) {
-    errors.internal_notes = `Máximo ${INVENTORY_NOTES_MAX_LENGTH} caracteres.`;
-  }
-
-  const firstInvalidField = getFirstInventoryInvalidField(errors);
+  const invalidFields = INVENTORY_FIELD_ORDER.filter((fieldName) =>
+    Boolean(errors[fieldName]),
+  );
 
   return {
     errors,
-    firstInvalidField,
-    message: firstInvalidField
-      ? "Revisa los campos marcados antes de guardar."
-      : "",
+    firstInvalidField: invalidFields[0] ?? null,
+    message: getInventoryValidationMessage(invalidFields),
   };
+}
+
+export function validateInventoryField(
+  fieldName: InventoryFieldName,
+  value: string,
+) {
+  const normalizedValue = value.trim();
+
+  if (
+    [
+      "title",
+      "brand_id",
+      "category_id",
+      "condition_id",
+      "purchase_date",
+      "purchase_price",
+      "internal_description",
+    ].includes(fieldName) &&
+    !normalizedValue
+  ) {
+    return `Falta completar el campo ${INVENTORY_FIELD_LABELS[fieldName]}.`;
+  }
+
+  if (fieldName === "purchase_date" && !DATE_PATTERN.test(normalizedValue)) {
+    return "Selecciona una fecha válida.";
+  }
+
+  if (
+    fieldName === "purchase_price" &&
+    !isValidMoneyInput(normalizedValue, true)
+  ) {
+    return "Ingresa un precio de compra válido.";
+  }
+
+  if (
+    fieldName === "estimated_sale_price" &&
+    !isValidMoneyInput(normalizedValue, false)
+  ) {
+    return "Ingresa un precio estimado válido.";
+  }
+
+  if (
+    (fieldName === "height_cm" || fieldName === "width_cm") &&
+    !isValidMeasurementInput(normalizedValue, false)
+  ) {
+    return "Usa un número mayor a 0 con coma decimal.";
+  }
+
+  if (
+    fieldName === "internal_description" &&
+    normalizedValue.length > INVENTORY_TEXT_MAX_LENGTH
+  ) {
+    return `Máximo ${INVENTORY_TEXT_MAX_LENGTH} caracteres.`;
+  }
+
+  if (
+    fieldName === "internal_notes" &&
+    normalizedValue.length > INVENTORY_NOTES_MAX_LENGTH
+  ) {
+    return `Máximo ${INVENTORY_NOTES_MAX_LENGTH} caracteres.`;
+  }
+
+  return "";
 }
 
 export function validateInventorySaleFormFields(formData: FormData) {
@@ -150,21 +203,20 @@ function isValidMoneyInput(value: string, required: boolean) {
   return Boolean(digits) && Number.isFinite(price) && price >= 0;
 }
 
-function getFirstInventoryInvalidField(errors: InventoryFieldErrors) {
-  return (
-    ([
-      "title",
-      "category_id",
-      "condition_id",
-      "purchase_date",
-      "purchase_price",
-      "estimated_sale_price",
-      "height_cm",
-      "width_cm",
-      "internal_description",
-      "internal_notes",
-    ] as InventoryFieldName[]).find((fieldName) => errors[fieldName]) ?? null
-  );
+function getInventoryValidationMessage(invalidFields: InventoryFieldName[]) {
+  if (invalidFields.length === 0) {
+    return "";
+  }
+
+  if (invalidFields.length === 1) {
+    return `Falta completar el campo ${INVENTORY_FIELD_LABELS[invalidFields[0]]}.`;
+  }
+
+  const labels = invalidFields
+    .map((fieldName) => INVENTORY_FIELD_LABELS[fieldName])
+    .join(", ");
+
+  return `Faltan completar estos campos: ${labels}.`;
 }
 
 function getFirstSaleInvalidField(errors: InventorySaleFieldErrors) {

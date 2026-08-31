@@ -70,6 +70,37 @@ export function formatInventoryPercent(value: number | null | undefined) {
   return `${Math.round(value)}%`;
 }
 
+export function formatInventoryAgeDays(
+  purchaseDate: string | null | undefined,
+  endDate?: string | null,
+) {
+  if (!purchaseDate) {
+    return "-";
+  }
+
+  const start = new Date(`${purchaseDate}T00:00:00`);
+  const end = endDate ? new Date(`${endDate}T00:00:00`) : new Date();
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return "-";
+  }
+
+  const days = Math.max(
+    0,
+    Math.floor((end.getTime() - start.getTime()) / 86_400_000),
+  );
+
+  if (days === 0) {
+    return "Hoy";
+  }
+
+  if (days === 1) {
+    return "1 día";
+  }
+
+  return `${days} días`;
+}
+
 export function getTodayDateInputValue() {
   return new Date().toISOString().slice(0, 10);
 }

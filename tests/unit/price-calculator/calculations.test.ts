@@ -1,4 +1,5 @@
 import {
+  calculateEstimatedSaleMetrics,
   calculateProductPrice,
   DEFAULT_PRICE_CALCULATOR_SETTINGS,
   roundUpToIncrement,
@@ -40,5 +41,22 @@ describe("price calculator", () => {
   it("rounds up to the configured increment", () => {
     expect(roundUpToIncrement(43982, 100)).toBe(44000);
     expect(roundUpToIncrement(44000, 100)).toBe(44000);
+  });
+
+  it("calculates real margin from a manual estimated sale price", () => {
+    const result = calculateEstimatedSaleMetrics({
+      acquisitionCost: 25000,
+      estimatedSalePrice: 60500,
+      settings: {
+        ...DEFAULT_PRICE_CALCULATOR_SETTINGS,
+        commissionRate: 0.1,
+        finalRoundingIncrement: 500,
+      },
+    });
+
+    expect(result.costTotal).toBe(27500);
+    expect(result.netSalePrice).toBeCloseTo(45000);
+    expect(result.contributionMarginWithCommission).toBeCloseTo(17500);
+    expect(result.contributionMarginWithCommissionRate).toBeCloseTo(0.3889, 4);
   });
 });

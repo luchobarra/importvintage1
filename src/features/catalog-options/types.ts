@@ -1,5 +1,11 @@
+export type CatalogOptionUsage = {
+  inventoryItems: number;
+  products: number;
+};
+
 export type CatalogOptionStatus = {
   is_active: boolean;
+  usage?: CatalogOptionUsage;
 };
 
 export type CatalogCategory = CatalogOptionStatus & {

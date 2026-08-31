@@ -64,6 +64,7 @@ type ProductFormContainerProps = {
     heightCm?: number | null;
     inventoryItemId?: string;
     price?: number | null;
+    sizeId?: string | null;
     title?: string;
     widthCm?: number | null;
   };

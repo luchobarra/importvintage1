@@ -1,4 +1,6 @@
 import type {
+  EstimatedSaleMetricsInput,
+  EstimatedSaleMetricsResult,
   PriceCalculationInput,
   PriceCalculationResult,
   PriceCalculatorSettings,
@@ -51,6 +53,28 @@ export function calculateProductPrice({
     priceWithCommission,
     priceWithVat,
     salePrice,
+  };
+}
+
+export function calculateEstimatedSaleMetrics({
+  acquisitionCost,
+  estimatedSalePrice,
+  settings,
+}: EstimatedSaleMetricsInput): EstimatedSaleMetricsResult {
+  const costTotal =
+    acquisitionCost + settings.packagingCost + settings.shippingCost;
+  const priceBeforeVat =
+    settings.vatRate > -1 ? estimatedSalePrice / (1 + settings.vatRate) : 0;
+  const netSalePrice = priceBeforeVat * (1 - settings.commissionRate);
+  const contributionMarginWithCommission = netSalePrice - costTotal;
+  const contributionMarginWithCommissionRate =
+    netSalePrice > 0 ? contributionMarginWithCommission / netSalePrice : null;
+
+  return {
+    contributionMarginWithCommission,
+    contributionMarginWithCommissionRate,
+    costTotal,
+    netSalePrice,
   };
 }
 

@@ -1,14 +1,15 @@
-type AdminShellProps = {
-  className?: string;
-  children: React.ReactNode;
-};
+import type { ComponentPropsWithoutRef } from "react";
 
-export function AdminShell({ children, className = "" }: AdminShellProps) {
+type AdminShellProps = ComponentPropsWithoutRef<"section">;
+
+export function AdminShell({
+  children,
+  className = "",
+  ...props
+}: AdminShellProps) {
   return (
-    <main className="admin-page">
-      <section className={`admin-shell ui-page-container ${className}`.trim()}>
-        {children}
-      </section>
-    </main>
+    <section className={`admin-shell ${className}`.trim()} {...props}>
+      {children}
+    </section>
   );
 }

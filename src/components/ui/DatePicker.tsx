@@ -1,14 +1,23 @@
 "use client";
 
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FocusEvent,
+} from "react";
 
 type DatePickerProps = {
+  ariaDescribedBy?: string;
   defaultValue?: string;
+  disabled?: boolean;
   id: string;
   name: string;
   placeholder?: string;
   required?: boolean;
+  onBlur?: (fieldName: string, value: string) => void;
   onChange?: (fieldName: string, value: string) => void;
 };
 
@@ -25,11 +34,14 @@ const displayDateFormatter = new Intl.DateTimeFormat("es-AR", {
 const weekdays = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
 
 export function DatePicker({
+  ariaDescribedBy,
   defaultValue = "",
+  disabled = false,
   id,
   name,
   placeholder = "Seleccionar fecha",
   required = false,
+  onBlur,
   onChange,
 }: DatePickerProps) {
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -94,8 +106,21 @@ export function DatePicker({
     );
   }
 
+  function handleBlur(event: FocusEvent<HTMLDivElement>) {
+    const nextFocusedElement = event.relatedTarget;
+
+    if (
+      nextFocusedElement instanceof Node &&
+      event.currentTarget.contains(nextFocusedElement)
+    ) {
+      return;
+    }
+
+    onBlur?.(name, selectedValue);
+  }
+
   return (
-    <div className="date-picker" ref={pickerRef}>
+    <div className="date-picker" onBlur={handleBlur} ref={pickerRef}>
       <input
         id={id}
         name={name}
@@ -105,9 +130,11 @@ export function DatePicker({
         value={selectedValue}
       />
       <button
+        aria-describedby={ariaDescribedBy}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         className={`date-picker__trigger${isOpen ? " date-picker__trigger--open" : ""}`}
+        disabled={disabled}
         onClick={() => setIsOpen((currentValue) => !currentValue)}
         type="button"
       >

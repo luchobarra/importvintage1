@@ -7,11 +7,11 @@ import type {
   CatalogBrand,
   CatalogCategory,
   CatalogProductCondition,
+  CatalogSize,
 } from "@/features/catalog-options/types";
 import { getAdminPriceCalculatorSettings } from "@/features/price-calculator/queries";
 import type { PriceCalculatorSettings } from "@/features/price-calculator/types";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   robots: {
@@ -25,6 +25,7 @@ export default async function NewInventoryItemPage() {
   let brands: CatalogBrand[] = [];
   let categories: CatalogCategory[] = [];
   let conditions: CatalogProductCondition[] = [];
+  let sizes: CatalogSize[] = [];
   let priceCalculatorSettings: PriceCalculatorSettings | null = null;
   let errorMessage = "";
 
@@ -36,24 +37,20 @@ export default async function NewInventoryItemPage() {
     brands = catalogOptions.brands;
     categories = catalogOptions.categories;
     conditions = catalogOptions.conditions;
+    sizes = catalogOptions.sizes;
     priceCalculatorSettings = settings;
   } catch (error) {
     errorMessage =
       error instanceof Error
         ? error.message
-        : "No se pudieron cargar las categorias.";
+        : "No se pudieron cargar las categorías.";
   }
 
   return (
     <AdminShell>
       <AdminHeader
-        actions={
-          <Link className="button button--secondary" href="/retro-campus-admin/stock">
-            Volver
-          </Link>
-        }
         description="Carga una prenda con fotos simples y datos útiles para seguimiento comercial."
-        eyebrow="Stock"
+        eyebrow="Operación / Nuevo ingreso"
         title="Nuevo ingreso"
       />
 
@@ -70,6 +67,7 @@ export default async function NewInventoryItemPage() {
             conditions={conditions}
             mode="create"
             priceCalculatorSettings={priceCalculatorSettings}
+            sizes={sizes}
           />
         )}
       </section>

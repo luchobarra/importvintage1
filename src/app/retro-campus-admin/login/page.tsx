@@ -27,9 +27,8 @@ export default async function AdminLoginPage({
 
   return (
     <main className="auth-page">
-      <section className="auth-panel ui-panel ui-panel--narrow">
+      <section className="auth-panel" aria-labelledby="admin-login-title">
         <div className="auth-panel__header">
-          <p className="auth-panel__eyebrow">Panel privado</p>
           <Link
             aria-label="Ir al inicio de Retro Campus"
             className="auth-panel__brand"
@@ -41,21 +40,23 @@ export default async function AdminLoginPage({
               sizes="160px"
             />
           </Link>
-          <div className="auth-panel__ornament" aria-hidden="true">
-            <span />
-            <span />
-            <span />
+          <div className="auth-panel__title-block">
+            <p className="auth-panel__eyebrow">Panel privado</p>
+            <h1 id="admin-login-title">Acceso administrador</h1>
+            <p className="auth-panel__copy">
+              Ingresá para gestionar stock, publicaciones y configuración del catálogo.
+            </p>
           </div>
-          <p className="auth-panel__copy">
-            Acceso administrador para gestionar el catálogo.
-          </p>
         </div>
         {hasExpiredSession ? (
           <p className="auth-panel__message" role="status">
-            Sesion vencida por inactividad.
+            Sesión vencida por inactividad. Volvé a ingresar para continuar.
           </p>
         ) : null}
         <LoginFormContainer />
+        <Link className="auth-panel__secondary-link" href="/">
+          Volver al catálogo
+        </Link>
       </section>
     </main>
   );

@@ -3,6 +3,8 @@ import type {
   CatalogBrand,
   CatalogCategory,
   CatalogOptions,
+  CatalogOptionStatus,
+  CatalogOptionUsage,
   CatalogProductCondition,
   CatalogSize,
 } from "@/features/catalog-options/types";
@@ -96,11 +98,25 @@ export async function getAdminCatalogOptions(): Promise<CatalogOptions> {
   throwIfError(sizesResult.error);
   throwIfError(conditionsResult.error);
 
+  const usageMaps = await getAdminCatalogUsageMaps(supabase);
+
   return {
-    brands: (brandsResult.data ?? []) as CatalogBrand[],
-    categories: (categoriesResult.data ?? []) as CatalogCategory[],
-    conditions: (conditionsResult.data ?? []) as CatalogProductCondition[],
-    sizes: (sizesResult.data ?? []) as CatalogSize[],
+    brands: attachUsage(
+      (brandsResult.data ?? []) as CatalogBrand[],
+      usageMaps.brands,
+    ),
+    categories: attachUsage(
+      (categoriesResult.data ?? []) as CatalogCategory[],
+      usageMaps.categories,
+    ),
+    conditions: attachUsage(
+      (conditionsResult.data ?? []) as CatalogProductCondition[],
+      usageMaps.conditions,
+    ),
+    sizes: attachUsage(
+      (sizesResult.data ?? []) as CatalogSize[],
+      usageMaps.sizes,
+    ),
   };
 }
 
@@ -108,4 +124,91 @@ function throwIfError(error: { message: string } | null) {
   if (error) {
     throw new Error(error.message);
   }
+}
+
+type CatalogUsageMaps = {
+  brands: Map<string, CatalogOptionUsage>;
+  categories: Map<string, CatalogOptionUsage>;
+  conditions: Map<string, CatalogOptionUsage>;
+  sizes: Map<string, CatalogOptionUsage>;
+};
+
+type CatalogUsageRow = {
+  brand_id?: string | null;
+  category_id?: string | null;
+  condition_id?: string | null;
+  size_id?: string | null;
+};
+
+async function getAdminCatalogUsageMaps(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+) {
+  const usageMaps: CatalogUsageMaps = {
+    brands: new Map(),
+    categories: new Map(),
+    conditions: new Map(),
+    sizes: new Map(),
+  };
+
+  const [productsResult, inventoryResult] = await Promise.all([
+    supabase
+      .from("products")
+      .select("brand_id, category_id, condition_id, size_id"),
+    supabase
+      .from("inventory_items")
+      .select("brand_id, category_id, condition_id, size_id"),
+  ]);
+
+  throwIfError(productsResult.error);
+  throwIfError(inventoryResult.error);
+
+  for (const row of (productsResult.data ?? []) as CatalogUsageRow[]) {
+    incrementUsage(usageMaps.brands, row.brand_id, "products");
+    incrementUsage(usageMaps.categories, row.category_id, "products");
+    incrementUsage(usageMaps.conditions, row.condition_id, "products");
+    incrementUsage(usageMaps.sizes, row.size_id, "products");
+  }
+
+  for (const row of (inventoryResult.data ?? []) as CatalogUsageRow[]) {
+    incrementUsage(usageMaps.brands, row.brand_id, "inventoryItems");
+    incrementUsage(usageMaps.categories, row.category_id, "inventoryItems");
+    incrementUsage(usageMaps.conditions, row.condition_id, "inventoryItems");
+    incrementUsage(usageMaps.sizes, row.size_id, "inventoryItems");
+  }
+
+  return usageMaps;
+}
+
+function attachUsage<T extends CatalogOptionStatus & { id: string }>(
+  options: T[],
+  usageMap: Map<string, CatalogOptionUsage>,
+) {
+  return options.map((option) => ({
+    ...option,
+    usage: usageMap.get(option.id) ?? getEmptyUsage(),
+  }));
+}
+
+function incrementUsage(
+  usageMap: Map<string, CatalogOptionUsage>,
+  optionId: string | null | undefined,
+  usageKey: keyof CatalogOptionUsage,
+) {
+  if (!optionId) {
+    return;
+  }
+
+  const currentUsage = usageMap.get(optionId) ?? getEmptyUsage();
+
+  usageMap.set(optionId, {
+    ...currentUsage,
+    [usageKey]: currentUsage[usageKey] + 1,
+  });
+}
+
+function getEmptyUsage(): CatalogOptionUsage {
+  return {
+    inventoryItems: 0,
+    products: 0,
+  };
 }

@@ -55,6 +55,11 @@ export async function createInventoryItemDraft(
     supabase,
     parsed.values.category_id,
   );
+  const sizeValidation = await validateInventorySize(
+    supabase,
+    parsed.values.category_id,
+    parsed.values.size_id,
+  );
   const conditionValidation = await validateInventoryCondition(
     supabase,
     parsed.values.condition_id,
@@ -66,6 +71,10 @@ export async function createInventoryItemDraft(
 
   if (!categoryValidation.success) {
     return categoryValidation;
+  }
+
+  if (!sizeValidation.success) {
+    return sizeValidation;
   }
 
   if (!conditionValidation.success) {
@@ -128,6 +137,11 @@ export async function updateInventoryItem(
     supabase,
     parsed.values.category_id,
   );
+  const sizeValidation = await validateInventorySize(
+    supabase,
+    parsed.values.category_id,
+    parsed.values.size_id,
+  );
   const conditionValidation = await validateInventoryCondition(
     supabase,
     parsed.values.condition_id,
@@ -139,6 +153,10 @@ export async function updateInventoryItem(
 
   if (!categoryValidation.success) {
     return categoryValidation;
+  }
+
+  if (!sizeValidation.success) {
+    return sizeValidation;
   }
 
   if (!conditionValidation.success) {
@@ -322,6 +340,26 @@ export async function markInventoryItemAsSold(
     "No tenés permisos para marcar ventas.",
   );
 
+  return persistInventoryItemSale(supabase, inventoryItemId, formData, "create");
+}
+
+export async function updateInventoryItemSale(
+  inventoryItemId: string,
+  formData: FormData,
+): Promise<InventoryFormState> {
+  const supabase = await createAuthorizedSupabaseClient(
+    "No tenés permisos para editar ventas.",
+  );
+
+  return persistInventoryItemSale(supabase, inventoryItemId, formData, "edit");
+}
+
+async function persistInventoryItemSale(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  inventoryItemId: string,
+  formData: FormData,
+  mode: "create" | "edit",
+): Promise<InventoryFormState> {
   const soldAt = String(formData.get("sold_at") ?? "").trim();
   const salePriceValue = normalizeMoneyInput(formData.get("sale_price"));
   const saleChannelId = String(formData.get("sale_channel_id") ?? "").trim();
@@ -370,6 +408,28 @@ export async function markInventoryItemAsSold(
     };
   }
 
+  if (mode === "edit") {
+    const { data: item, error: itemError } = await supabase
+      .from("inventory_items")
+      .select("id, status")
+      .eq("id", inventoryItemId)
+      .single();
+
+    if (itemError || !item) {
+      return {
+        message: "No se pudo encontrar el producto de stock.",
+        success: false,
+      };
+    }
+
+    if (item.status !== "sold") {
+      return {
+        message: "Solo se pueden editar datos de venta en productos vendidos.",
+        success: false,
+      };
+    }
+  }
+
   const { error } = await supabase
     .from("inventory_items")
     .update({
@@ -388,7 +448,10 @@ export async function markInventoryItemAsSold(
 
   if (error) {
     return {
-      message: `No se pudo marcar como vendido: ${error.message}`,
+      message:
+        mode === "edit"
+          ? `No se pudo actualizar la venta: ${error.message}`
+          : `No se pudo marcar como vendido: ${error.message}`,
       success: false,
     };
   }
@@ -397,7 +460,7 @@ export async function markInventoryItemAsSold(
     eventType: "sold",
     inventoryItemId,
     notes: saleNotes || null,
-    title: "Venta registrada",
+    title: mode === "edit" ? "Venta actualizada" : "Venta registrada",
   });
 
   await supabase
@@ -409,7 +472,10 @@ export async function markInventoryItemAsSold(
   revalidatePath("/");
 
   return {
-    message: "Producto marcado como vendido correctamente.",
+    message:
+      mode === "edit"
+        ? "Datos de venta actualizados correctamente."
+        : "Producto marcado como vendido correctamente.",
     success: true,
   };
 }
@@ -639,7 +705,7 @@ function parseInventoryPayload(formData: FormData):
   | {
       success: true;
       values: {
-        brand_id: string | null;
+        brand_id: string;
         category_id: string;
         condition_id: string;
         condition_notes: string;
@@ -649,6 +715,7 @@ function parseInventoryPayload(formData: FormData):
         internal_notes: string | null;
         purchase_date: string;
         purchase_price: number;
+        size_id: string | null;
         title: string;
         width_cm: number | null;
       };
@@ -657,6 +724,7 @@ function parseInventoryPayload(formData: FormData):
   const title = String(formData.get("title") ?? "").trim();
   const brandId = String(formData.get("brand_id") ?? "").trim();
   const categoryId = String(formData.get("category_id") ?? "").trim();
+  const sizeId = String(formData.get("size_id") ?? "").trim();
   const conditionId = String(formData.get("condition_id") ?? "").trim();
   const purchaseDate = String(formData.get("purchase_date") ?? "").trim();
   const purchasePriceValue = normalizeMoneyInput(formData.get("purchase_price"));
@@ -680,6 +748,7 @@ function parseInventoryPayload(formData: FormData):
 
   if (
     !title ||
+    !brandId ||
     !categoryId ||
     !conditionId ||
     !purchaseDate ||
@@ -739,7 +808,7 @@ function parseInventoryPayload(formData: FormData):
   return {
     success: true,
     values: {
-      brand_id: brandId || null,
+      brand_id: brandId,
       category_id: categoryId,
       condition_id: conditionId,
       condition_notes: "",
@@ -749,6 +818,7 @@ function parseInventoryPayload(formData: FormData):
       internal_notes: internalNotes || null,
       purchase_date: purchaseDate,
       purchase_price: purchasePrice,
+      size_id: sizeId || null,
       title,
       width_cm: widthCm,
     },
@@ -757,10 +827,13 @@ function parseInventoryPayload(formData: FormData):
 
 async function validateInventoryBrand(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  brandId: string | null,
+  brandId: string,
 ): Promise<{ success: true } | InventoryActionError> {
   if (!brandId) {
-    return { success: true };
+    return {
+      message: "Selecciona una marca válida.",
+      success: false,
+    };
   }
 
   const { data, error } = await supabase
@@ -823,6 +896,59 @@ async function validateInventoryCategory(
   if (error || !data) {
     return {
       message: "Selecciona una categoría activa.",
+      success: false,
+    };
+  }
+
+  return { success: true };
+}
+
+async function validateInventorySize(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  categoryId: string,
+  sizeId: string | null,
+): Promise<{ success: true } | InventoryActionError> {
+  if (!sizeId) {
+    return { success: true };
+  }
+
+  const [categoryResult, sizeResult] = await Promise.all([
+    supabase
+      .from("catalog_categories")
+      .select("id, sizes_letter_enabled, sizes_numeric_enabled")
+      .eq("id", categoryId)
+      .eq("is_active", true)
+      .single(),
+    supabase
+      .from("catalog_sizes")
+      .select("id, size_group")
+      .eq("id", sizeId)
+      .eq("is_active", true)
+      .single(),
+  ]);
+
+  if (categoryResult.error || !categoryResult.data) {
+    return {
+      message: "Selecciona una categoría activa.",
+      success: false,
+    };
+  }
+
+  if (sizeResult.error || !sizeResult.data) {
+    return {
+      message: "Selecciona un talle activo.",
+      success: false,
+    };
+  }
+
+  const sizeGroup = sizeResult.data.size_group;
+  const categoryAllowsSize =
+    (sizeGroup === "letter" && categoryResult.data.sizes_letter_enabled) ||
+    (sizeGroup === "numeric" && categoryResult.data.sizes_numeric_enabled);
+
+  if (!categoryAllowsSize) {
+    return {
+      message: "El talle seleccionado no corresponde a esa categoría.",
       success: false,
     };
   }

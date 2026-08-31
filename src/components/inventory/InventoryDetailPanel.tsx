@@ -1,5 +1,7 @@
 import { InventoryItemActionsContainer } from "@/containers/inventory/InventoryItemActionsContainer";
+import { InventorySaleEditContainer } from "@/containers/inventory/InventorySaleEditContainer";
 import {
+  formatInventoryAgeDays,
   formatInventoryCurrency,
   formatInventoryDate,
   formatInventoryDateTime,
@@ -36,6 +38,8 @@ export function InventoryDetailPanel({
       ? (estimatedProfit / salePrice) * 100
       : null;
   const movements = item.inventory_item_movements ?? [];
+  const ageLabel = formatInventoryAgeDays(item.purchase_date, item.sold_at);
+  const saleStatusLabel = isSold ? "Venta cerrada" : isReserved ? "Reservado" : "Listo para operar";
 
   return (
     <section className="inventory-detail">
@@ -75,6 +79,12 @@ export function InventoryDetailPanel({
           <div>
             <p className="inventory-detail__id">ID {item.visible_id}</p>
             <h2>{item.title}</h2>
+            <p className="inventory-detail__subline">
+              {item.catalog_categories?.name ?? "Sin categoría"} ·{" "}
+              {item.catalog_sizes?.label ?? "Sin talle"} ·{" "}
+              {item.catalog_brands?.name ?? "Sin marca"} ·{" "}
+              {item.catalog_product_conditions?.name ?? "Sin estado"}
+            </p>
           </div>
           <div className="inventory-item__heading">
             <span
@@ -92,7 +102,7 @@ export function InventoryDetailPanel({
           </div>
         </div>
 
-        <div className="inventory-detail__metrics">
+        <section className="inventory-detail__summary" aria-label="Resumen financiero">
           <Metric
             label="Costo"
             value={formatInventoryCurrency(item.purchase_price)}
@@ -109,101 +119,163 @@ export function InventoryDetailPanel({
             label="Margen"
             value={formatInventoryPercent(estimatedMargin)}
           />
-        </div>
+          <Metric
+            label="En stock"
+            value={ageLabel}
+          />
+        </section>
 
-        <div className="inventory-detail__blocks">
-          <DetailBlock title="Compra">
-            <DetailItem
-              label="Fecha"
+        <section className="inventory-detail__status-panel">
+          <div className="inventory-detail__section-head">
+            <div>
+              <h3>Estado operativo</h3>
+              <p>Situación actual del ingreso para operar sin revisar toda la ficha.</p>
+            </div>
+            <span>{saleStatusLabel}</span>
+          </div>
+
+          <div className="inventory-detail__status-grid">
+            <StatusFact
+              label="Disponibilidad"
+              value={getInventoryStatusLabel(item.status)}
+            />
+            <StatusFact
+              label="Publicación"
+              value={catalogProduct ? "Publicado" : "Sin publicar"}
+            />
+            <StatusFact
+              label="Fecha de compra"
               value={formatInventoryDate(item.purchase_date)}
             />
-            <DetailItem
-              label="Costo"
-              value={formatInventoryCurrency(item.purchase_price)}
+            <StatusFact
+              label="Última actualización"
+              value={formatInventoryDateTime(item.updated_at)}
             />
-            <DetailItem
-              label="Categoría"
-              value={item.catalog_categories?.name ?? "-"}
-            />
-            <DetailItem
-              label="Marca"
-              value={item.catalog_brands?.name ?? "-"}
-            />
-            <DetailItem
-              label="Estado"
-              value={item.catalog_product_conditions?.name ?? "-"}
-            />
-          </DetailBlock>
-
-          <DetailBlock title="Catálogo">
-            <DetailItem
-              label="Publicación"
-              value={catalogProduct ? catalogProduct.title : "Sin publicar"}
-            />
-            <DetailItem
-              label="Estado"
-              value={catalogProduct ? catalogProduct.status : "-"}
-            />
-            <DetailItem
-              label="ID stock"
-              value={item.visible_id}
-            />
-          </DetailBlock>
+          </div>
 
           {isReserved || hasReservationData(item) ? (
-            <DetailBlock title="Reserva">
-              <DetailItem
-                label="Fecha"
-                value={formatInventoryDate(item.reserved_at)}
-              />
-              <DetailItem
-                label="Canal"
-                value={item.reservation_channels?.name ?? "Sin canal"}
-              />
-              <DetailItem
-                label="Contacto"
-                value={item.reservation_customer || "-"}
-              />
-              <DetailItem
-                label="Vence"
-                value={formatInventoryDate(item.reservation_expires_at)}
-              />
-              <DetailItem
-                label="Notas"
-                value={item.reservation_notes || "-"}
-              />
-            </DetailBlock>
+            <div className="inventory-detail__event-card">
+              <h4>Reserva</h4>
+              <dl>
+                <DetailItem
+                  label="Fecha"
+                  value={formatInventoryDate(item.reserved_at)}
+                />
+                <DetailItem
+                  label="Canal"
+                  value={item.reservation_channels?.name ?? "Sin canal"}
+                />
+                <DetailItem
+                  label="Contacto"
+                  value={item.reservation_customer || "-"}
+                />
+                <DetailItem
+                  label="Vence"
+                  value={formatInventoryDate(item.reservation_expires_at)}
+                />
+              </dl>
+              {item.reservation_notes ? <p>{item.reservation_notes}</p> : null}
+            </div>
           ) : null}
 
           {isSold ? (
-            <DetailBlock title="Venta">
-              <DetailItem
-                label="Fecha"
-                value={formatInventoryDate(item.sold_at)}
-              />
-              <DetailItem
-                label="Canal"
-                value={item.sales_channels?.name ?? "Sin canal"}
-              />
-              <DetailItem
-                label="Precio"
-                value={formatInventoryCurrency(item.sale_price)}
-              />
-              <DetailItem
-                label="Notas"
-                value={item.sale_notes || "-"}
-              />
-            </DetailBlock>
+            <div className="inventory-detail__event-card inventory-detail__event-card--sold">
+              <div className="inventory-detail__event-card-head">
+                <h4>Venta cerrada</h4>
+                <InventorySaleEditContainer
+                  inventoryItemId={item.id}
+                  saleAt={item.sold_at}
+                  saleChannelId={item.sale_channel_id}
+                  saleNotes={item.sale_notes}
+                  salePrice={item.sale_price}
+                  salesChannels={salesChannels}
+                />
+              </div>
+              <dl>
+                <DetailItem
+                  label="Fecha"
+                  value={formatInventoryDate(item.sold_at)}
+                />
+                <DetailItem
+                  label="Canal"
+                  value={item.sales_channels?.name ?? "Sin canal"}
+                />
+                <DetailItem
+                  label="Precio"
+                  value={formatInventoryCurrency(item.sale_price)}
+                />
+              </dl>
+              {item.sale_notes ? <p>{item.sale_notes}</p> : null}
+            </div>
           ) : null}
-        </div>
+        </section>
 
-        <div className="inventory-detail__text-grid">
+        <div className="inventory-detail__notes-grid">
           <TextBlock
             label="Descripción"
             value={item.internal_description || "Sin descripción."}
           />
-          <TextBlock label="Notas" value={item.internal_notes || "Sin notas."} />
+          <TextBlock
+            label="Notas"
+            value={item.internal_notes || "Sin notas."}
+          />
         </div>
+
+        <section className="inventory-detail__extended" aria-label="Información extendida">
+          <div className="inventory-detail__section-head">
+            <div>
+              <h3>Información extendida</h3>
+              <p>Datos administrativos y de trazabilidad del ingreso.</p>
+            </div>
+          </div>
+
+          <div className="inventory-detail__blocks">
+            <DetailBlock title="Producto">
+              <DetailItem
+                label="Categoría"
+                value={item.catalog_categories?.name ?? "-"}
+              />
+              <DetailItem
+                label="Talle"
+                value={item.catalog_sizes?.label ?? "-"}
+              />
+              <DetailItem
+                label="Marca"
+                value={item.catalog_brands?.name ?? "-"}
+              />
+              <DetailItem
+                label="Estado"
+                value={item.catalog_product_conditions?.name ?? "-"}
+              />
+              <DetailItem
+                label="ID stock"
+                value={item.visible_id}
+              />
+            </DetailBlock>
+
+            <DetailBlock title="Compra">
+              <DetailItem
+                label="Fecha"
+                value={formatInventoryDate(item.purchase_date)}
+              />
+              <DetailItem
+                label="Costo"
+                value={formatInventoryCurrency(item.purchase_price)}
+              />
+            </DetailBlock>
+
+            <DetailBlock title="Catálogo">
+              <DetailItem
+                label="Publicación"
+                value={catalogProduct ? catalogProduct.title : "Sin publicar"}
+              />
+              <DetailItem
+                label="Estado"
+                value={catalogProduct ? catalogProduct.status : "-"}
+              />
+            </DetailBlock>
+          </div>
+        </section>
 
         <MovementHistory movements={movements} />
 
@@ -222,6 +294,15 @@ export function InventoryDetailPanel({
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <article>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </article>
+  );
+}
+
+function StatusFact({ label, value }: { label: string; value: string }) {
   return (
     <article>
       <span>{label}</span>

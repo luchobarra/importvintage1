@@ -34,11 +34,18 @@ export function ConfirmDialog({
 
   return (
     <div className="confirm-dialog" role="presentation">
+      <button
+        aria-label="Cerrar confirmación"
+        className="confirm-dialog__backdrop"
+        disabled={isPending}
+        onClick={onCancel}
+        type="button"
+      />
       <div
         aria-describedby={descriptionId}
         aria-labelledby={titleId}
         aria-modal="true"
-        className="confirm-dialog__panel"
+        className={`confirm-dialog__panel confirm-dialog__panel--${variant}`}
         role="dialog"
       >
         <div className="confirm-dialog__content">
@@ -52,7 +59,9 @@ export function ConfirmDialog({
 
         <div className="confirm-dialog__actions">
           <button
-            className="button button--secondary"
+            className={`button button--secondary${
+              variant === "danger" ? " confirm-dialog__safe-action" : ""
+            }`}
             disabled={isPending}
             onClick={onCancel}
             type="button"

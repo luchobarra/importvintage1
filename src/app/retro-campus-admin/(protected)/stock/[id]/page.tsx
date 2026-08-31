@@ -8,6 +8,7 @@ import type {
   CatalogBrand,
   CatalogCategory,
   CatalogProductCondition,
+  CatalogSize,
 } from "@/features/catalog-options/types";
 import {
   getActiveSalesChannels,
@@ -17,6 +18,7 @@ import type { InventoryItem, SalesChannel } from "@/features/inventory/types";
 import { getAdminPriceCalculatorSettings } from "@/features/price-calculator/queries";
 import type { PriceCalculatorSettings } from "@/features/price-calculator/types";
 import type { Metadata } from "next";
+import { ChevronDown, Pencil } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -40,6 +42,7 @@ export default async function EditInventoryItemPage({
   let brands: CatalogBrand[] = [];
   let categories: CatalogCategory[] = [];
   let conditions: CatalogProductCondition[] = [];
+  let sizes: CatalogSize[] = [];
   let item: InventoryItem | null = null;
   let priceCalculatorSettings: PriceCalculatorSettings | null = null;
   let salesChannels: SalesChannel[] = [];
@@ -56,6 +59,7 @@ export default async function EditInventoryItemPage({
     brands = catalogOptions.brands;
     categories = catalogOptions.categories;
     conditions = catalogOptions.conditions;
+    sizes = catalogOptions.sizes;
     priceCalculatorSettings = settings;
     salesChannels = channels;
   } catch (error) {
@@ -74,7 +78,7 @@ export default async function EditInventoryItemPage({
           </Link>
         }
         description="Edita la información del producto. Las fotos se conservan para mantener trazabilidad."
-        eyebrow="Stock"
+        eyebrow="Principal / Stock"
         className="admin-header--inventory"
         title="Editar ingreso"
       />
@@ -83,24 +87,26 @@ export default async function EditInventoryItemPage({
         <>
           <InventoryDetailPanel item={item} salesChannels={salesChannels} />
 
-          <div className="inventory-edit-heading">
-            <h2>Editar datos</h2>
-            <p>
-              Actualiza la información interna del ingreso sin perder su
-              historial.
-            </p>
-          </div>
-
-          <section className="admin-form-panel">
-            <InventoryFormContainer
-              brands={brands}
-              categories={categories}
-              conditions={conditions}
-              item={item}
-              mode="edit"
-              priceCalculatorSettings={priceCalculatorSettings}
-            />
-          </section>
+          <details className="inventory-edit-drawer">
+            <summary className="inventory-edit-drawer__summary">
+              <span>
+                <Pencil aria-hidden="true" size={16} />
+                Editar información
+              </span>
+              <ChevronDown aria-hidden="true" size={18} />
+            </summary>
+            <section className="admin-form-panel inventory-edit-drawer__panel">
+              <InventoryFormContainer
+                brands={brands}
+                categories={categories}
+                conditions={conditions}
+                item={item}
+                mode="edit"
+                priceCalculatorSettings={priceCalculatorSettings}
+                sizes={sizes}
+              />
+            </section>
+          </details>
         </>
       ) : (
         <EmptyProductList

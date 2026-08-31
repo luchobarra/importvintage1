@@ -36,7 +36,7 @@ export default async function EditProductPage({
   return (
     <AdminShell>
       <AdminHeader
-        eyebrow="Productos"
+        eyebrow="Principal / Productos"
         title="Editar producto"
         description="Modifica los datos básicos de la prenda. Las imágenes se editarán más adelante."
         actions={

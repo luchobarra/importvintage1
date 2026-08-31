@@ -17,7 +17,7 @@ import type {
   InventorySearchParams,
 } from "@/features/inventory/types";
 import type { Metadata } from "next";
-import { BarChart3, Plus, Settings } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -59,10 +59,6 @@ export default async function StockPage({ searchParams }: StockPageProps) {
               <Settings aria-hidden="true" size={16} />
               Canales
             </Link>
-            <Link className="button button--secondary" href="/retro-campus-admin">
-              <BarChart3 aria-hidden="true" size={16} />
-              Panel
-            </Link>
             <Link className="button button--primary" href="/retro-campus-admin/stock/nuevo">
               <Plus aria-hidden="true" size={16} />
               Nuevo ingreso
@@ -70,7 +66,7 @@ export default async function StockPage({ searchParams }: StockPageProps) {
           </div>
         }
         description="Control de prendas compradas, disponibles, vendidas y publicadas en catálogo."
-        eyebrow="Inventario"
+        eyebrow="Principal / Stock"
         className="admin-header--inventory"
         title="Stock"
       />
@@ -94,7 +90,7 @@ export default async function StockPage({ searchParams }: StockPageProps) {
             />
           ) : null}
           {items.length > 0 ? (
-            <InventoryList items={items} />
+            <InventoryList items={items} statusFilter={filters.status} />
           ) : (
             <EmptyProductList
               message="Carga un nuevo ingreso o ajusta los filtros para ver otros productos."

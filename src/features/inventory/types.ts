@@ -71,6 +71,7 @@ export type InventoryItem = {
   title: string;
   brand_id: string | null;
   category_id: string | null;
+  size_id: string | null;
   condition_id: string | null;
   purchase_date: string;
   purchase_price: number;
@@ -94,6 +95,7 @@ export type InventoryItem = {
   updated_at: string;
   catalog_brands?: CatalogBrand | null;
   catalog_categories?: CatalogCategory | null;
+  catalog_sizes?: { id: string; label: string; value: string } | null;
   catalog_product_conditions?: CatalogProductCondition | null;
   reservation_channels?: SalesChannel | null;
   sales_channels?: SalesChannel | null;

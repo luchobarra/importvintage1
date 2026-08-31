@@ -9,6 +9,8 @@ describe("inventory validation", () => {
     const formData = new FormData();
     formData.set("title", "Campera Nike azul");
     formData.set("category_id", "category-id");
+    formData.set("brand_id", "brand-id");
+    formData.set("size_id", "size-id");
     formData.set("condition_id", "condition-id");
     formData.set("purchase_date", "2026-08-03");
     formData.set("purchase_price", "$20.000");
@@ -19,6 +21,37 @@ describe("inventory validation", () => {
 
     expect(result.firstInvalidField).toBeNull();
     expect(result.errors).toEqual({});
+  });
+
+  it("accepts stock intake without optional size and measurements", () => {
+    const formData = new FormData();
+    formData.set("title", "Campera Nike azul");
+    formData.set("category_id", "category-id");
+    formData.set("brand_id", "brand-id");
+    formData.set("condition_id", "condition-id");
+    formData.set("purchase_date", "2026-08-03");
+    formData.set("purchase_price", "$20.000");
+    formData.set("internal_description", "Ingreso de feria.");
+
+    const result = validateInventoryFormFields(formData);
+
+    expect(result.firstInvalidField).toBeNull();
+    expect(result.errors).toEqual({});
+  });
+
+  it("requires brand on stock intake", () => {
+    const formData = new FormData();
+    formData.set("title", "Campera Nike azul");
+    formData.set("category_id", "category-id");
+    formData.set("condition_id", "condition-id");
+    formData.set("purchase_date", "2026-08-03");
+    formData.set("purchase_price", "$20.000");
+    formData.set("internal_description", "Ingreso de feria.");
+
+    const result = validateInventoryFormFields(formData);
+
+    expect(result.firstInvalidField).toBe("brand_id");
+    expect(result.errors.brand_id).toBeTruthy();
   });
 
   it("requires sale date, price and channel when selling", () => {

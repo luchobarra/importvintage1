@@ -55,6 +55,10 @@ export function InventoryListItem({ item }: InventoryListItemProps) {
             <dd>{item.catalog_categories?.name ?? "-"}</dd>
           </div>
           <div>
+            <dt>Talle</dt>
+            <dd>{item.catalog_sizes?.label ?? "-"}</dd>
+          </div>
+          <div>
             <dt>Marca</dt>
             <dd>{item.catalog_brands?.name ?? "-"}</dd>
           </div>
